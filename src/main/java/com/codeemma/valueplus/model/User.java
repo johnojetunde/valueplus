@@ -1,0 +1,92 @@
+package com.codeemma.valueplus.model;
+
+import com.codeemma.valueplus.dto.UserCreate;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Entity
+@Table(name = "users")
+public class User extends BasePersistentEntity implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true)
+    private String username;
+    @Column(nullable = false)
+    private String firstname;
+    @Column(nullable = false)
+    private String lastname;
+    @Column(nullable = false)
+    private String password;
+    @Column(nullable = false, unique = true)
+    private String email;
+    @Column(nullable = false)
+    private String phoneNumber;
+    @Column(nullable = false)
+    private String address;
+    @Setter
+    private String agentCode;
+
+    @OneToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
+    private boolean enabled = true;
+    private boolean deleted = false;
+
+    public static UserBuilder from(UserCreate userCreate) {
+        return builder().email(userCreate.getEmail())
+                .username(userCreate.getUsername())
+                .firstname(userCreate.getFirstname())
+                .lastname(userCreate.getLastname())
+                .phoneNumber(userCreate.getPhone())
+                .address(userCreate.getAddress());
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        Role role = getRole();
+        if (role != null) {
+            String roleName = "ROLE_" + role.getName();
+            authorities.add(new SimpleGrantedAuthority(roleName));
+        }
+        return authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+}

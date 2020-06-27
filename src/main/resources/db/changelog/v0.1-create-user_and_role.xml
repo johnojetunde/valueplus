@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0.1-create-user" author="codeemma">
+        <createTable tableName="users">
+            <column name="id" type="BIGSERIAL" autoIncrement="true" >
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users" />
+            </column>
+            <column name="firstname" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastname" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="agent_code" type="VARCHAR(100)"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <createIndex tableName="users" indexName="user_username_unique_idx" unique="true" >
+            <column name="username"></column>
+        </createIndex>
+        <createIndex tableName="users" indexName="user_email_unique_idx" unique="true" >
+            <column name="email"></column>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="v0.1-create-role" author="codeemma">
+        <createTable tableName="role">
+            <column name="id" type="BIGSERIAL" autoIncrement="true" >
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_role" />
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
