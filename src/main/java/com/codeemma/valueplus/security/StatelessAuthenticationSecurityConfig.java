@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -10,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
@@ -25,6 +25,7 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
     @Autowired
     private CustomUserService userService;
     @Autowired
+    @Qualifier("passwordEncoder")
     private PasswordEncoder passwordEncoder;
 
     public StatelessAuthenticationSecurityConfig() {
@@ -42,8 +43,7 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
                 .antMatchers("/v1/**").authenticated()
                 .antMatchers("/v1/users/*").authenticated()
                 .and()
-                .addFilterBefore(new JwtLoginFilter("/login", authenticationManager(),
-                                tokenAuthenticationService, userService),
+                .addFilterBefore(new JwtLoginFilter("/login", authenticationManager(), tokenAuthenticationService, userService),
                         UsernamePasswordAuthenticationFilter.class)
                 // add custom authentication filter for complete stateless JWT based authentication
                 .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);

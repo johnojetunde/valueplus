@@ -15,7 +15,7 @@ public class AppConfig {
         return builder.build();
     }
 
-    @Bean
+    @Bean(name = "passwordEncoder")
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
