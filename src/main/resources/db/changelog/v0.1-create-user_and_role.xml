@@ -20,13 +20,10 @@
             <column name="email" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="username" type="VARCHAR(100)">
-                <constraints nullable="false"/>
-            </column>
             <column name="password" type="VARCHAR(60)">
                 <constraints nullable="false"/>
             </column>
-            <column name="phone_number" type="VARCHAR(20)">
+            <column name="phone" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
             <column name="address" type="VARCHAR(255)">
@@ -45,9 +42,6 @@
             <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
             <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
         </createTable>
-        <createIndex tableName="users" indexName="user_username_unique_idx" unique="true" >
-            <column name="username"></column>
-        </createIndex>
         <createIndex tableName="users" indexName="user_email_unique_idx" unique="true" >
             <column name="email"></column>
         </createIndex>

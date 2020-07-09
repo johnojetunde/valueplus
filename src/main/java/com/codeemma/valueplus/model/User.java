@@ -22,8 +22,6 @@ public class User extends BasePersistentEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
-    private String username;
     @Column(nullable = false)
     private String firstname;
     @Column(nullable = false)
@@ -33,7 +31,7 @@ public class User extends BasePersistentEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)
-    private String phoneNumber;
+    private String phone;
     @Column(nullable = false)
     private String address;
     @Setter
@@ -42,15 +40,15 @@ public class User extends BasePersistentEntity implements UserDetails {
     @OneToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
     private boolean enabled = true;
     private boolean deleted = false;
 
     public static UserBuilder from(UserCreate userCreate) {
         return builder().email(userCreate.getEmail())
-                .username(userCreate.getUsername())
                 .firstname(userCreate.getFirstname())
                 .lastname(userCreate.getLastname())
-                .phoneNumber(userCreate.getPhone())
+                .phone(userCreate.getPhone())
                 .address(userCreate.getAddress());
     }
 
@@ -67,7 +65,7 @@ public class User extends BasePersistentEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
@@ -88,5 +86,20 @@ public class User extends BasePersistentEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    public UserBuilder toBuilder() {
+        return builder()
+                .id(id)
+                .firstname(firstname)
+                .lastname(lastname)
+                .email(email)
+                .password(password)
+                .phone(phone)
+                .address(address)
+                .agentCode(agentCode)
+                .enabled(enabled)
+                .deleted(deleted)
+                .role(role);
     }
 }

@@ -25,8 +25,6 @@ public class UserCreate {
     @Email
     private String email;
     @NotEmpty
-    private String username;
-    @NotEmpty
     private String phone;
     @NotEmpty
     private String address;

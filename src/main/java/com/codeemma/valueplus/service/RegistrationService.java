@@ -2,16 +2,14 @@ package com.codeemma.valueplus.service;
 
 import com.codeemma.valueplus.dto.RoleType;
 import com.codeemma.valueplus.dto.UserCreate;
-import com.codeemma.valueplus.dto.data4Me.AgentCode;
 import com.codeemma.valueplus.dto.data4Me.AgentDto;
 import com.codeemma.valueplus.model.Role;
 import com.codeemma.valueplus.model.User;
 import com.codeemma.valueplus.repository.RoleRepository;
 import com.codeemma.valueplus.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class RegistrationService {
@@ -20,7 +18,7 @@ public class RegistrationService {
     private final RoleRepository roleRepository;
     private final Data4meService data4meService;
 
-    public RegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+    public RegistrationService(UserRepository userRepository, @Qualifier("passwordEncoder") PasswordEncoder passwordEncoder,
                                RoleRepository roleRepository, Data4meService data4meService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.security;
 
+import com.codeemma.valueplus.dto.LoginToken;
 import com.codeemma.valueplus.model.User;
 import com.codeemma.valueplus.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,15 +32,15 @@ public class TokenAuthenticationService {
                                   UserAuthentication authentication) throws IOException {
         final User user = authentication.getDetails();
         final String token = jwtUtils.generateToken(user);
-
+//Todo: remove comment
         // Put the token into a cookie because the client can't capture response
         // headers of redirects / full page reloads.
         // (Its reloaded as a result of this response triggering a redirect back to "/")
-        response.addHeader(AUTH_HEADER_NAME, token);
-        response.addCookie(createCookieForToken(token));
-        String userData = new ObjectMapper().writeValueAsString(user);
+//        response.addHeader(AUTH_HEADER_NAME, token);
+//        response.addCookie(createCookieForToken(token));
+        String loginToken = new ObjectMapper().writeValueAsString(new LoginToken(token));
         response.setContentType("application/json");
-        response.getWriter().write(userData);
+        response.getWriter().write(loginToken);
     }
 
     public String createUserToken(User user) {
@@ -52,7 +53,7 @@ public class TokenAuthenticationService {
         final String token = request.getHeader(AUTH_HEADER_NAME);
         if (token != null) {
             String username = jwtUtils.getUsernameFromToken(token);
-            User user = userRepository.findByEmailOrUsernameAndDeletedFalse(username);
+            User user = userRepository.findByEmailAndDeletedFalse(username).orElse(null);
             if(user != null){
                 return new UserAuthentication(user);
             }

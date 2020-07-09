@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.http;
 
+import com.codeemma.valueplus.dto.LoginToken;
 import com.codeemma.valueplus.dto.RoleType;
 import com.codeemma.valueplus.dto.UserCreate;
 import com.codeemma.valueplus.dto.UserDto;
@@ -8,6 +9,7 @@ import com.codeemma.valueplus.security.TokenAuthenticationService;
 import com.codeemma.valueplus.service.RegistrationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +29,18 @@ public class RegistrationController {
     }
 
     @PostMapping
-//    @ResponseStatus(HttpStatus.CREATED)
-    public UserDto register(@Valid @RequestBody UserCreate userCreate) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public LoginToken register(@Valid @RequestBody UserCreate userCreate) {
         User registered = registrationService.saveUser(userCreate, RoleType.AGENT);
         String token = tokenAuthenticationService.createUserToken(registered);
-//        httpHeaders.set(TokenAuthenticationService.AUTH_HEADER_NAME, token);
-        return UserDto.valueOf(registered);
+        return new LoginToken(token);
+    }
+
+    @PostMapping("/admin")
+    @ResponseStatus(HttpStatus.CREATED)
+    public LoginToken registerAdmin(@Valid @RequestBody UserCreate userCreate) {
+        User registered = registrationService.saveUser(userCreate, RoleType.ADMIN);
+        String token = tokenAuthenticationService.createUserToken(registered);
+        return new LoginToken(token);
     }
 }
