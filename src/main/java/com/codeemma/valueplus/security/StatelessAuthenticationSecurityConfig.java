@@ -46,11 +46,11 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
                 .and().anonymous().and().servletApi().and().headers().cacheControl();
 
         http.authorizeRequests()
-                .antMatchers("/v1/register").permitAll()
+                .antMatchers("/v1/register", "/api/login").permitAll()
                 .antMatchers("/v1/**").authenticated()
                 .antMatchers("/v1/users/*").authenticated()
                 .and()
-                .addFilterBefore(new JwtLoginFilter("api/login", authenticationManager(), tokenAuthenticationService, userService),
+                .addFilterBefore(new JwtLoginFilter("/api/login", authenticationManager(), tokenAuthenticationService, userService),
                         UsernamePasswordAuthenticationFilter.class)
                 // add custom authentication filter for complete stateless JWT based authentication
                 .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
