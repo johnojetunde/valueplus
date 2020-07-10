@@ -13,6 +13,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @EnableWebSecurity
 @Configuration
@@ -35,15 +40,17 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.exceptionHandling().and().anonymous()
-                .and().servletApi().and().headers().cacheControl();
+        http.cors()
+                .and().exceptionHandling()
+//                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .and().anonymous().and().servletApi().and().headers().cacheControl();
 
         http.authorizeRequests()
                 .antMatchers("/v1/register").permitAll()
                 .antMatchers("/v1/**").authenticated()
                 .antMatchers("/v1/users/*").authenticated()
                 .and()
-                .addFilterBefore(new JwtLoginFilter("/login", authenticationManager(), tokenAuthenticationService, userService),
+                .addFilterBefore(new JwtLoginFilter("api/login", authenticationManager(), tokenAuthenticationService, userService),
                         UsernamePasswordAuthenticationFilter.class)
                 // add custom authentication filter for complete stateless JWT based authentication
                 .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
@@ -61,5 +68,19 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
         auth.userDetailsService(userService)
                 .passwordEncoder(passwordEncoder);
 
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("PUT", "DELETE", "POST", "GET", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"));
+        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Authorization"));
+        configuration.setMaxAge(3600L);
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
