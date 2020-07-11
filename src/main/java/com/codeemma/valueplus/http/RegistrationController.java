@@ -3,13 +3,11 @@ package com.codeemma.valueplus.http;
 import com.codeemma.valueplus.dto.LoginToken;
 import com.codeemma.valueplus.dto.RoleType;
 import com.codeemma.valueplus.dto.UserCreate;
-import com.codeemma.valueplus.dto.UserDto;
 import com.codeemma.valueplus.model.User;
 import com.codeemma.valueplus.security.TokenAuthenticationService;
 import com.codeemma.valueplus.service.RegistrationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

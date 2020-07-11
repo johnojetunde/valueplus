@@ -5,11 +5,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -30,8 +33,7 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
     @Autowired
     private CustomUserService userService;
     @Autowired
-    @Qualifier("passwordEncoder")
-    private PasswordEncoder passwordEncoder;
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     public StatelessAuthenticationSecurityConfig() {
         super(true);
@@ -42,15 +44,16 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
 
         http.cors()
                 .and().exceptionHandling()
-//                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and().anonymous().and().servletApi().and().headers().cacheControl();
 
         http.authorizeRequests()
-                .antMatchers("/v1/register", "/api/login").permitAll()
+                .antMatchers("/v1/register").permitAll()
+                .antMatchers("/login").permitAll()
                 .antMatchers("/v1/**").authenticated()
                 .antMatchers("/v1/users/*").authenticated()
                 .and()
-                .addFilterBefore(new JwtLoginFilter("/api/login", authenticationManager(), tokenAuthenticationService, userService),
+                .addFilterBefore(new JwtLoginFilter("/login", authenticationManager(), tokenAuthenticationService, userService),
                         UsernamePasswordAuthenticationFilter.class)
                 // add custom authentication filter for complete stateless JWT based authentication
                 .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
@@ -58,16 +61,14 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
     }
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService)
-                .passwordEncoder(passwordEncoder);
-
+                .passwordEncoder(passwordEncoder());
     }
 
     @Bean
@@ -82,5 +83,11 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+
+        return new BCryptPasswordEncoder();
     }
 }

@@ -18,7 +18,7 @@ public class RegistrationService {
     private final RoleRepository roleRepository;
     private final Data4meService data4meService;
 
-    public RegistrationService(UserRepository userRepository, @Qualifier("passwordEncoder") PasswordEncoder passwordEncoder,
+    public RegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                                RoleRepository roleRepository, Data4meService data4meService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -29,10 +29,11 @@ public class RegistrationService {
     public User saveUser(UserCreate userCreate, RoleType roleType) {
         User user = userRepository.save(User.from(userCreate)
                 .role(getRole(roleType))
-                .password(passwordEncoder.encode(userCreate.getPassword())).build());
+                .password(passwordEncoder.encode(userCreate.getPassword()))
+                .enabled(true).build());
 
         data4meService.createAgent(AgentDto.from(userCreate)).ifPresent(v -> user.setAgentCode(v.getCode()));
-        return user;
+        return userRepository.save(user);
     }
 
     private Role getRole(RoleType roleType) {

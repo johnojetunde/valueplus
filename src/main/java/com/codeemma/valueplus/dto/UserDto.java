@@ -12,12 +12,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class UserDto {
+
+    private static final String BASE_LINK = "https://play.google.com/store/apps/details?id=[Application_ID]&referrer=utm_campaign%3D";
     private String firstname;
     private String lastname;
     private String email;
     private String username;
     private String phone;
     private String agentCode;
+    private String link;
 
     public static UserDto valueOf(User user) {
         return builder()
@@ -27,6 +30,7 @@ public class UserDto {
                 .lastname(user.getLastname())
                 .phone(user.getPhone())
                 .agentCode(user.getAgentCode())
+                .link(BASE_LINK.concat(user.getAgentCode()))
                 .build();
     }
 }
