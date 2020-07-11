@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,12 @@ public class CentralizedExceptionHandler extends ResponseEntityExceptionHandler 
     @ExceptionHandler({NotFoundException.class})
     public ResponseEntity<Object> handleNotFoundException(Exception ex){
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), ex.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler({DataIntegrityViolationException.class})
+    public ResponseEntity<Object> handleNotDataIntegrityViolationException(DataIntegrityViolationException ex){
+        ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex.getMessage(), ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 

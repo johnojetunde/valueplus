@@ -17,7 +17,6 @@ public class UserDto {
     private String firstname;
     private String lastname;
     private String email;
-    private String username;
     private String phone;
     private String agentCode;
     private String link;
@@ -25,7 +24,6 @@ public class UserDto {
     public static UserDto valueOf(User user) {
         return builder()
                 .email(user.getEmail())
-                .username(user.getUsername())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .phone(user.getPhone())
