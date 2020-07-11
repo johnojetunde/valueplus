@@ -1,11 +1,9 @@
 package com.codeemma.valueplus.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,6 +43,9 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
         http.cors()
                 .and().exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .and().csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().anonymous().and().servletApi().and().headers().cacheControl();
 
         http.authorizeRequests()
@@ -57,7 +58,6 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
                         UsernamePasswordAuthenticationFilter.class)
                 // add custom authentication filter for complete stateless JWT based authentication
                 .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
-
     }
 
     @Bean
@@ -86,8 +86,7 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
-
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

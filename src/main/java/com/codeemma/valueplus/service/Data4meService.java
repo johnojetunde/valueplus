@@ -68,14 +68,15 @@ public class Data4meService {
 
         HttpEntity<AgentDto> request = new HttpEntity<>(agentDto, httpHeaders);
 
-        ResponseEntity<AgentCode> response = restTemplate
-                .exchange(baseUrl.concat("/agent"), HttpMethod.POST, request, AgentCode.class);
+        try {
+            ResponseEntity<AgentCode> response = restTemplate
+                    .exchange(baseUrl.concat("/agent"), HttpMethod.POST, request, AgentCode.class);
+            return Optional.ofNullable(response.getBody());
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
+        } catch (Exception ex) {
+            log.error("data4me create agent error - " + ex.getMessage());
             return Optional.empty();
         }
-
-        return Optional.ofNullable(response.getBody());
     }
 
     private void createPassword(AgentDto agentDto) {
