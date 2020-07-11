@@ -18,6 +18,7 @@ public class UserDto {
     private String lastname;
     private String email;
     private String phone;
+    private String address;
     private String agentCode;
     private String link;
 
@@ -27,6 +28,7 @@ public class UserDto {
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .phone(user.getPhone())
+                .address(user.getAddress())
                 .agentCode(user.getAgentCode())
                 .link(BASE_LINK.concat(user.getAgentCode()))
                 .build();

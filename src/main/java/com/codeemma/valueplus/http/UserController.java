@@ -15,8 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
+@Validated
 @Slf4j
 @RestController
 @RequestMapping(path = "v1/user", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,10 +53,17 @@ public class UserController {
         return UserDto.valueOf(UserUtils.getLoggedInUser());
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PutMapping("/{userId}")
-    public UserDto update(@RequestParam("userId") long userId, @RequestBody UserUpdate userUpdate) {
-        return UserDto.valueOf(userService.update(userUpdate.toUser()));
+    public UserDto update(@RequestParam("userId") long userId, @Valid @RequestBody UserUpdate userUpdate) {
+        return UserDto.valueOf(userService.update(userUpdate.toUser(userId)));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/current")
+    public UserDto update(@Valid @RequestBody UserUpdate userUpdate) {
+        long userId = UserUtils.getLoggedInUser().getId();
+        return UserDto.valueOf(userService.update(userUpdate.toUser(userId)));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -63,8 +74,9 @@ public class UserController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/{userId}/password-change")
-    public UserDto update(@PathVariable("userId") Long userId, @RequestBody PasswordChange passwordChange) {
+    @PostMapping("/current/password-change")
+    public UserDto update(@RequestBody PasswordChange passwordChange) {
+        long userId = UserUtils.getLoggedInUser().getId();
         return UserDto.valueOf(
                 passwordService.changePassword(userId, passwordChange)
         );

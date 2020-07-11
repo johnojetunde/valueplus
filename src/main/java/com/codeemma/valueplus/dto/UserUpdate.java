@@ -6,8 +6,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 
 public class UserUpdate {
-    @Min(1)
-    private Long id;
     @NotEmpty
     private String firstname;
     @NotEmpty
@@ -17,7 +15,7 @@ public class UserUpdate {
     @NotEmpty
     private String address;
 
-    public User toUser() {
+    public User toUser(Long id) {
         return User.builder()
                 .id(id)
                 .firstname(firstname)
