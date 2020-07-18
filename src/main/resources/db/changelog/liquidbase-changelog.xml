@@ -6,5 +6,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-    <include file="/db/changelog/v0.1-create-user_and_role.xml" />
+    <include file="/db/changelog/v0.1_create_user_and_role.xml" />
+    <include file="/db/changelog/v0.2_create_profile_picture.xml" />
 </databaseChangeLog>

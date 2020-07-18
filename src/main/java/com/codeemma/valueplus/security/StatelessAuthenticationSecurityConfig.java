@@ -52,7 +52,7 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
                 .antMatchers("/v1/register").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/v1/**").authenticated()
-                .antMatchers("/v1/users/*").authenticated()
+//                .antMatchers("/v1/users/*").authenticated()
                 .and()
                 .addFilterBefore(new JwtLoginFilter("/login", authenticationManager(), tokenAuthenticationService, userService),
                         UsernamePasswordAuthenticationFilter.class)

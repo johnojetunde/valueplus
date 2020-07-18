@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-    <changeSet id="v0.1-create-user" author="codeemma">
+    <changeSet id="v0.1_create_user" author="codeemma">
         <createTable tableName="users">
             <column name="id" type="BIGSERIAL" autoIncrement="true" >
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users" />
@@ -47,7 +47,7 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="v0.1-create-role" author="codeemma">
+    <changeSet id="v0.1_create_role" author="codeemma">
         <createTable tableName="role">
             <column name="id" type="BIGSERIAL" autoIncrement="true" >
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_role" />
