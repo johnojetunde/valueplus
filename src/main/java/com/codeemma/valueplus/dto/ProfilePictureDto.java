@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Size;
 import java.util.Base64;
 
 @NoArgsConstructor
@@ -14,6 +15,7 @@ import java.util.Base64;
 @Builder
 @Getter
 public class ProfilePictureDto {
+    @Size(max = 1000000) //~ 1MB
     private String photo;
 
     public static ProfilePictureDto valueOf(ProfilePicture profilePicture) {

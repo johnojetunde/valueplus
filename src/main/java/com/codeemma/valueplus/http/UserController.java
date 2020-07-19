@@ -2,10 +2,13 @@ package com.codeemma.valueplus.http;
 
 
 import com.codeemma.valueplus.dto.PasswordChange;
+import com.codeemma.valueplus.dto.ProfilePictureDto;
 import com.codeemma.valueplus.dto.UserDto;
 import com.codeemma.valueplus.dto.UserUpdate;
 import com.codeemma.valueplus.exception.NotFoundException;
+import com.codeemma.valueplus.model.User;
 import com.codeemma.valueplus.service.PasswordService;
+import com.codeemma.valueplus.service.ProfilePictureService;
 import com.codeemma.valueplus.service.UserService;
 import com.codeemma.valueplus.util.UserUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +31,15 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordService passwordService;
+    private final ProfilePictureService profilePictureService;
 
-    public UserController(UserService userService, PasswordService passwordService) {
+    public UserController(UserService userService,
+                          PasswordService passwordService,
+                          ProfilePictureService profilePictureService
+    ) {
         this.userService = userService;
         this.passwordService = passwordService;
+        this.profilePictureService = profilePictureService;
     }
 
     @GetMapping
@@ -48,9 +56,27 @@ public class UserController {
     }
 
     @PreAuthorize("isAuthenticated()")
+    @RequestMapping(method = RequestMethod.GET, path = "/current")
+    public UserDto getCurrentUser() {
+        User user = UserUtils.getLoggedInUser();
+        String photo = profilePictureService.get(user)
+                .map(ProfilePictureDto::valueOf)
+                .map(ProfilePictureDto::getPhoto)
+                .orElse(null);
+        return UserDto.valueOf(user, photo);
+    }
+
+
+    @Deprecated //todo: remove when not in use
+    @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.GET, path = "/current/details")
-    public UserDto getUserByProfile() {
-        return UserDto.valueOf(UserUtils.getLoggedInUser());
+    public UserDto getLoggedInUser() {
+        User user = UserUtils.getLoggedInUser();
+        String photo = profilePictureService.get(user)
+                .map(ProfilePictureDto::valueOf)
+                .map(ProfilePictureDto::getPhoto)
+                .orElse(null);
+        return UserDto.valueOf(user, photo);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -67,9 +93,9 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    @DeleteMapping( path = "/{userId}")
+    @DeleteMapping(path = "/{userId}")
     public ResponseEntity<?> delete(@PathVariable("userId") Long userId) throws Exception {
-         userService.deleteUser(userId);
+        userService.deleteUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -21,6 +21,7 @@ public class UserDto {
     private String address;
     private String agentCode;
     private String link;
+    private String photo;
 
     public static UserDto valueOf(User user) {
         return builder()
@@ -31,6 +32,19 @@ public class UserDto {
                 .address(user.getAddress())
                 .agentCode(user.getAgentCode())
                 .link(BASE_LINK.concat(user.getAgentCode()))
+                .build();
+    }
+
+    public static UserDto valueOf(User user, String photo) {
+        return builder()
+                .email(user.getEmail())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .agentCode(user.getAgentCode())
+                .link(BASE_LINK.concat(user.getAgentCode()))
+                .photo(photo)
                 .build();
     }
 }
