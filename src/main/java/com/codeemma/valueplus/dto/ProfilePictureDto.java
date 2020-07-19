@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.Size;
 import java.util.Base64;
 
+import static java.util.Objects.nonNull;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,20 +22,14 @@ public class ProfilePictureDto {
 
     public static ProfilePictureDto valueOf(ProfilePicture profilePicture) {
         return builder()
-                .photo(Base64.getEncoder().encodeToString(profilePicture.getPhoto()))
+                .photo(new String(profilePicture.getPhoto()))
                 .build();
     }
 
     public ProfilePicture toProfilePicture(User user) {
-        byte[] photoByte = Base64.getDecoder().decode(extractBase64(photo));
         return ProfilePicture.builder()
                 .user(user)
-                .photo(photoByte).build();
-    }
-
-    private String extractBase64(String photo) {
-        String[] split = photo.split(",");
-
-        return split.length > 1 ? split[1] : split[0];
+                .photo(photo.getBytes())
+                .build();
     }
 }

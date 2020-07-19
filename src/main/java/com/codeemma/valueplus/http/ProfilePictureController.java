@@ -6,6 +6,8 @@ import com.codeemma.valueplus.model.User;
 import com.codeemma.valueplus.service.ProfilePictureService;
 import com.codeemma.valueplus.util.ProfilePictureUtils;
 import com.codeemma.valueplus.util.UserUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +21,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping(path = "v1/profile-picture", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
+@Api
 public class ProfilePictureController {
 
     private final ProfilePictureService profilePictureService;
@@ -41,6 +44,7 @@ public class ProfilePictureController {
     }
 
     @GetMapping
+    @ApiOperation(value = "get profile picture", notes = "return a default picture")
     public ProfilePictureDto get() throws IOException {
         User loggedInUser = UserUtils.getLoggedInUser();
         log.info("get() received userId = {}", loggedInUser.getId());

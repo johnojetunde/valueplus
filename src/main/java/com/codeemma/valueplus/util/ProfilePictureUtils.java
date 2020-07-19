@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 public final class ProfilePictureUtils {
 
-    private static final String DEFAULT_PIC_PATH = "default-pic.txt";
+    private static final String DEFAULT_PIC_PATH = "/default-pic.txt";
 
     private ProfilePictureUtils() {
     }
