@@ -23,6 +23,6 @@ public class ProfilePicture {
 
     @Setter
     @Lob
-    @Column(name = "photo", columnDefinition="BLOB")
+    @Column(columnDefinition = "BYTEA")
     private byte[] photo;
 }

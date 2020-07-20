@@ -14,7 +14,7 @@
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false" />
             </column>
-            <column name="photo" type="BLOB">
+            <column name="photo" type="BYTEA">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -24,7 +24,7 @@
                                  referencedColumnNames="id"
                                  referencedTableName="users"/>
         <createIndex tableName="profile_picture" indexName="user_id_idx">
-            <column name="user_id"></column>
+            <column name="user_id"/>
         </createIndex>
     </changeSet>
 
