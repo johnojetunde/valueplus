@@ -49,6 +49,9 @@ class DefaultAccountServiceTest {
 
     @Test
     void createAccount_successful() throws ValuePlusException {
+        when(repository.findByUser_Id(anyLong()))
+                .thenReturn(Optional.empty());
+
         AccountRequest request = new AccountRequest(ACCOUNT_NUMBER, "044");
 
         var result = accountService.create(mockUser, request);
@@ -63,6 +66,8 @@ class DefaultAccountServiceTest {
 
     @Test
     void createAccount_failed() throws ValuePlusException {
+        when(repository.findByUser_Id(anyLong()))
+                .thenReturn(Optional.empty());
         when(repository.save(any(Account.class)))
                 .thenThrow(new HibernateException("Unable to save"));
         AccountRequest request = new AccountRequest("000131313", "044");
