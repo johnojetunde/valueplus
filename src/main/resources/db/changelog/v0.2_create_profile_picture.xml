@@ -14,7 +14,7 @@
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false" />
             </column>
-            <column name="photo" type="BYTEA">
+            <column name="photo" type="${blob}">
                 <constraints nullable="false"/>
             </column>
         </createTable>
