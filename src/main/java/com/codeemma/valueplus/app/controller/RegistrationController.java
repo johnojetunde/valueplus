@@ -4,7 +4,7 @@ import com.codeemma.valueplus.app.security.TokenAuthenticationService;
 import com.codeemma.valueplus.domain.dto.LoginToken;
 import com.codeemma.valueplus.domain.dto.RoleType;
 import com.codeemma.valueplus.domain.dto.UserCreate;
-import com.codeemma.valueplus.domain.service.RegistrationService;
+import com.codeemma.valueplus.domain.service.concretes.RegistrationService;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

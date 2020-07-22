@@ -5,15 +5,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 
+import static com.codeemma.valueplus.domain.enums.TransactionStatus.resolve;
+
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Builder
+@Getter
 @Entity
+@Table(name = "transaction")
 public class Transaction extends BasePersistentEntity {
 
     @Id
@@ -23,23 +27,26 @@ public class Transaction extends BasePersistentEntity {
     private String bankCode;
     private BigDecimal amount;
     private String currency;
+    @NaturalId
     private String reference;
     private String status;
     private Long transferId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    public TransactionModel toModel(){
+    public TransactionModel toModel() {
         return TransactionModel.builder()
                 .id(this.id)
                 .accountNumber(this.accountNumber)
                 .amount(this.amount)
                 .bankCode(this.bankCode)
                 .reference(this.reference)
-                .status(this.status)
+                .status(resolve(this.status))
                 .currency(this.currency)
+                .userId(this.user.getId())
                 .build();
     }
+
 }

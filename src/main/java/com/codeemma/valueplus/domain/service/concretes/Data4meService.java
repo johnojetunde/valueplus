@@ -1,7 +1,8 @@
-package com.codeemma.valueplus.domain.service;
+package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.domain.dto.data4Me.AgentCode;
 import com.codeemma.valueplus.domain.dto.data4Me.AgentDto;
+import com.codeemma.valueplus.domain.service.abstracts.HttpApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -25,7 +26,7 @@ public class Data4meService extends HttpApiClient {
                           @Value("${data4me.base-url}") String baseUrl,
                           @Value("${data4me.email}") String username,
                           @Value("${data4me.password}") String password) {
-        super("data4me",restTemplate, baseUrl);
+        super("data4me", restTemplate, baseUrl);
         this.username = username;
         this.password = password;
     }
@@ -35,7 +36,7 @@ public class Data4meService extends HttpApiClient {
         requestEntity.put("email", username);
         requestEntity.put("password", password);
 
-        Optional<Map> result = sendRequest(HttpMethod.POST, "/login", requestEntity, emptyMap(), Map.class);
+        Optional<Map> result = Optional.ofNullable(sendRequest(HttpMethod.POST, "/login", requestEntity, emptyMap()));
 
         if (result.isPresent()) {
             log.info("login successful on data4me");
@@ -56,7 +57,8 @@ public class Data4meService extends HttpApiClient {
         var header = Map.of("Authorization", "Bearer " + token.get());
 
         try {
-            return sendRequest(HttpMethod.POST, "/agent", agentDto, header, AgentCode.class);
+            AgentCode result = sendRequest(HttpMethod.POST, "/agent", agentDto, header);
+            return Optional.of(result);
         } catch (Exception ex) {
             log.error("data4me create agent error - " + ex.getMessage());
             return empty();

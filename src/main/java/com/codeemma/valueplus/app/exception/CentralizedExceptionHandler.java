@@ -1,5 +1,9 @@
 package com.codeemma.valueplus.app.exception;
 
+import com.codeemma.valueplus.paystack.model.ResponseModel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -40,14 +45,40 @@ public class CentralizedExceptionHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
+    @ExceptionHandler({HttpClientErrorException.class})
+    public ResponseEntity<Object> handleHttpClientErrorException(HttpClientErrorException ex) {
+        String arrayIndex = ex.getRawStatusCode() + " " + ex.getStatusText().concat(":");
+        Object apiError = parseError(arrayIndex, ex.getMessage());
+
+        return new ResponseEntity<>(apiError, HttpStatus.valueOf(ex.getRawStatusCode()));
+    }
+
+    @ExceptionHandler({ValuePlusException.class})
+    public ResponseEntity<Object> handleValuePlusException(ValuePlusException ex) {
+        var apiError = new ApiError(ex.getHttpStatus(), ex.getMessage(), ex.getMessage());
+        return new ResponseEntity<>(apiError, ex.getHttpStatus());
+    }
+
+    private Object parseError(String arrayIndex, String error) {
+        try {
+            error = error.replace(arrayIndex, "").trim();
+
+            TypeReference<List<ResponseModel>> reference = new TypeReference<>() {};
+            return new ObjectMapper().readValue(error, reference);
+        } catch (JsonProcessingException ignored) {
+
+        }
+        return error;
+    }
+
     @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity<Object> handleNotFoundException(Exception ex){
+    public ResponseEntity<Object> handleNotFoundException(Exception ex) {
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler({DataIntegrityViolationException.class})
-    public ResponseEntity<Object> handleNotDataIntegrityViolationException(DataIntegrityViolationException ex){
+    public ResponseEntity<Object> handleNotDataIntegrityViolationException(DataIntegrityViolationException ex) {
         ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex.getMessage(), ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }

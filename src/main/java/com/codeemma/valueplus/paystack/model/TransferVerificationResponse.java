@@ -1,13 +1,29 @@
 package com.codeemma.valueplus.paystack.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransferVerificationResponse extends TransferResponse {
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class TransferVerificationResponse {
+    private Long id;
+    private String reference;
+    private Long integration;
+    private String domain;
+    private BigDecimal amount;
+    private String currency;
+    private String reason;
+    private String transferCode;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private Recipient recipient;
     private String source;
     private String status;

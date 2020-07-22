@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0.1_create_transaction" author="johnojetunde">
+        <createTable tableName="transaction">
+            <column name="id" type="BIGSERIAL" autoIncrement="true" >
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_transaction" />
+            </column>
+            <column name="account_number" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bank_code" type="VARCHAR(5)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reference" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="transaction_reference_unique"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transfer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="transaction"
+                                 constraintName="fk_transaction_users"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <createIndex tableName="transaction" indexName="transaction_user_id_idx">
+            <column name="user_id" />
+        </createIndex>
+    </changeSet>
+
+
+</databaseChangeLog>

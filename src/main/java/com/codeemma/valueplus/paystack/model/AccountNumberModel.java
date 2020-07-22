@@ -1,12 +1,17 @@
 package com.codeemma.valueplus.paystack.model;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 @AllArgsConstructor
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AccountNumberModel {
-    private final String accountNumber;
-    private final String accountName;
-    private final Long bankId;
+    private String accountNumber;
+    private String accountName;
+    private Long bankId;
 }

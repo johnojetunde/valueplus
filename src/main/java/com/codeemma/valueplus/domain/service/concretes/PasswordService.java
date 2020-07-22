@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.domain.service;
+package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.domain.dto.PasswordChange;
 import com.codeemma.valueplus.app.exception.NotFoundException;

@@ -1,10 +1,12 @@
 package com.codeemma.valueplus.paystack.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
+@Builder
 public class PaystackConfig {
     private final String baseUrl;
     private final Domain domain;

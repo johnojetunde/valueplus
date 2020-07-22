@@ -3,7 +3,7 @@ package com.codeemma.valueplus.app.controller;
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
 import com.codeemma.valueplus.domain.dto.TransactionModel;
-import com.codeemma.valueplus.domain.service.TransferService;
+import com.codeemma.valueplus.domain.service.abstracts.TransferService;
 import com.codeemma.valueplus.domain.util.UserUtils;
 import com.codeemma.valueplus.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +14,14 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.util.Optional;
 
+@Validated
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -44,7 +48,24 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionModel> getUserTransfers(@PageableDefault Pageable pageable) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
-
         return transferService.getAllUserTransactions(loggedInUser, pageable);
+    }
+
+    @GetMapping("/user/reference/{reference}")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<TransactionModel> getUserTransfers(@PathVariable("reference") String reference) throws ValuePlusException {
+        User loggedInUser = UserUtils.getLoggedInUser();
+        return transferService.getTransactionByReference(loggedInUser, reference);
+    }
+
+    @GetMapping("/user}")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<TransactionModel> getUserTransferByDate(
+            @RequestParam(value = "startDate", required = false) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) LocalDate endDate,
+            @PageableDefault Pageable pageable) throws ValuePlusException {
+        User loggedInUser = UserUtils.getLoggedInUser();
+
+        return transferService.getTransactionBetween(loggedInUser, startDate, endDate, pageable);
     }
 }

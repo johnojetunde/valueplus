@@ -1,5 +1,7 @@
 package com.codeemma.valueplus.paystack.model;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,8 +9,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseModel {
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class ResponseModel<T> {
     private boolean status;
     private String message;
-    private Object data;
+    private T data;
 }

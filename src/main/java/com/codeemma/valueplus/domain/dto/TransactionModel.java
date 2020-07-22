@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.domain.dto;
 
+import com.codeemma.valueplus.domain.enums.TransactionStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,6 +15,6 @@ public class TransactionModel {
     private final BigDecimal amount;
     private final String currency;
     private final String reference;
-    private final String status;
+    private final TransactionStatus status;
     private final Long userId;
 }

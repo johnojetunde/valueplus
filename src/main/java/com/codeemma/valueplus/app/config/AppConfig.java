@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.app.config;
 
 import com.codeemma.valueplus.paystack.model.PaystackConfig;
+import com.codeemma.valueplus.paystack.model.PaystackConfig.Domain;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +14,16 @@ public class AppConfig {
     @Value("${paystack.base.url}")
     private String paystackUrl;
 
-    @Value("${paystack.api.key}")
-    private String paystackApiKey;
+    @Value("${paystack.api.live.key}")
+    private String paystackLiveApiKey;
+
+    @Value("${paystack.api.test.key}")
+    private String paystackTestApiKey;
+
+    @Value("${paystack.api.domain:test}")
+    private String paystackDomain;
+    @Value("${paystack.api.transfer.callback}")
+    private String transferCallbackUrl;
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
@@ -23,6 +32,13 @@ public class AppConfig {
 
     @Bean
     public PaystackConfig paystackConfig() {
-        return new PaystackConfig(paystackUrl, paystackApiKey);
+        return PaystackConfig.builder()
+                .baseUrl(paystackUrl)
+                .domain(Domain.fromString(paystackDomain))
+                .liveApiKey(paystackLiveApiKey)
+                .testApiKey(paystackTestApiKey)
+                .paymentReason("ValuePlus Payment")
+                .transferCallBackUrl(transferCallbackUrl)
+                .build();
     }
 }
