@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -17,4 +18,6 @@ public class TransactionModel {
     private final String reference;
     private final TransactionStatus status;
     private final Long userId;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 }

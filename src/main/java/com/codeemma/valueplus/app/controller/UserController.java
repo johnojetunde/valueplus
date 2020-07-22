@@ -1,16 +1,15 @@
-package com.codeemma.valueplus.http;
+package com.codeemma.valueplus.app.controller;
 
-
-import com.codeemma.valueplus.dto.PasswordChange;
-import com.codeemma.valueplus.dto.ProfilePictureDto;
-import com.codeemma.valueplus.dto.UserDto;
-import com.codeemma.valueplus.dto.UserUpdate;
-import com.codeemma.valueplus.exception.NotFoundException;
-import com.codeemma.valueplus.model.User;
-import com.codeemma.valueplus.service.PasswordService;
-import com.codeemma.valueplus.service.ProfilePictureService;
-import com.codeemma.valueplus.service.UserService;
-import com.codeemma.valueplus.util.UserUtils;
+import com.codeemma.valueplus.app.exception.NotFoundException;
+import com.codeemma.valueplus.domain.dto.PasswordChange;
+import com.codeemma.valueplus.domain.dto.ProfilePictureDto;
+import com.codeemma.valueplus.domain.dto.UserDto;
+import com.codeemma.valueplus.domain.dto.UserUpdate;
+import com.codeemma.valueplus.domain.service.concretes.PasswordService;
+import com.codeemma.valueplus.domain.service.concretes.ProfilePictureService;
+import com.codeemma.valueplus.domain.service.concretes.UserService;
+import com.codeemma.valueplus.domain.util.UserUtils;
+import com.codeemma.valueplus.persistence.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,7 +64,6 @@ public class UserController {
                 .orElse(null);
         return UserDto.valueOf(user, photo);
     }
-
 
     @Deprecated //todo: remove when not in use
     @PreAuthorize("isAuthenticated()")

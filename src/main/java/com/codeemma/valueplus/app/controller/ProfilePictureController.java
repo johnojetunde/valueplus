@@ -1,11 +1,10 @@
-package com.codeemma.valueplus.http;
+package com.codeemma.valueplus.app.controller;
 
-import com.codeemma.valueplus.dto.ProfilePictureDto;
-import com.codeemma.valueplus.exception.NotFoundException;
-import com.codeemma.valueplus.model.User;
-import com.codeemma.valueplus.service.ProfilePictureService;
-import com.codeemma.valueplus.util.ProfilePictureUtils;
-import com.codeemma.valueplus.util.UserUtils;
+import com.codeemma.valueplus.domain.dto.ProfilePictureDto;
+import com.codeemma.valueplus.domain.service.concretes.ProfilePictureService;
+import com.codeemma.valueplus.domain.util.ProfilePictureUtils;
+import com.codeemma.valueplus.domain.util.UserUtils;
+import com.codeemma.valueplus.persistence.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,6 @@ public class ProfilePictureController {
     public ProfilePictureController(ProfilePictureService profilePictureService) {
         this.profilePictureService = profilePictureService;
     }
-
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

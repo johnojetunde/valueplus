@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.util;
+package com.codeemma.valueplus.domain.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

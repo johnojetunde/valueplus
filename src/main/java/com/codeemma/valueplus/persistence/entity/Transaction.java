@@ -46,6 +46,8 @@ public class Transaction extends BasePersistentEntity {
                 .status(resolve(this.status))
                 .currency(this.currency)
                 .userId(this.user.getId())
+                .createdAt(this.createdAt)
+                .updatedAt(this.updatedAt)
                 .build();
     }
 

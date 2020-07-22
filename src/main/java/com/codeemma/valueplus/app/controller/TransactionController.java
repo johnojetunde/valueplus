@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,11 +59,11 @@ public class TransactionController {
         return transferService.getTransactionByReference(loggedInUser, reference);
     }
 
-    @GetMapping("/user}")
+    @GetMapping("/user/filter")
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionModel> getUserTransferByDate(
-            @RequestParam(value = "startDate", required = false) LocalDate startDate,
-            @RequestParam(value = "endDate", required = false) LocalDate endDate,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @PageableDefault Pageable pageable) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
 
