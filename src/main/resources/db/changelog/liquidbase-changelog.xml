@@ -8,4 +8,6 @@
 
     <include file="/db/changelog/v0.1_create_user_and_role.xml" />
     <include file="/db/changelog/v0.2_create_profile_picture.xml" />
+    <include file="/db/changelog/v0.3_create_transaction.xml" />
+    <include file="/db/changelog/v0.4_create_account.xml" />
 </databaseChangeLog>
