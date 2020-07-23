@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static java.util.Optional.ofNullable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -24,27 +26,21 @@ public class UserDto {
     private String photo;
 
     public static UserDto valueOf(User user) {
-        return builder()
-                .email(user.getEmail())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .phone(user.getPhone())
-                .address(user.getAddress())
-                .agentCode(user.getAgentCode())
-                .link(BASE_LINK.concat(user.getAgentCode()))
-                .build();
+        return valueOf(user, null);
     }
 
     public static UserDto valueOf(User user, String photo) {
-        return builder()
+        UserDtoBuilder builder = builder()
                 .email(user.getEmail())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .phone(user.getPhone())
                 .address(user.getAddress())
-                .agentCode(user.getAgentCode())
-                .link(BASE_LINK.concat(user.getAgentCode()))
-                .photo(photo)
-                .build();
+                .photo(photo);
+
+        ofNullable(user.getAgentCode())
+                .ifPresent(agentCode -> builder.agentCode(agentCode).link(BASE_LINK.concat(agentCode)));
+
+        return builder.build();
     }
 }

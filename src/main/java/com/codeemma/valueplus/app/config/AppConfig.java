@@ -2,6 +2,7 @@ package com.codeemma.valueplus.app.config;
 
 import com.codeemma.valueplus.paystack.model.PaystackConfig;
 import com.codeemma.valueplus.paystack.model.PaystackConfig.Domain;
+import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -40,5 +41,10 @@ public class AppConfig {
                 .paymentReason("ValuePlus Payment")
                 .transferCallBackUrl(transferCallbackUrl)
                 .build();
+    }
+
+    @Bean
+    public VelocityEngine velocityEngine() {
+        return new VelocityEngine();
     }
 }

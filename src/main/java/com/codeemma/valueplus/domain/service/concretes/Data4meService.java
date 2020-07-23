@@ -59,7 +59,7 @@ public class Data4meService extends HttpApiClient {
         try {
             AgentCode result = sendRequest(HttpMethod.POST, "/agent", agentDto, header);
             return Optional.of(result);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             log.error("data4me create agent error - " + ex.getMessage());
             return empty();
         }

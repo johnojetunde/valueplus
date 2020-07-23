@@ -10,6 +10,8 @@ import com.codeemma.valueplus.persistence.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class RegistrationService {
     private final UserRepository userRepository;
@@ -36,11 +38,13 @@ public class RegistrationService {
     }
 
     private Role getRole(RoleType roleType) {
-        return roleRepository.findByName(roleType.name())
-                .orElse(
-                        roleRepository.save(Role.builder().name(roleType.name()).build())
-                );
+        Optional<Role> optionalRole = roleRepository.findByName(roleType.name());
 
+        if (optionalRole.isEmpty()){
+            return roleRepository.save(Role.builder().name(roleType.name()).build());
+        }
+
+        return optionalRole.get();
     }
 
 }

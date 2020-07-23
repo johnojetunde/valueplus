@@ -13,6 +13,5 @@
     <include file="/db/changelog/v0.2_create_profile_picture.xml"/>
     <include file="/db/changelog/v0.3_create_transaction.xml"/>
     <include file="/db/changelog/v0.4_create_account.xml"/>
-
-
+    <include file="/db/changelog/v0.5_add_columns_to_user.xml"/>
 </databaseChangeLog>

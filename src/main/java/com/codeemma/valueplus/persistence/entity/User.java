@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,6 +37,8 @@ public class User extends BasePersistentEntity implements UserDetails {
     private String address;
     @Setter
     private String agentCode;
+    private boolean passwordReset;
+    private boolean emailVerified;
 
     @OneToOne
     @JoinColumn(name = "role_id")
