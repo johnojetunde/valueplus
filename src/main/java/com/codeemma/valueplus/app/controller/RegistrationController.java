@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.app.controller;
 
+import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.security.TokenAuthenticationService;
 import com.codeemma.valueplus.domain.dto.LoginToken;
 import com.codeemma.valueplus.domain.dto.RoleType;
@@ -28,7 +29,7 @@ public class RegistrationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public LoginToken register(@Valid @RequestBody UserCreate userCreate) {
+    public LoginToken register(@Valid @RequestBody UserCreate userCreate) throws ValuePlusException {
         User registered = registrationService.saveUser(userCreate, RoleType.AGENT);
         String token = tokenAuthenticationService.createUserToken(registered);
         return new LoginToken(token);
@@ -36,10 +37,9 @@ public class RegistrationController {
 
     @PostMapping("/admin")
     @ResponseStatus(HttpStatus.CREATED)
-    public LoginToken registerAdmin(@Valid @RequestBody UserCreate userCreate) {
+    public LoginToken registerAdmin(@Valid @RequestBody UserCreate userCreate) throws ValuePlusException {
         User registered = registrationService.saveUser(userCreate, RoleType.ADMIN);
         String token = tokenAuthenticationService.createUserToken(registered);
         return new LoginToken(token);
     }
-
 }

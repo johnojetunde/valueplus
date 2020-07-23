@@ -5,6 +5,7 @@ import com.codeemma.valueplus.domain.dto.data4Me.AgentDto;
 import com.codeemma.valueplus.domain.service.abstracts.HttpApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -57,9 +58,10 @@ public class Data4meService extends HttpApiClient {
         var header = Map.of("Authorization", "Bearer " + token.get());
 
         try {
-            AgentCode result = sendRequest(HttpMethod.POST, "/agent", agentDto, header);
-            return Optional.of(result);
-        } catch (Throwable ex) {
+            ParameterizedTypeReference<AgentCode> typeReference = new ParameterizedTypeReference<>() {};
+            var result = sendRequest(HttpMethod.POST, "/agent", agentDto, header, typeReference);
+            return Optional.ofNullable(result);
+        } catch (Exception ex) {
             log.error("data4me create agent error - " + ex.getMessage());
             return empty();
         }
