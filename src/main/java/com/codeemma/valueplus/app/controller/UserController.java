@@ -6,7 +6,6 @@ import com.codeemma.valueplus.domain.dto.UserDto;
 import com.codeemma.valueplus.domain.dto.UserUpdate;
 import com.codeemma.valueplus.domain.service.concretes.ProfilePictureService;
 import com.codeemma.valueplus.domain.service.concretes.UserService;
-import com.codeemma.valueplus.domain.util.ProfilePictureUtils;
 import com.codeemma.valueplus.domain.util.UserUtils;
 import com.codeemma.valueplus.persistence.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +57,7 @@ public class UserController {
         String photo = profilePictureService.get(user)
                 .map(ProfilePictureDto::valueOf)
                 .map(ProfilePictureDto::getPhoto)
-                .orElse(ProfilePictureUtils.defaultImageBase64());
+                .orElse(null);
 
         return UserDto.valueOf(user, photo);
     }

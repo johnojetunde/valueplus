@@ -7,6 +7,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.io.StringWriter;
 
 @Service
@@ -23,8 +24,8 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendPasswordReset(User user, String newPassword) {
-        Template template = velocityEngine.getTemplate("/templates/OutworkerSignUp.vm");
+    public void sendPasswordReset(User user, String newPassword) throws Exception {
+        Template template = velocityEngine.getTemplate("/templates/passwordreset.vm");
         VelocityContext context = new VelocityContext();
         context.put("name", user.getFirstname());
         context.put("email", user.getEmail());
