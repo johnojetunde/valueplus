@@ -46,8 +46,8 @@ public class PasswordController {
 
     @PreAuthorize("permitAll()")
     @PostMapping("/new-password")
-    public UserDto setNewPassword(@Valid @RequestBody NewPassword newPassword) throws Exception {
+    public void setNewPassword(@Valid @RequestBody NewPassword newPassword) throws Exception {
         log.info("setNewPassword() received newPassword = {}", newPassword);
-        return UserDto.valueOf(passwordService.resetPassword(newPassword));
+        passwordService.resetPassword(newPassword);
     }
 }

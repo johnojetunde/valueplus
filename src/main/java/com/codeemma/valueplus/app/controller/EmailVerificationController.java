@@ -41,8 +41,8 @@ public class EmailVerificationController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/verify-mail")
-    public UserDto verifyMail(@Valid @RequestBody VerifyEmail verifyEmail) throws Exception {
+    public void verifyMail(@Valid @RequestBody VerifyEmail verifyEmail) throws Exception {
         log.info("verifyMail() received verifyMail = {}", verifyEmail);
-        return UserDto.valueOf(emailVerificationService.confirmEmail(verifyEmail.getVerificationToken()));
+        emailVerificationService.confirmEmail(verifyEmail.getVerificationToken());
     }
 }
