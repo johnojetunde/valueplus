@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.persistence.entity;
 
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
@@ -23,6 +24,7 @@ public class ProfilePicture {
 
     @Setter
     @Lob
+    @Type(type="org.hibernate.type.BinaryType")
     @Column(columnDefinition = "BYTEA")
     private byte[] photo;
 }
