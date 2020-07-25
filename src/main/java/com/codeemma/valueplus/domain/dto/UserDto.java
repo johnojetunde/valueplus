@@ -24,6 +24,7 @@ public class UserDto {
     private String agentCode;
     private String link;
     private String photo;
+    private boolean emailVerified;
 
     public static UserDto valueOf(User user) {
         return valueOf(user, null);
@@ -36,6 +37,7 @@ public class UserDto {
                 .lastname(user.getLastname())
                 .phone(user.getPhone())
                 .address(user.getAddress())
+                .emailVerified(user.isEmailVerified())
                 .photo(photo);
 
         ofNullable(user.getAgentCode())
