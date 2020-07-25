@@ -10,11 +10,12 @@ public class FunctionUtil {
     private static final BigDecimal MULTIPLIER = BigDecimal.valueOf(100.00);
 
     public static BigDecimal convertToKobo(BigDecimal amount) {
-        return amount.multiply(MULTIPLIER);
+        return amount.setScale(2, RoundingMode.HALF_UP).multiply(MULTIPLIER);
     }
 
     public static BigDecimal convertToNaira(BigDecimal amount) {
-        return amount.divide(MULTIPLIER, RoundingMode.UNNECESSARY);
+        return amount.setScale(2, RoundingMode.HALF_UP)
+                .divide(MULTIPLIER, RoundingMode.HALF_UP);
     }
 
 }
