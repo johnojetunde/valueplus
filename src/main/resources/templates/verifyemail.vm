@@ -348,10 +348,9 @@
                         <tr>
                             <td>
                                 <div class="text" style="padding: 0 2.5em; text-align: center;">
-                                    <h2>Hi ${name}, </h2>
-                                    <h3>Forgotten your password? click the button bellow to reset your password</h3>
-                                    <p><a href="${link}" class="btn btn-primary">Reset Password</a></p>
-
+                                    <h2>Hi ${name}, please verify your email</h2>
+                                    <h3>Earn money every time you successfully bring businesses and their customers together.</h3>
+                                    <p><a href="${link}" class="btn btn-primary">Yes! Verify</a></p>
                                 </div>
                             </td>
                         </tr>

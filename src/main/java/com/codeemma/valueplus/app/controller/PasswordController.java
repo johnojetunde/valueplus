@@ -1,7 +1,8 @@
 package com.codeemma.valueplus.app.controller;
 
-import com.codeemma.valueplus.domain.dto.PasswordReset;
+import com.codeemma.valueplus.domain.dto.NewPassword;
 import com.codeemma.valueplus.domain.dto.PasswordChange;
+import com.codeemma.valueplus.domain.dto.PasswordReset;
 import com.codeemma.valueplus.domain.dto.UserDto;
 import com.codeemma.valueplus.domain.service.concretes.PasswordService;
 import com.codeemma.valueplus.domain.util.UserUtils;
@@ -37,9 +38,16 @@ public class PasswordController {
     }
 
     @PreAuthorize("permitAll()")
-    @PostMapping("/current/reset-password")
+    @PostMapping("/reset-password")
     public void reset(@Valid @RequestBody PasswordReset passwordReset) throws Exception {
         log.info("reset() received passwordReset = {}", passwordReset);
-        passwordService.resetPassword(passwordReset);
+        passwordService.sendResetPassword(passwordReset);
+    }
+
+    @PreAuthorize("permitAll()")
+    @PostMapping("/new-password")
+    public UserDto setNewPassword(@Valid @RequestBody NewPassword newPassword) throws Exception {
+        log.info("setNewPassword() received newPassword = {}", newPassword);
+        return UserDto.valueOf(passwordService.resetPassword(newPassword));
     }
 }

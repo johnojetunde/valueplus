@@ -3,6 +3,7 @@ package com.codeemma.valueplus.domain.service.concretes;
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.domain.dto.RoleType;
 import com.codeemma.valueplus.domain.dto.UserCreate;
+import com.codeemma.valueplus.domain.dto.data4Me.AgentCode;
 import com.codeemma.valueplus.domain.dto.data4Me.AgentDto;
 import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.User;
@@ -20,16 +21,18 @@ public class RegistrationService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final Data4meService data4meService;
+    private final EmailVerificationService emailVerificationService;
 
     public RegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                               RoleRepository roleRepository, Data4meService data4meService) {
+                               RoleRepository roleRepository, Data4meService data4meService, EmailVerificationService emailVerificationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.data4meService = data4meService;
+        this.emailVerificationService = emailVerificationService;
     }
 
-    public User saveUser(UserCreate userCreate, RoleType roleType) throws ValuePlusException {
+    public User saveUser(UserCreate userCreate, RoleType roleType) throws Exception {
         if (userRepository.findByEmailAndDeletedFalse(userCreate.getEmail())
                 .isPresent()) {
             throw new ValuePlusException("User profile exists", HttpStatus.BAD_REQUEST);
@@ -40,18 +43,24 @@ public class RegistrationService {
                 .password(passwordEncoder.encode(userCreate.getPassword()))
                 .enabled(true).build());
 
-        data4meService.createAgent(AgentDto.from(userCreate))
-                .ifPresent(v -> user.setAgentCode(v.getCode()));
-        return userRepository.save(user);
+        Optional<AgentCode> agent = data4meService.createAgent(AgentDto.from(userCreate));
+        if (agent.isPresent()) {
+            user.setAgentCode(agent.get().getCode());
+            userRepository.save(user);
+        }
+        emailVerificationService.sendVerifyEmail(user);
+        return user;
     }
 
     private Role getRole(RoleType roleType) {
         Optional<Role> optionalRole = roleRepository.findByName(roleType.name());
 
-        if (optionalRole.isEmpty()) {
-            return roleRepository.save(Role.builder().name(roleType.name()).build());
+        if (optionalRole.isPresent()) {
+            return optionalRole.get();
         }
 
-        return optionalRole.get();
+        return roleRepository.save(Role.builder()
+                .name(roleType.name())
+                .build());
     }
 }

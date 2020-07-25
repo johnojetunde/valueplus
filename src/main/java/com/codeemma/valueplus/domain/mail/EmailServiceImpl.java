@@ -13,7 +13,8 @@ import java.io.StringWriter;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    public static final String PASSWORD_SUBJECT = "Value Plus Password Reset";
+    public static final String PASSWORD_SUBJECT = "Value Plus Forgot Password";
+    public static final String VERIFY_EMAIL_SUBJECT = "Value Plus Verify Email";
 
     private final EmailClient emailClient;
     private final VelocityEngine velocityEngine;
@@ -24,15 +25,26 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendPasswordReset(User user, String newPassword) throws Exception {
+    public void sendPasswordReset(User user, String link) throws Exception {
         Template template = velocityEngine.getTemplate("/templates/passwordreset.vm");
         VelocityContext context = new VelocityContext();
         context.put("name", user.getFirstname());
-        context.put("email", user.getEmail());
-        context.put("password", newPassword);
+        context.put("link", link);
         StringWriter stringWriter = new StringWriter();
         template.merge(context, stringWriter);
 
         emailClient.sendSimpleMessage(user.getEmail(), PASSWORD_SUBJECT, stringWriter.toString());
+    }
+
+    @Override
+    public void sendEmailVerification(User user, String link) throws Exception {
+        Template template = velocityEngine.getTemplate("/templates/verifyemail.vm");
+        VelocityContext context = new VelocityContext();
+        context.put("name", user.getFirstname());
+        context.put("link", link);
+        StringWriter stringWriter = new StringWriter();
+        template.merge(context, stringWriter);
+
+        emailClient.sendSimpleMessage(user.getEmail(), VERIFY_EMAIL_SUBJECT, stringWriter.toString());
     }
 }

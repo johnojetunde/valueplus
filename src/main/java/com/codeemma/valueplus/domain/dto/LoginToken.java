@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @Getter
 public class LoginToken {
     private String token;
-    private boolean passwordReset;
 }

@@ -37,7 +37,6 @@ public class User extends BasePersistentEntity implements UserDetails {
     private String address;
     @Setter
     private String agentCode;
-    private boolean passwordReset;
     private boolean emailVerified;
 
     @OneToOne
@@ -101,6 +100,7 @@ public class User extends BasePersistentEntity implements UserDetails {
                 .phone(phone)
                 .address(address)
                 .agentCode(agentCode)
+                .emailVerified(emailVerified)
                 .enabled(enabled)
                 .deleted(deleted)
                 .role(role);

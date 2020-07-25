@@ -5,6 +5,7 @@ import com.codeemma.valueplus.app.security.TokenAuthenticationService;
 import com.codeemma.valueplus.domain.dto.LoginToken;
 import com.codeemma.valueplus.domain.dto.RoleType;
 import com.codeemma.valueplus.domain.dto.UserCreate;
+import com.codeemma.valueplus.domain.dto.UserDto;
 import com.codeemma.valueplus.domain.service.concretes.RegistrationService;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.http.HttpStatus;
@@ -29,17 +30,16 @@ public class RegistrationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public LoginToken register(@Valid @RequestBody UserCreate userCreate) throws ValuePlusException {
+    public UserDto register(@Valid @RequestBody UserCreate userCreate) throws Exception {
         User registered = registrationService.saveUser(userCreate, RoleType.AGENT);
-        String token = tokenAuthenticationService.createUserToken(registered);
-        return new LoginToken(token, registered.isPasswordReset());
+        return UserDto.valueOf(registered);
     }
 
     @PostMapping("/admin")
     @ResponseStatus(HttpStatus.CREATED)
-    public LoginToken registerAdmin(@Valid @RequestBody UserCreate userCreate) throws ValuePlusException {
+    public LoginToken registerAdmin(@Valid @RequestBody UserCreate userCreate) throws Exception {
         User registered = registrationService.saveUser(userCreate, RoleType.ADMIN);
         String token = tokenAuthenticationService.createUserToken(registered);
-        return new LoginToken(token, registered.isPasswordReset());
+        return new LoginToken(token);
     }
 }

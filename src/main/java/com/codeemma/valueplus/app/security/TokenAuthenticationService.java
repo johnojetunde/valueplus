@@ -38,7 +38,7 @@ public class TokenAuthenticationService {
         // (Its reloaded as a result of this response triggering a redirect back to "/")
 //        response.addHeader(AUTH_HEADER_NAME, token);
 //        response.addCookie(createCookieForToken(token));
-        String loginToken = new ObjectMapper().writeValueAsString(new LoginToken(token, user.isPasswordReset()));
+        String loginToken = new ObjectMapper().writeValueAsString(new LoginToken(token));
         response.setContentType("application/json");
         response.getWriter().write(loginToken);
     }
