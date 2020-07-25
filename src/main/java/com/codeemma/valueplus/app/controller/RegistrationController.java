@@ -32,7 +32,7 @@ public class RegistrationController {
     public LoginToken register(@Valid @RequestBody UserCreate userCreate) throws ValuePlusException {
         User registered = registrationService.saveUser(userCreate, RoleType.AGENT);
         String token = tokenAuthenticationService.createUserToken(registered);
-        return new LoginToken(token);
+        return new LoginToken(token, registered.isPasswordReset());
     }
 
     @PostMapping("/admin")
@@ -40,6 +40,6 @@ public class RegistrationController {
     public LoginToken registerAdmin(@Valid @RequestBody UserCreate userCreate) throws ValuePlusException {
         User registered = registrationService.saveUser(userCreate, RoleType.ADMIN);
         String token = tokenAuthenticationService.createUserToken(registered);
-        return new LoginToken(token);
+        return new LoginToken(token, registered.isPasswordReset());
     }
 }

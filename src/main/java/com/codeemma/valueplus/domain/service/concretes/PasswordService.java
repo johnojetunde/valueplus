@@ -37,7 +37,7 @@ public class PasswordService {
         );
     }
 
-    public void resetPassword(PasswordReset passwordReset) {
+    public void resetPassword(PasswordReset passwordReset) throws Exception {
         User user = userRepository.findByEmailAndDeletedFalse(passwordReset.getEmail())
                 .orElseThrow(() -> new NotFoundException("user not found"));
 

@@ -38,7 +38,7 @@ public class PasswordController {
 
     @PreAuthorize("permitAll()")
     @PostMapping("/current/reset-password")
-    public void reset(@Valid @RequestBody PasswordReset passwordReset) {
+    public void reset(@Valid @RequestBody PasswordReset passwordReset) throws Exception {
         log.info("reset() received passwordReset = {}", passwordReset);
         passwordService.resetPassword(passwordReset);
     }

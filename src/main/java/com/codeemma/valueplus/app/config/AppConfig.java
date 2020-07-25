@@ -45,6 +45,9 @@ public class AppConfig {
 
     @Bean
     public VelocityEngine velocityEngine() {
-        return new VelocityEngine();
+        VelocityEngine velocityEngine = new VelocityEngine();
+        velocityEngine.setProperty("resource.loader", "class");
+        velocityEngine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        return velocityEngine;
     }
 }
