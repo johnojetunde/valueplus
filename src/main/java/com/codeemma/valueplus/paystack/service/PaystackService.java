@@ -146,7 +146,7 @@ public class PaystackService extends HttpApiClient implements BankService, Payme
     }
 
     private String getReference() {
-        return UUID.randomUUID().toString().replaceAll("-", "_") + "_V";
+        return UUID.randomUUID().toString();
     }
 
     private Map<String, String> prepareRequestHeader() {

@@ -1,6 +1,5 @@
 package com.codeemma.valueplus.app.controller;
 
-import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.security.TokenAuthenticationService;
 import com.codeemma.valueplus.domain.dto.LoginToken;
 import com.codeemma.valueplus.domain.dto.RoleType;
