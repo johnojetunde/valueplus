@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Validated
 @Slf4j
@@ -68,8 +69,8 @@ public class TransactionController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/verify")
     @ResponseStatus(HttpStatus.OK)
-    public void verifyPendingTransaction() {
-        transferService.verifyPendingTransactions();
+    public CompletableFuture<Void> verifyPendingTransaction() {
+        return transferService.verifyPendingTransactions();
     }
 
     @GetMapping("/user/filter")
