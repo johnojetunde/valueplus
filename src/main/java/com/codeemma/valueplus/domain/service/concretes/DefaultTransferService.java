@@ -23,8 +23,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static com.codeemma.valueplus.domain.util.FunctionUtil.convertToNaira;
+import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
@@ -68,14 +70,17 @@ public class DefaultTransferService implements TransferService {
     }
 
     @Override
-    public void verifyPendingTransactions() {
-        for (Transaction transaction : transactionRepository.findPendingTransactions()) {
-            try {
-                verify(transaction);
-            } catch (ValuePlusException e) {
-                log.error("Error verifying transaction status", e);
+    public CompletableFuture<Void> verifyPendingTransactions() {
+        return runAsync(() -> {
+            for (Transaction transaction : transactionRepository.findPendingTransactions()) {
+                try {
+                    verify(transaction);
+                    Thread.sleep(10000);
+                } catch (ValuePlusException | InterruptedException e) {
+                    log.error("Error verifying transaction status", e);
+                }
             }
-        }
+        });
     }
 
     @Override

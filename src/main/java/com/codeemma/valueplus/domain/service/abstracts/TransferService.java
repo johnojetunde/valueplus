@@ -9,13 +9,14 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public interface TransferService {
     TransactionModel transfer(User user, PaymentRequestModel requestModel) throws ValuePlusException;
 
     TransactionModel verify(User user, String referenceNumber) throws ValuePlusException;
 
-    void verifyPendingTransactions();
+    CompletableFuture<Void> verifyPendingTransactions();
 
     Page<TransactionModel> getAllUserTransactions(User user, Pageable pageable) throws ValuePlusException;
 
