@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -12,7 +11,7 @@
     <include file="/db/changelog/v0.1_create_user_and_role.xml"/>
     <include file="/db/changelog/v0.2_create_profile_picture.xml"/>
     <include file="/db/changelog/v0.3_create_transaction.xml"/>
-    <include file="/db/changelog/v0.4_create_account.xml"/>x
+    <include file="/db/changelog/v0.4_create_account.xml"/>
     <include file="/db/changelog/v0.5_add_columns_to_user.xml"/>
     <include file="/db/changelog/v0.6_add_table_password_and_email_verify.xml"/>
 </databaseChangeLog>
