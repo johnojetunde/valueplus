@@ -34,7 +34,6 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public TransactionModel initiate(@Valid @RequestBody PaymentRequestModel request) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
-
         return transferService.transfer(loggedInUser, request);
     }
 
@@ -59,6 +58,20 @@ public class TransactionController {
         return transferService.getTransactionByReference(loggedInUser, reference);
     }
 
+    @GetMapping("/user/verify/{reference}")
+    @ResponseStatus(HttpStatus.OK)
+    public TransactionModel verifyTransaction(@PathVariable("reference") String reference) throws ValuePlusException {
+        User loggedInUser = UserUtils.getLoggedInUser();
+        return transferService.verify(loggedInUser, reference);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/verify")
+    @ResponseStatus(HttpStatus.OK)
+    public void verifyPendingTransaction() {
+        transferService.verifyPendingTransactions();
+    }
+
     @GetMapping("/user/filter")
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionModel> getUserTransferByDate(
@@ -66,7 +79,6 @@ public class TransactionController {
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @PageableDefault Pageable pageable) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
-
         return transferService.getTransactionBetween(loggedInUser, startDate, endDate, pageable);
     }
 }

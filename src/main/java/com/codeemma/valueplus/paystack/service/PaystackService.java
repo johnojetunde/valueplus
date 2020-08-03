@@ -72,8 +72,7 @@ public class PaystackService extends HttpApiClient implements BankService, Payme
                 accountModel.getAccountName(),
                 bankCode);
 
-        //TODO: generate the reference code here
-        String reference = UUID.randomUUID().toString();
+        String reference = getReference();
         return initiateTransfer(recipient.getRecipientCode(), amount, config.getPaymentReason(), reference);
     }
 
@@ -84,8 +83,7 @@ public class PaystackService extends HttpApiClient implements BankService, Payme
                 accountModel.getAccountName(),
                 accountModel.getBankCode());
 
-        //TODO: generate the reference code here
-        String reference = UUID.randomUUID().toString();
+        String reference = getReference();
         return initiateTransfer(recipient.getRecipientCode(), amount, config.getPaymentReason(), reference);
     }
 
@@ -145,6 +143,10 @@ public class PaystackService extends HttpApiClient implements BankService, Payme
             throw new ValuePlusException(result.getMessage());
         }
         return result.getData();
+    }
+
+    private String getReference() {
+        return UUID.randomUUID().toString().replaceAll("-", "_") + "_V";
     }
 
     private Map<String, String> prepareRequestHeader() {

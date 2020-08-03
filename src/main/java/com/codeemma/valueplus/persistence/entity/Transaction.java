@@ -1,10 +1,7 @@
 package com.codeemma.valueplus.persistence.entity;
 
 import com.codeemma.valueplus.domain.dto.TransactionModel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
@@ -16,6 +13,7 @@ import static com.codeemma.valueplus.domain.enums.TransactionStatus.resolve;
 @AllArgsConstructor
 @Builder
 @Getter
+@Setter
 @Entity
 @Table(name = "transaction")
 public class Transaction extends BasePersistentEntity {

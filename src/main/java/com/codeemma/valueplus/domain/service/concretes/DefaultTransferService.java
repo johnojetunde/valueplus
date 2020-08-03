@@ -7,6 +7,7 @@ import com.codeemma.valueplus.domain.dto.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
 import com.codeemma.valueplus.domain.service.abstracts.TransferService;
 import com.codeemma.valueplus.paystack.model.TransferResponse;
+import com.codeemma.valueplus.paystack.model.TransferVerificationResponse;
 import com.codeemma.valueplus.persistence.entity.Account;
 import com.codeemma.valueplus.persistence.entity.Transaction;
 import com.codeemma.valueplus.persistence.entity.User;
@@ -30,6 +31,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 @Service
 public class DefaultTransferService implements TransferService {
+
     private final PaymentService paymentService;
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
@@ -51,10 +53,29 @@ public class DefaultTransferService implements TransferService {
                 .transferId(response.getId())
                 .currency(response.getCurrency())
                 .user(user)
-                .status(response.getStatus())
+                .status(response.getStatus().toLowerCase())
                 .build();
 
         return transactionRepository.save(transaction).toModel();
+    }
+
+    @Override
+    public TransactionModel verify(User user, String referenceNumber) throws ValuePlusException {
+        Transaction transaction = transactionRepository.findByUser_IdAndReference(user.getId(), referenceNumber)
+                .orElseThrow(() -> new ValuePlusException("No transaction exists with this reference number", BAD_REQUEST));
+
+        return verify(transaction);
+    }
+
+    @Override
+    public void verifyPendingTransactions() {
+        for (Transaction transaction : transactionRepository.findPendingTransactions()) {
+            try {
+                verify(transaction);
+            } catch (ValuePlusException e) {
+                log.error("Error verifying transaction status", e);
+            }
+        }
     }
 
     @Override
@@ -108,5 +129,11 @@ public class DefaultTransferService implements TransferService {
             log.error(TRANSACTION_FETCH_ERROR_MSG, e);
             throw new ValuePlusException(TRANSACTION_FETCH_ERROR_MSG, e);
         }
+    }
+
+    private TransactionModel verify(Transaction transaction) throws ValuePlusException {
+        TransferVerificationResponse response = paymentService.verifyTransfer(transaction.getReference());
+        transaction.setStatus(response.getStatus());
+        return transactionRepository.save(transaction).toModel();
     }
 }

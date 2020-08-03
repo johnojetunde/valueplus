@@ -13,6 +13,10 @@ import java.util.Optional;
 public interface TransferService {
     TransactionModel transfer(User user, PaymentRequestModel requestModel) throws ValuePlusException;
 
+    TransactionModel verify(User user, String referenceNumber) throws ValuePlusException;
+
+    void verifyPendingTransactions();
+
     Page<TransactionModel> getAllUserTransactions(User user, Pageable pageable) throws ValuePlusException;
 
     Page<TransactionModel> getAllTransactions(Pageable pageable) throws ValuePlusException;

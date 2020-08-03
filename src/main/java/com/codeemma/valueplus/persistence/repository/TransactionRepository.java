@@ -4,8 +4,10 @@ import com.codeemma.valueplus.persistence.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -17,4 +19,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                                                          LocalDateTime startDate,
                                                          LocalDateTime endDate,
                                                          Pageable pageable);
+
+    @Query("select t from Transaction t where t.status<>'success' OR t.status<>'error' OR t.status <> 'failed'")
+    List<Transaction> findPendingTransactions();
 }
