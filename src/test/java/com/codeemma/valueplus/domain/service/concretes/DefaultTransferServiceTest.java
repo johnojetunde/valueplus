@@ -81,7 +81,7 @@ class DefaultTransferServiceTest {
 
     @Test
     void getAllUserTransactions() throws ValuePlusException {
-        when(transactionRepository.findByUser_Id(anyLong(), eq(pageable), any(Sort.class)))
+        when(transactionRepository.findByUser_IdOrderByIdDesc(anyLong(), eq(pageable)))
                 .thenReturn(pagedTransaction);
 
         var result = transferService.getAllUserTransactions(mockUser, pageable, sort);
@@ -91,12 +91,12 @@ class DefaultTransferServiceTest {
         assertPagedResult(result);
         assertTransaction(transaction);
 
-        verify(transactionRepository).findByUser_Id(anyLong(), eq(pageable), any(Sort.class));
+        verify(transactionRepository).findByUser_IdOrderByIdDesc(anyLong(), eq(pageable));
     }
 
     @Test
     void getAllTransactions() throws ValuePlusException {
-        when(transactionRepository.findAll(eq(pageable), any(Sort.class)))
+        when(transactionRepository.findAllByOrderByIdDesc(eq(pageable)))
                 .thenReturn(pagedTransaction);
 
         var result = transferService.getAllTransactions(pageable, sort);
@@ -106,7 +106,7 @@ class DefaultTransferServiceTest {
         assertPagedResult(result);
         assertTransaction(transaction);
 
-        verify(transactionRepository).findAll(eq(pageable), any(Sort.class));
+        verify(transactionRepository).findAllByOrderByIdDesc(eq(pageable));
     }
 
     @Test
@@ -135,11 +135,11 @@ class DefaultTransferServiceTest {
 
     @Test
     void getTransactionBetween() throws ValuePlusException {
-        when(transactionRepository.findByUser_IdAndCreatedAtIsBetween(anyLong(),
+        when(transactionRepository.findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
+                anyLong(),
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
-                eq(pageable),
-                any(Sort.class)))
+                eq(pageable)))
                 .thenReturn(pagedTransaction);
 
         var result = transferService.getTransactionBetween(mockUser, LocalDate.MIN, LocalDate.MAX, pageable, sort);
@@ -149,12 +149,11 @@ class DefaultTransferServiceTest {
         assertPagedResult(result);
         assertTransaction(transaction);
 
-        verify(transactionRepository).findByUser_IdAndCreatedAtIsBetween(
+        verify(transactionRepository).findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
                 anyLong(),
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
-                eq(pageable),
-                any(Sort.class));
+                eq(pageable));
     }
 
     private void assertPagedResult(Page<TransactionModel> result) {
