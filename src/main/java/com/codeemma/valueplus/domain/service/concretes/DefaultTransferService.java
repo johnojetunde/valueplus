@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -84,9 +85,9 @@ public class DefaultTransferService implements TransferService {
     }
 
     @Override
-    public Page<TransactionModel> getAllUserTransactions(User user, Pageable pageable) throws ValuePlusException {
+    public Page<TransactionModel> getAllUserTransactions(User user, Pageable pageable, Sort sort) throws ValuePlusException {
         try {
-            return transactionRepository.findByUser_Id(user.getId(), pageable)
+            return transactionRepository.findByUser_IdOrderByIdDesc(user.getId(), pageable)
                     .map(Transaction::toModel);
         } catch (Exception e) {
             log.error(TRANSACTION_FETCH_ERROR_MSG, e);
@@ -95,9 +96,9 @@ public class DefaultTransferService implements TransferService {
     }
 
     @Override
-    public Page<TransactionModel> getAllTransactions(Pageable pageable) throws ValuePlusException {
+    public Page<TransactionModel> getAllTransactions(Pageable pageable, Sort sort) throws ValuePlusException {
         try {
-            return transactionRepository.findAll(pageable)
+            return transactionRepository.findAllByOrderByIdDesc(pageable)
                     .map(Transaction::toModel);
         } catch (Exception e) {
             log.error(TRANSACTION_FETCH_ERROR_MSG, e);
@@ -120,11 +121,12 @@ public class DefaultTransferService implements TransferService {
     public Page<TransactionModel> getTransactionBetween(User user,
                                                         LocalDate startDate,
                                                         LocalDate endDate,
-                                                        Pageable pageable) throws ValuePlusException {
+                                                        Pageable pageable,
+                                                        Sort sort) throws ValuePlusException {
         try {
             LocalDateTime startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
             LocalDateTime endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
-            return transactionRepository.findByUser_IdAndCreatedAtIsBetween(
+            return transactionRepository.findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
                     user.getId(),
                     startDateTime,
                     endDateTime,

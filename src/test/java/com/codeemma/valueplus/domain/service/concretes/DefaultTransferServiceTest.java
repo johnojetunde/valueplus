@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -46,6 +47,8 @@ class DefaultTransferServiceTest {
     @InjectMocks
     private DefaultTransferService transferService;
 
+    @Mock
+    private Sort sort;
     private User mockUser;
     private Transaction transaction;
     private Page<Transaction> pagedTransaction;
@@ -78,32 +81,32 @@ class DefaultTransferServiceTest {
 
     @Test
     void getAllUserTransactions() throws ValuePlusException {
-        when(transactionRepository.findByUser_Id(anyLong(), eq(pageable)))
+        when(transactionRepository.findByUser_IdOrderByIdDesc(anyLong(), eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getAllUserTransactions(mockUser, pageable);
+        var result = transferService.getAllUserTransactions(mockUser, pageable, sort);
 
         var transaction = result.getContent().get(0);
 
         assertPagedResult(result);
         assertTransaction(transaction);
 
-        verify(transactionRepository).findByUser_Id(anyLong(), eq(pageable));
+        verify(transactionRepository).findByUser_IdOrderByIdDesc(anyLong(), eq(pageable));
     }
 
     @Test
     void getAllTransactions() throws ValuePlusException {
-        when(transactionRepository.findAll(eq(pageable)))
+        when(transactionRepository.findAllByOrderByIdDesc(eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getAllTransactions(pageable);
+        var result = transferService.getAllTransactions(pageable, sort);
 
         var transaction = result.getContent().get(0);
 
         assertPagedResult(result);
         assertTransaction(transaction);
 
-        verify(transactionRepository).findAll(eq(pageable));
+        verify(transactionRepository).findAllByOrderByIdDesc(eq(pageable));
     }
 
     @Test
@@ -132,20 +135,21 @@ class DefaultTransferServiceTest {
 
     @Test
     void getTransactionBetween() throws ValuePlusException {
-        when(transactionRepository.findByUser_IdAndCreatedAtIsBetween(anyLong(),
+        when(transactionRepository.findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
+                anyLong(),
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
                 eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getTransactionBetween(mockUser, LocalDate.MIN, LocalDate.MAX, pageable);
+        var result = transferService.getTransactionBetween(mockUser, LocalDate.MIN, LocalDate.MAX, pageable, sort);
 
         var transaction = result.getContent().get(0);
 
         assertPagedResult(result);
         assertTransaction(transaction);
 
-        verify(transactionRepository).findByUser_IdAndCreatedAtIsBetween(
+        verify(transactionRepository).findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
                 anyLong(),
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
