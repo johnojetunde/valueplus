@@ -23,8 +23,11 @@ public class RegistrationService {
     private final Data4meService data4meService;
     private final EmailVerificationService emailVerificationService;
 
-    public RegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                               RoleRepository roleRepository, Data4meService data4meService, EmailVerificationService emailVerificationService) {
+    public RegistrationService(UserRepository userRepository,
+                               PasswordEncoder passwordEncoder,
+                               RoleRepository roleRepository,
+                               Data4meService data4meService,
+                               EmailVerificationService emailVerificationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
@@ -54,13 +57,9 @@ public class RegistrationService {
 
     private Role getRole(RoleType roleType) {
         Optional<Role> optionalRole = roleRepository.findByName(roleType.name());
-
-        if (optionalRole.isPresent()) {
-            return optionalRole.get();
-        }
-
-        return roleRepository.save(Role.builder()
-                .name(roleType.name())
-                .build());
+        return optionalRole
+                .orElseGet(() -> roleRepository.save(Role.builder()
+                        .name(roleType.name())
+                        .build()));
     }
 }

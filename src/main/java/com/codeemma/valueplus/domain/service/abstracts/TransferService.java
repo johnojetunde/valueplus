@@ -6,6 +6,7 @@ import com.codeemma.valueplus.domain.dto.TransactionModel;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -18,14 +19,15 @@ public interface TransferService {
 
     CompletableFuture<Void> verifyPendingTransactions();
 
-    Page<TransactionModel> getAllUserTransactions(User user, Pageable pageable) throws ValuePlusException;
+    Page<TransactionModel> getAllUserTransactions(User user, Pageable pageable, Sort sort) throws ValuePlusException;
 
-    Page<TransactionModel> getAllTransactions(Pageable pageable) throws ValuePlusException;
+    Page<TransactionModel> getAllTransactions(Pageable pageable, Sort sort) throws ValuePlusException;
 
     Optional<TransactionModel> getTransactionByReference(User user, String reference) throws ValuePlusException;
 
     Page<TransactionModel> getTransactionBetween(User user,
                                                  LocalDate startDate,
                                                  LocalDate endDate,
-                                                 Pageable pageable) throws ValuePlusException;
+                                                 Pageable pageable,
+                                                 Sort sort) throws ValuePlusException;
 }
