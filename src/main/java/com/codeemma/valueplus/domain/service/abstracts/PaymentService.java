@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.domain.service.abstracts;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.domain.dto.AccountModel;
+import com.codeemma.valueplus.domain.model.AccountModel;
 import com.codeemma.valueplus.paystack.model.AccountNumberModel;
 import com.codeemma.valueplus.paystack.model.TransferResponse;
 import com.codeemma.valueplus.paystack.model.TransferVerificationResponse;

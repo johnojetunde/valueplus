@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.domain.dto.data4Me;
+package com.codeemma.valueplus.domain.model.data4Me;
 
 
 import lombok.AllArgsConstructor;

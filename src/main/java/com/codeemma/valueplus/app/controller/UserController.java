@@ -1,9 +1,9 @@
 package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.NotFoundException;
-import com.codeemma.valueplus.domain.dto.ProfilePictureDto;
-import com.codeemma.valueplus.domain.dto.UserDto;
-import com.codeemma.valueplus.domain.dto.UserUpdate;
+import com.codeemma.valueplus.domain.model.ProfilePictureDto;
+import com.codeemma.valueplus.domain.model.UserDto;
+import com.codeemma.valueplus.domain.model.UserUpdate;
 import com.codeemma.valueplus.domain.service.concretes.ProfilePictureService;
 import com.codeemma.valueplus.domain.service.concretes.UserService;
 import com.codeemma.valueplus.domain.util.UserUtils;

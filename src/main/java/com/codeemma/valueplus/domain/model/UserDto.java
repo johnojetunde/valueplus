@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.domain.dto;
+package com.codeemma.valueplus.domain.model;
 
 
 import com.codeemma.valueplus.persistence.entity.User;

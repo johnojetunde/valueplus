@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
-import com.codeemma.valueplus.domain.dto.data4Me.AgentCode;
-import com.codeemma.valueplus.domain.dto.data4Me.AgentDto;
+import com.codeemma.valueplus.domain.model.data4Me.AgentCode;
+import com.codeemma.valueplus.domain.model.data4Me.AgentDto;
 import com.codeemma.valueplus.domain.service.abstracts.HttpApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

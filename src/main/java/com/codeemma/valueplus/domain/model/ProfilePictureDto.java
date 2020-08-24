@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.domain.dto;
+package com.codeemma.valueplus.domain.model;
 
 import com.codeemma.valueplus.persistence.entity.ProfilePicture;
 import com.codeemma.valueplus.persistence.entity.User;
@@ -8,9 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Size;
-import java.util.Base64;
-
-import static java.util.Objects.nonNull;
 
 @NoArgsConstructor
 @AllArgsConstructor

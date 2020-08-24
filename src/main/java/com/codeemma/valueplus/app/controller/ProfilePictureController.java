@@ -1,6 +1,6 @@
 package com.codeemma.valueplus.app.controller;
 
-import com.codeemma.valueplus.domain.dto.ProfilePictureDto;
+import com.codeemma.valueplus.domain.model.ProfilePictureDto;
 import com.codeemma.valueplus.domain.service.concretes.ProfilePictureService;
 import com.codeemma.valueplus.domain.util.ProfilePictureUtils;
 import com.codeemma.valueplus.domain.util.UserUtils;

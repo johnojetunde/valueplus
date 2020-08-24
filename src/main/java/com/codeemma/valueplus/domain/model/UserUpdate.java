@@ -1,31 +1,34 @@
-package com.codeemma.valueplus.domain.dto;
+package com.codeemma.valueplus.domain.model;
 
+import com.codeemma.valueplus.persistence.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
-public class UserCreate {
+public class UserUpdate {
     @NotEmpty
     private String firstname;
     @NotEmpty
     private String lastname;
     @NotEmpty
-    @Size(min = 8, message = "minimum of 8 characters")
-    private String password;
-    @NotEmpty
-    @Email
-    private String email;
-    @NotEmpty
     private String phone;
     @NotEmpty
     private String address;
+
+    public User toUser(Long id) {
+        return User.builder()
+                .id(id)
+                .firstname(firstname)
+                .lastname(lastname)
+                .phone(phone)
+                .address(address)
+                .build();
+    }
 }
