@@ -2,7 +2,7 @@ package com.codeemma.valueplus.domain.service.abstracts;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
-import com.codeemma.valueplus.domain.dto.TransactionModel;
+import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

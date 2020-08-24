@@ -1,6 +1,8 @@
 package com.codeemma.valueplus.persistence.entity;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -9,6 +11,7 @@ import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
+@Setter
 @Getter
 public abstract class BasePersistentEntity {
     @CreationTimestamp

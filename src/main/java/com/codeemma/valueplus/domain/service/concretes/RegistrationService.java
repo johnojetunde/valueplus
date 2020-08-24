@@ -1,10 +1,10 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.domain.dto.RoleType;
-import com.codeemma.valueplus.domain.dto.UserCreate;
-import com.codeemma.valueplus.domain.dto.data4Me.AgentCode;
-import com.codeemma.valueplus.domain.dto.data4Me.AgentDto;
+import com.codeemma.valueplus.domain.model.RoleType;
+import com.codeemma.valueplus.domain.model.UserCreate;
+import com.codeemma.valueplus.domain.model.data4Me.AgentCode;
+import com.codeemma.valueplus.domain.model.data4Me.AgentDto;
 import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.RoleRepository;

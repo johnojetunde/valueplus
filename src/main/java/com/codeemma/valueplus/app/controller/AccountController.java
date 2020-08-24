@@ -1,8 +1,8 @@
 package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.domain.dto.AccountModel;
-import com.codeemma.valueplus.domain.dto.AccountRequest;
+import com.codeemma.valueplus.domain.model.AccountModel;
+import com.codeemma.valueplus.domain.model.AccountRequest;
 import com.codeemma.valueplus.domain.service.abstracts.AccountService;
 import com.codeemma.valueplus.domain.util.UserUtils;
 import com.codeemma.valueplus.persistence.entity.User;

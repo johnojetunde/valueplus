@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.domain.dto;
+package com.codeemma.valueplus.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

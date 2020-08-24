@@ -2,9 +2,9 @@ package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.NotFoundException;
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.domain.dto.NewPassword;
-import com.codeemma.valueplus.domain.dto.PasswordChange;
-import com.codeemma.valueplus.domain.dto.PasswordReset;
+import com.codeemma.valueplus.domain.model.NewPassword;
+import com.codeemma.valueplus.domain.model.PasswordChange;
+import com.codeemma.valueplus.domain.model.PasswordReset;
 import com.codeemma.valueplus.domain.mail.EmailService;
 import com.codeemma.valueplus.domain.util.GeneratorUtils;
 import com.codeemma.valueplus.persistence.entity.PasswordResetToken;

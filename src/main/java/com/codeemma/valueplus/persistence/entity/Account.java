@@ -1,6 +1,6 @@
 package com.codeemma.valueplus.persistence.entity;
 
-import com.codeemma.valueplus.domain.dto.AccountModel;
+import com.codeemma.valueplus.domain.model.AccountModel;
 import lombok.*;
 
 import javax.persistence.*;

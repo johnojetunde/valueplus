@@ -1,13 +1,9 @@
 package com.codeemma.valueplus.app.controller;
 
 
-import com.codeemma.valueplus.domain.dto.NewPassword;
-import com.codeemma.valueplus.domain.dto.PasswordReset;
-import com.codeemma.valueplus.domain.dto.UserDto;
-import com.codeemma.valueplus.domain.dto.VerifyEmail;
+import com.codeemma.valueplus.domain.model.VerifyEmail;
 import com.codeemma.valueplus.domain.service.concretes.EmailVerificationService;
 import com.codeemma.valueplus.domain.util.UserUtils;
-import com.codeemma.valueplus.persistence.entity.EmailVerificationToken;
 import com.codeemma.valueplus.persistence.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
