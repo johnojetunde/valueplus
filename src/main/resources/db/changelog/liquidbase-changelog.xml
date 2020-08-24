@@ -8,8 +8,11 @@
     <property dbms="h2" name="blob" value="VARBINARY"/>
     <property dbms="postgresql" name="blob" value="BYTEA"/>
 
-    <property dbms="h2" name="boolean" value="TINYINT(1)"/>
+    <property dbms="h2" name="boolean" value="BOOLEAN"/>
     <property dbms="postgresql" name="boolean" value="BOOLEAN"/>
+
+    <property dbms="h2" name="text" value="VARCHAR(255)"/>
+    <property dbms="postgresql" name="text" value="TEXT"/>
 
     <include file="/db/changelog/v0.1_create_user_and_role.xml"/>
     <include file="/db/changelog/v0.2_create_profile_picture.xml"/>

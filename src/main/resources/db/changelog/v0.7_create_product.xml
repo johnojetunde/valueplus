@@ -14,13 +14,13 @@
             <column name="name" type="VARCHAR(100)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="description" type="TEXT">
+            <column name="description" type="${text}">
                 <constraints nullable="false"/>
             </column>
             <column name="price" type="NUMERIC(20,2)">
                 <constraints nullable="false"/>
             </column>
-            <column name="image" type="TEXT">
+            <column name="image" type="${text}">
                 <constraints nullable="false"/>
             </column>
             <column name="deleted" type="${boolean}" defaultValue="false">
