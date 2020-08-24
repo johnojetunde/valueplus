@@ -1,9 +1,9 @@
 package com.codeemma.valueplus.app.controller;
 
-import com.codeemma.valueplus.domain.dto.NewPassword;
-import com.codeemma.valueplus.domain.dto.PasswordChange;
-import com.codeemma.valueplus.domain.dto.PasswordReset;
-import com.codeemma.valueplus.domain.dto.UserDto;
+import com.codeemma.valueplus.domain.model.NewPassword;
+import com.codeemma.valueplus.domain.model.PasswordChange;
+import com.codeemma.valueplus.domain.model.PasswordReset;
+import com.codeemma.valueplus.domain.model.UserDto;
 import com.codeemma.valueplus.domain.service.concretes.PasswordService;
 import com.codeemma.valueplus.domain.util.UserUtils;
 import lombok.extern.slf4j.Slf4j;

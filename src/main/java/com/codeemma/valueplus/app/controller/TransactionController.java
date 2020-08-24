@@ -2,7 +2,7 @@ package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
-import com.codeemma.valueplus.domain.dto.TransactionModel;
+import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.TransferService;
 import com.codeemma.valueplus.domain.util.UserUtils;
 import com.codeemma.valueplus.persistence.entity.User;

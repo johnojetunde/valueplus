@@ -1,6 +1,6 @@
 package com.codeemma.valueplus.persistence.entity;
 
-import com.codeemma.valueplus.domain.dto.TransactionModel;
+import com.codeemma.valueplus.domain.model.TransactionModel;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 

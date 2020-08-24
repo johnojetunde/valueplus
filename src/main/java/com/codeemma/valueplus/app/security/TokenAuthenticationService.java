@@ -1,6 +1,6 @@
 package com.codeemma.valueplus.app.security;
 
-import com.codeemma.valueplus.domain.dto.LoginToken;
+import com.codeemma.valueplus.domain.model.LoginToken;
 import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

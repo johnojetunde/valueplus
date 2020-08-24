@@ -1,7 +1,6 @@
-package com.codeemma.valueplus.domain.dto.data4Me;
+package com.codeemma.valueplus.domain.model.data4Me;
 
-
-import com.codeemma.valueplus.domain.dto.UserCreate;
+import com.codeemma.valueplus.domain.model.UserCreate;
 import lombok.*;
 
 @NoArgsConstructor

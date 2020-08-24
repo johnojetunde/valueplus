@@ -1,6 +1,6 @@
 package com.codeemma.valueplus.persistence.entity;
 
-import com.codeemma.valueplus.domain.dto.UserCreate;
+import com.codeemma.valueplus.domain.model.UserCreate;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,7 +10,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor

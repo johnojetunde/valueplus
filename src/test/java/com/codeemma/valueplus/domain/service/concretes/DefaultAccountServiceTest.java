@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.domain.dto.AccountRequest;
+import com.codeemma.valueplus.domain.model.AccountRequest;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
 import com.codeemma.valueplus.persistence.entity.Account;
 import com.codeemma.valueplus.persistence.entity.User;

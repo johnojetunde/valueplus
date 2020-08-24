@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.paystack.service;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.domain.dto.AccountModel;
+import com.codeemma.valueplus.domain.model.AccountModel;
 import com.codeemma.valueplus.domain.service.abstracts.BankService;
 import com.codeemma.valueplus.domain.service.abstracts.HttpApiClient;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
