@@ -4,11 +4,9 @@ import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
 @Builder
@@ -43,6 +41,7 @@ public class ProductOrder extends BasePersistentEntity {
                 .phoneNumber(this.phoneNumber)
                 .status(this.status)
                 .productId(this.product.getId())
+                .productName(this.product.getName())
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .build();
