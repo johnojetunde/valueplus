@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class DefaultProductService implements ProductService {
@@ -78,6 +80,6 @@ public class DefaultProductService implements ProductService {
 
     private Product getProduct(Long id) throws ValuePlusException {
         return repository.findById(id)
-                .orElseThrow(() -> new ValuePlusException("Product does not exist", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ValuePlusException("Product does not exist", NOT_FOUND));
     }
 }

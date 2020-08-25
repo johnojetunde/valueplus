@@ -21,4 +21,5 @@
     <include file="/db/changelog/v0.5_add_columns_to_user.xml"/>
     <include file="/db/changelog/v0.6_add_table_password_and_email_verify.xml"/>
     <include file="/db/changelog/v0.7_create_product.xml"/>
+    <include file="/db/changelog/V0.8_create_product_order.xml"/>
 </databaseChangeLog>
