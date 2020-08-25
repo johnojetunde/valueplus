@@ -157,7 +157,6 @@ class DefaultProductServiceTest {
         ProductModel result = productService.get(1L);
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.isDeleted()).isFalse();
     }
 
     @Test
@@ -171,7 +170,7 @@ class DefaultProductServiceTest {
         assertThat(result.getContent().get(0).getId()).isEqualTo(1L);
     }
 
-    ProductModel productFixture() {
+    private ProductModel productFixture() {
         return ProductModel.builder()
                 .name("product")
                 .image("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4QAqRXhpZgAASUkqAAgAAAABADEBAgAHAAAAGgAAAAAAAABHb29nbGUAAP")
