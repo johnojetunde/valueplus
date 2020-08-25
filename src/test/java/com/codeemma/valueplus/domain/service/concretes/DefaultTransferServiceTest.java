@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,8 +46,6 @@ class DefaultTransferServiceTest {
     @InjectMocks
     private DefaultTransferService transferService;
 
-    @Mock
-    private Sort sort;
     private User mockUser;
     private Transaction transaction;
     private Page<Transaction> pagedTransaction;
@@ -84,7 +81,7 @@ class DefaultTransferServiceTest {
         when(transactionRepository.findByUser_IdOrderByIdDesc(anyLong(), eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getAllUserTransactions(mockUser, pageable, sort);
+        var result = transferService.getAllUserTransactions(mockUser, pageable);
 
         var transaction = result.getContent().get(0);
 
@@ -99,7 +96,7 @@ class DefaultTransferServiceTest {
         when(transactionRepository.findAllByOrderByIdDesc(eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getAllTransactions(pageable, sort);
+        var result = transferService.getAllTransactions(pageable);
 
         var transaction = result.getContent().get(0);
 
@@ -142,7 +139,7 @@ class DefaultTransferServiceTest {
                 eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getTransactionBetween(mockUser, LocalDate.MIN, LocalDate.MAX, pageable, sort);
+        var result = transferService.getTransactionBetween(mockUser, LocalDate.MIN, LocalDate.MAX, pageable);
 
         var transaction = result.getContent().get(0);
 

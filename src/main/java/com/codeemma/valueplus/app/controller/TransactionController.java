@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,17 +43,15 @@ public class TransactionController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<TransactionModel> getAllTransfers(@PageableDefault Pageable pageable,
-                                                  @SortDefault(value = "id", direction = DESC) Sort sort) throws ValuePlusException {
-        return transferService.getAllTransactions(pageable, sort);
+    public Page<TransactionModel> getAllTransfers(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+        return transferService.getAllTransactions(pageable);
     }
 
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
-    public Page<TransactionModel> getUserTransfers(@PageableDefault Pageable pageable,
-                                                   @SortDefault(value = "id", direction = DESC) Sort sort) throws ValuePlusException {
+    public Page<TransactionModel> getUserTransfers(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.getAllUserTransactions(loggedInUser, pageable, sort);
+        return transferService.getAllUserTransactions(loggedInUser, pageable);
     }
 
     @GetMapping("/user/reference/{reference}")
@@ -84,9 +80,8 @@ public class TransactionController {
     public Page<TransactionModel> getUserTransferByDate(
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @PageableDefault Pageable pageable,
-            @SortDefault(value = "id", direction = DESC) Sort sort) throws ValuePlusException {
+            @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.getTransactionBetween(loggedInUser, startDate, endDate, pageable, sort);
+        return transferService.getTransactionBetween(loggedInUser, startDate, endDate, pageable);
     }
 }

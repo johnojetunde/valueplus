@@ -18,6 +18,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -40,7 +42,7 @@ public class ProductOrderController {
     @GetMapping("/product/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Page<ProductOrderModel> getByProductId(@PathVariable("id") Long productId,
-                                                  @PageableDefault Pageable pageable) throws ValuePlusException {
+                                                  @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         return productOrderService.getByProductId(productId, pageable);
     }
 
@@ -51,14 +53,15 @@ public class ProductOrderController {
                                                  @RequestParam(value = "status", required = false) OrderStatus status,
                                                  @RequestParam(value = "startDate", required = false) String startDate,
                                                  @RequestParam(value = "endDate", required = false) String endDate,
-                                                 @PageableDefault Pageable pageable) throws ValuePlusException {
+                                                 @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
 
         return productOrderService.filterProduct(
                 productId,
                 customerName,
                 status,
                 toDate(startDate),
-                toDate(endDate), pageable);
+                toDate(endDate),
+                pageable);
     }
 
     @PostMapping("/{id}/status/{status}/update")
@@ -70,7 +73,7 @@ public class ProductOrderController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProductOrderModel> getAll(@PageableDefault Pageable pageable) throws ValuePlusException {
+    public Page<ProductOrderModel> getAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         return productOrderService.get(pageable);
     }
 
