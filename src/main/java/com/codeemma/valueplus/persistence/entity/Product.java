@@ -1,20 +1,20 @@
 package com.codeemma.valueplus.persistence.entity;
 
 import com.codeemma.valueplus.domain.model.ProductModel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Builder
 @NoArgsConstructor
 @Setter
+@Getter
 @AllArgsConstructor
 @Table(name = "product")
 @Accessors(chain = true)
@@ -43,7 +43,6 @@ public class Product extends BasePersistentEntity {
                 .image(this.image)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
-                .deleted(this.deleted)
                 .build();
     }
 
@@ -53,7 +52,21 @@ public class Product extends BasePersistentEntity {
                 .description(model.getDescription())
                 .price(model.getPrice())
                 .image(model.getImage())
-                .deleted(model.isDeleted())
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Product product = (Product) o;
+        return id.equals(product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
