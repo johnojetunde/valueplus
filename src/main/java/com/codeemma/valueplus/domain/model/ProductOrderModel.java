@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.domain.model;
 
 import com.codeemma.valueplus.domain.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,9 +14,12 @@ import java.time.LocalDateTime;
 @Builder
 public class ProductOrderModel {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
     @NotNull
     private Long productId;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String productName;
     @NotBlank
     private String customerName;
     @NotBlank
