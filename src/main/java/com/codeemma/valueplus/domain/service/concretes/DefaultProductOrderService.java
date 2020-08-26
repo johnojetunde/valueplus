@@ -65,7 +65,7 @@ public class DefaultProductOrderService implements ProductOrderService {
             ensureSellingPriceIsValid(order, product);
 
             productOrderList.add(ProductOrder.fromModel(order, product)
-                    .setStatus(OrderStatus.IN_PROGRESS));
+                    .setStatus(OrderStatus.PENDING));
         }
         return productOrderList;
     }
@@ -157,7 +157,7 @@ public class DefaultProductOrderService implements ProductOrderService {
                                                          Product product) {
         ProductOrderSpecification specification = new ProductOrderSpecification();
         if (customerName != null) {
-            specification.add(new SearchCriteria<>("customerName", customerName, SearchOperation.EQUAL));
+            specification.add(new SearchCriteria<>("customerName", customerName, SearchOperation.MATCH));
         }
 
         if (product != null) {
