@@ -1,14 +1,11 @@
 package com.codeemma.valueplus.app.controller;
 
-import com.codeemma.valueplus.app.security.TokenAuthenticationService;
-import com.codeemma.valueplus.domain.model.LoginToken;
-import com.codeemma.valueplus.domain.model.RoleType;
-import com.codeemma.valueplus.domain.model.UserCreate;
-import com.codeemma.valueplus.domain.model.UserDto;
+import com.codeemma.valueplus.domain.model.*;
 import com.codeemma.valueplus.domain.service.concretes.RegistrationService;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,25 +17,23 @@ import javax.validation.Valid;
 public class RegistrationController {
 
     private final RegistrationService registrationService;
-    private final TokenAuthenticationService tokenAuthenticationService;
 
-    public RegistrationController(RegistrationService registrationService, TokenAuthenticationService tokenAuthenticationService) {
+    public RegistrationController(RegistrationService registrationService) {
         this.registrationService = registrationService;
-        this.tokenAuthenticationService = tokenAuthenticationService;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto register(@Valid @RequestBody UserCreate userCreate) throws Exception {
-        User registered = registrationService.saveUser(userCreate, RoleType.AGENT);
-        return UserDto.valueOf(registered);
+    public AgentDto register(@Valid @RequestBody AgentCreate agentCreate) throws Exception {
+        User registered = registrationService.createAgent(agentCreate);
+        return AgentDto.valueOf(registered);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin")
     @ResponseStatus(HttpStatus.CREATED)
-    public LoginToken registerAdmin(@Valid @RequestBody UserCreate userCreate) throws Exception {
-        User registered = registrationService.saveUser(userCreate, RoleType.ADMIN);
-        String token = tokenAuthenticationService.createUserToken(registered);
-        return new LoginToken(token);
+    public UserDto registerAdmin(@Valid @RequestBody UserCreate userCreate) throws Exception {
+        User registered = registrationService.createAdmin(userCreate, RoleType.ADMIN);
+        return UserDto.valueOf(registered);
     }
 }

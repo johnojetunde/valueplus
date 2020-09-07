@@ -22,4 +22,7 @@
     <include file="/db/changelog/v0.6_add_table_password_and_email_verify.xml"/>
     <include file="/db/changelog/v0.7_create_product.xml"/>
     <include file="/db/changelog/V0.8_create_product_order.xml"/>
+    <include file="/db/changelog/v0.9_update_user_table.xml"/>
+    <include file="/db/changelog/v0.10_update_product_order.xml"/>
+    <include file="/db/changelog/v0.11_create_token_store.xml"/>
 </databaseChangeLog>

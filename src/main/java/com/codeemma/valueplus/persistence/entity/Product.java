@@ -3,11 +3,9 @@ package com.codeemma.valueplus.persistence.entity;
 import com.codeemma.valueplus.domain.model.ProductModel;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity

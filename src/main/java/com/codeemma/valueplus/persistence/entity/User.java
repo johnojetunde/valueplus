@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.persistence.entity;
 
+import com.codeemma.valueplus.domain.model.AgentCreate;
 import com.codeemma.valueplus.domain.model.UserCreate;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,9 +31,7 @@ public class User extends BasePersistentEntity implements UserDetails {
     private String password;
     @Column(nullable = false, unique = true)
     private String email;
-    @Column(nullable = false)
     private String phone;
-    @Column(nullable = false)
     private String address;
     @Setter
     private String agentCode;
@@ -45,12 +44,20 @@ public class User extends BasePersistentEntity implements UserDetails {
     private boolean enabled = true;
     private boolean deleted = false;
 
-    public static UserBuilder from(UserCreate userCreate) {
-        return builder().email(userCreate.getEmail())
-                .firstname(userCreate.getFirstname())
-                .lastname(userCreate.getLastname())
-                .phone(userCreate.getPhone())
-                .address(userCreate.getAddress());
+    public static UserBuilder from(AgentCreate agentCreate) {
+        return builder().email(agentCreate.getEmail())
+                .firstname(agentCreate.getFirstname())
+                .lastname(agentCreate.getLastname())
+                .phone(agentCreate.getPhone())
+                .address(agentCreate.getAddress());
+    }
+
+    public static UserBuilder from(UserCreate agentCreate) {
+        return builder()
+                .email(agentCreate.getEmail())
+                .firstname(agentCreate.getFirstname())
+                .lastname(agentCreate.getLastname())
+                .address(agentCreate.getPhone());
     }
 
     @Override

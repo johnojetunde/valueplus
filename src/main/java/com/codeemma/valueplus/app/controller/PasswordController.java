@@ -1,9 +1,9 @@
 package com.codeemma.valueplus.app.controller;
 
+import com.codeemma.valueplus.domain.model.AgentDto;
 import com.codeemma.valueplus.domain.model.NewPassword;
 import com.codeemma.valueplus.domain.model.PasswordChange;
 import com.codeemma.valueplus.domain.model.PasswordReset;
-import com.codeemma.valueplus.domain.model.UserDto;
 import com.codeemma.valueplus.domain.service.concretes.PasswordService;
 import com.codeemma.valueplus.domain.util.UserUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +30,9 @@ public class PasswordController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/current/password-change")
-    public UserDto change(@RequestBody PasswordChange passwordChange) {
+    public AgentDto change(@RequestBody PasswordChange passwordChange) {
         long userId = UserUtils.getLoggedInUser().getId();
-        return UserDto.valueOf(
+        return AgentDto.valueOf(
                 passwordService.changePassword(userId, passwordChange)
         );
     }
