@@ -61,22 +61,11 @@ public class JwtUtils {
         return expiration;
     }
 
-//    public String getDeviceFromToken(String token) {
-//        String device;
-//        try {
-//            final Claims claims = getClaimsFromToken(token);
-//            device = claims.get("device", String.class);
-//        } catch (Exception e) {
-//            device = null;
-//        }
-//        return device;
-//    }
-
     private Date generateCurrentDate() {
         return new Date(System.currentTimeMillis());
     }
 
-    private Date generateExpirationDate() {
+    public static Date generateExpirationDate(Long expiration) {
         return new Date(System.currentTimeMillis() + expiration * 1000);
     }
 
@@ -96,7 +85,7 @@ public class JwtUtils {
         JwtBuilder jwtBuilder = Jwts.builder();
         jwtBuilder.setClaims(claims);
         jwtBuilder.setIssuedAt(generateCurrentDate());
-        jwtBuilder.setExpiration(generateExpirationDate());
+        jwtBuilder.setExpiration(generateExpirationDate(expiration));
         jwtBuilder.signWith(SignatureAlgorithm.HS512, secret);
         return jwtBuilder.compact();
     }

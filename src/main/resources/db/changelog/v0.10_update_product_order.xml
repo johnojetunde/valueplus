@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0.10_update_product_order" author="johnojetunde">
+        <addColumn tableName="product_order">
+            <column name="user_id" type="BIGINT"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="product_order"
+                                 constraintName="fk_order_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <createIndex tableName="product_order" indexName="order_user_id_idx">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

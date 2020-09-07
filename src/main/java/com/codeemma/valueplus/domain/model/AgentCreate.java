@@ -1,24 +1,24 @@
 package com.codeemma.valueplus.domain.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
-@Setter
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreate {
+@Builder
+@Getter
+public class AgentCreate extends UserCreate {
     @NotEmpty
-    private String firstname;
+    @Size(min = 8, message = "minimum of 8 characters")
+    private String password;
     @NotEmpty
-    private String lastname;
     @NotEmpty
-    @Email
-    private String email;
     private String phone;
+    @NotEmpty
+    private String address;
 }

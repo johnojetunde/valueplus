@@ -1,8 +1,8 @@
 package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.NotFoundException;
+import com.codeemma.valueplus.domain.model.AgentDto;
 import com.codeemma.valueplus.domain.model.ProfilePictureDto;
-import com.codeemma.valueplus.domain.model.UserDto;
 import com.codeemma.valueplus.domain.model.UserUpdate;
 import com.codeemma.valueplus.domain.service.concretes.ProfilePictureService;
 import com.codeemma.valueplus.domain.service.concretes.UserService;
@@ -38,41 +38,41 @@ public class UserController {
     }
 
     @GetMapping
-    public Page<UserDto> findAll(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
-                                 @RequestParam(name = "size", defaultValue = "50") Integer size) {
+    public Page<AgentDto> findAll(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
+                                  @RequestParam(name = "size", defaultValue = "50") Integer size) {
         log.debug("findAll() pageNumber ={}, size = {}", pageNumber, size);
-        return userService.findUsers(PageRequest.of(pageNumber, size)).map(UserDto::valueOf);
+        return userService.findUsers(PageRequest.of(pageNumber, size)).map(AgentDto::valueOf);
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@PathVariable("userId") long userId) {
+    public AgentDto getUser(@PathVariable("userId") long userId) {
         log.debug("getUser() id = {}", userId);
-        return userService.find(userId).map(UserDto::valueOf).orElseThrow(() -> new NotFoundException("user not found"));
+        return userService.find(userId).map(AgentDto::valueOf).orElseThrow(() -> new NotFoundException("user not found"));
     }
 
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.GET, path = "/current")
-    public UserDto getCurrentUser() throws IOException {
+    public AgentDto getCurrentUser() throws IOException {
         User user = UserUtils.getLoggedInUser();
         String photo = profilePictureService.get(user)
                 .map(ProfilePictureDto::valueOf)
                 .map(ProfilePictureDto::getPhoto)
                 .orElse(null);
 
-        return UserDto.valueOf(user, photo);
+        return AgentDto.valueOf(user, photo);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PutMapping("/{userId}")
-    public UserDto update(@RequestParam("userId") long userId, @Valid @RequestBody UserUpdate userUpdate) {
-        return UserDto.valueOf(userService.update(userUpdate.toUser(userId)));
+    public AgentDto update(@RequestParam("userId") long userId, @Valid @RequestBody UserUpdate userUpdate) {
+        return AgentDto.valueOf(userService.update(userUpdate.toUser(userId)));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/current")
-    public UserDto update(@Valid @RequestBody UserUpdate userUpdate) {
+    public AgentDto update(@Valid @RequestBody UserUpdate userUpdate) {
         long userId = UserUtils.getLoggedInUser().getId();
-        return UserDto.valueOf(userService.update(userUpdate.toUser(userId)));
+        return AgentDto.valueOf(userService.update(userUpdate.toUser(userId)));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")

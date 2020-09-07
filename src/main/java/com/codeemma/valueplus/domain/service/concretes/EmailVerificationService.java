@@ -41,6 +41,10 @@ public class EmailVerificationService {
         emailService.sendEmailVerification(user, verifyEmailLink.concat(emailVerificationToken.getVerificationToken()));
     }
 
+    public void sendAdminAccountCreationNotification(User user, String password) throws Exception {
+        emailService.sendAdminUserCreationEmail(user, password);
+    }
+
     public User confirmEmail(String token) throws Exception {
 
         Optional<EmailVerificationToken> emailVerificationToken = verificationTokenRepository.findByVerificationToken(token);
