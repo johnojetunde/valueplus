@@ -30,6 +30,9 @@ public class ProductOrder extends BasePersistentEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public ProductOrderModel toModel() {
         return ProductOrderModel.builder()
@@ -47,7 +50,7 @@ public class ProductOrder extends BasePersistentEntity {
                 .build();
     }
 
-    public static ProductOrder fromModel(ProductOrderModel model, Product product) {
+    public static ProductOrder fromModel(ProductOrderModel model, Product product, User user) {
         return ProductOrder.builder()
                 .id(model.getId())
                 .customerName(model.getCustomerName())
@@ -57,6 +60,7 @@ public class ProductOrder extends BasePersistentEntity {
                 .phoneNumber(model.getPhoneNumber())
                 .status(model.getStatus())
                 .product(product)
+                .user(user)
                 .build();
     }
 }

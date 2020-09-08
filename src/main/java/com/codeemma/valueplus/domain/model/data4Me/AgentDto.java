@@ -1,6 +1,6 @@
 package com.codeemma.valueplus.domain.model.data4Me;
 
-import com.codeemma.valueplus.domain.model.UserCreate;
+import com.codeemma.valueplus.domain.model.AgentCreate;
 import lombok.*;
 
 @NoArgsConstructor
@@ -15,10 +15,10 @@ public class AgentDto {
     @Setter
     private String password;
 
-    public static AgentDto from(UserCreate userCreate) {
-        return builder().email(userCreate.getEmail())
-                .name(userCreate.getFirstname().concat(" "+userCreate.getLastname()))
-                .cell(userCreate.getPhone())
-                .address(userCreate.getAddress()).build();
+    public static AgentDto from(AgentCreate agentCreate) {
+        return builder().email(agentCreate.getEmail())
+                .name(agentCreate.getFirstname().concat(" " + agentCreate.getLastname()))
+                .cell(agentCreate.getPhone())
+                .address(agentCreate.getAddress()).build();
     }
 }

@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
+import com.codeemma.valueplus.app.security.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import com.codeemma.valueplus.domain.service.abstracts.ProductOrderService;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,21 +31,23 @@ public class ProductOrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductOrderModel> create(@Valid @RequestBody List<ProductOrderModel> orders) throws ValuePlusException {
-        return productOrderService.create(orders);
+    public List<ProductOrderModel> create(@AuthenticationPrincipal UserAuthentication user,
+                                          @Valid @RequestBody List<ProductOrderModel> orders) throws ValuePlusException {
+        return productOrderService.create(orders, user);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductOrderModel get(@PathVariable("id") Long id) throws ValuePlusException {
-        return productOrderService.get(id);
+    public ProductOrderModel get(@PathVariable("id") Long id, @AuthenticationPrincipal UserAuthentication user) throws ValuePlusException {
+        return productOrderService.get(id, user);
     }
 
     @GetMapping("/product/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Page<ProductOrderModel> getByProductId(@PathVariable("id") Long productId,
-                                                  @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        return productOrderService.getByProductId(productId, pageable);
+                                                  @PageableDefault(sort = "id", direction = DESC) Pageable pageable,
+                                                  @AuthenticationPrincipal UserAuthentication user) throws ValuePlusException {
+        return productOrderService.getByProductId(productId, user, pageable);
     }
 
     @GetMapping("/filter")
@@ -53,7 +57,8 @@ public class ProductOrderController {
                                                  @RequestParam(value = "status", required = false) OrderStatus status,
                                                  @RequestParam(value = "startDate", required = false) String startDate,
                                                  @RequestParam(value = "endDate", required = false) String endDate,
-                                                 @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+                                                 @PageableDefault(sort = "id", direction = DESC) Pageable pageable,
+                                                 @AuthenticationPrincipal UserAuthentication user) throws ValuePlusException {
 
         return productOrderService.filterProduct(
                 productId,
@@ -61,20 +66,23 @@ public class ProductOrderController {
                 status,
                 toDate(startDate),
                 toDate(endDate),
-                pageable);
+                pageable,
+                user);
     }
 
     @PostMapping("/{id}/status/{status}/update")
     @ResponseStatus(HttpStatus.OK)
     public ProductOrderModel updateStatus(@PathVariable("id") Long orderId,
-                                          @PathVariable("status") OrderStatus status) throws ValuePlusException {
-        return productOrderService.updateStatus(orderId, status);
+                                          @PathVariable("status") OrderStatus status,
+                                          @AuthenticationPrincipal UserAuthentication user) throws ValuePlusException {
+        return productOrderService.updateStatus(orderId, status, user);
     }
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProductOrderModel> getAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        return productOrderService.get(pageable);
+    public Page<ProductOrderModel> getAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable,
+                                          @AuthenticationPrincipal UserAuthentication user) throws ValuePlusException {
+        return productOrderService.get(user, pageable);
     }
 
     private LocalDate toDate(String date) {

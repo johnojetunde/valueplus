@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
+import com.codeemma.valueplus.domain.model.AgentCreate;
 import com.codeemma.valueplus.domain.model.RoleType;
 import com.codeemma.valueplus.domain.model.UserCreate;
 import com.codeemma.valueplus.domain.model.data4Me.AgentCode;
@@ -14,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
+import static com.codeemma.valueplus.domain.util.GeneratorUtils.generateRandomString;
 
 @Service
 public class RegistrationService {
@@ -35,23 +39,42 @@ public class RegistrationService {
         this.emailVerificationService = emailVerificationService;
     }
 
-    public User saveUser(UserCreate userCreate, RoleType roleType) throws Exception {
+    public User createAgent(AgentCreate agentCreate) throws Exception {
+        if (userRepository.findByEmailAndDeletedFalse(agentCreate.getEmail())
+                .isPresent()) {
+            throw new ValuePlusException("User profile exists", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userRepository.save(User.from(agentCreate)
+                .role(getRole(AGENT))
+                .password(passwordEncoder.encode(agentCreate.getPassword()))
+                .enabled(true)
+                .build());
+
+        Optional<AgentCode> agentOptional = data4meService.createAgent(AgentDto.from(agentCreate));
+        agentOptional.ifPresent(agent -> user.setAgentCode(agent.getCode()));
+
+        userRepository.save(user);
+        emailVerificationService.sendVerifyEmail(user);
+        return user;
+    }
+
+    public User createAdmin(UserCreate userCreate, RoleType roleType) throws Exception {
         if (userRepository.findByEmailAndDeletedFalse(userCreate.getEmail())
                 .isPresent()) {
             throw new ValuePlusException("User profile exists", HttpStatus.BAD_REQUEST);
         }
 
+        String password = generateRandomString(10);
         User user = userRepository.save(User.from(userCreate)
                 .role(getRole(roleType))
-                .password(passwordEncoder.encode(userCreate.getPassword()))
-                .enabled(true).build());
+                .password(passwordEncoder.encode(password))
+                .enabled(true)
+                .emailVerified(true)
+                .build());
 
-        Optional<AgentCode> agent = data4meService.createAgent(AgentDto.from(userCreate));
-        if (agent.isPresent()) {
-            user.setAgentCode(agent.get().getCode());
-            userRepository.save(user);
-        }
-        emailVerificationService.sendVerifyEmail(user);
+        userRepository.save(user);
+        emailVerificationService.sendAdminAccountCreationNotification(user, password);
         return user;
     }
 
