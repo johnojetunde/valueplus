@@ -176,10 +176,10 @@ public class DefaultTransferService implements TransferService {
                                                         User user) {
         TransactionSpecification specification = new TransactionSpecification();
         if (status != null) {
-            specification.add(new SearchCriteria<>("status", status, SearchOperation.EQUAL));
+            specification.add(new SearchCriteria<>("status", status.name(), SearchOperation.MATCH));
         }
 
-        if (AGENT.name().equals(user.getRole().getName())) {
+        if (isAgent(user)) {
             specification.add(new SearchCriteria<>("user", user, SearchOperation.EQUAL));
         }
 
