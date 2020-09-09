@@ -4,11 +4,11 @@ public enum TransactionStatus {
     PENDING, COMPLETED, FAILED;
 
     public static TransactionStatus resolve(String st) {
-        TransactionStatus status = TransactionStatus.PENDING;
+        TransactionStatus status = PENDING;
         if ("failed".equalsIgnoreCase(st) || "error".equalsIgnoreCase(st)) {
-            status = TransactionStatus.FAILED;
+            status = FAILED;
         } else if ("success".equalsIgnoreCase(st)) {
-            status = TransactionStatus.COMPLETED;
+            status = COMPLETED;
         }
 
         return status;
