@@ -4,6 +4,7 @@ import com.codeemma.valueplus.app.model.PaymentRequestModel;
 import com.codeemma.valueplus.paystack.model.AccountNumberModel;
 import com.codeemma.valueplus.paystack.model.TransferResponse;
 import com.codeemma.valueplus.persistence.entity.Account;
+import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.Transaction;
 import com.codeemma.valueplus.persistence.entity.User;
 import lombok.experimental.UtilityClass;
@@ -15,6 +16,7 @@ public class TestFixtures {
     public static User mockUser() {
         return User.builder()
                 .id(1L)
+                .role(new Role("AGENT"))
                 .build();
     }
 

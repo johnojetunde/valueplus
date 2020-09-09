@@ -4,6 +4,7 @@ import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.domain.model.AccountModel;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
+import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.Transaction;
 import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.AccountRepository;
@@ -46,7 +47,8 @@ class DefaultTransferServiceTest {
     @InjectMocks
     private DefaultTransferService transferService;
 
-    private User mockUser;
+    private User agentUser;
+    private User adminUser;
     private Transaction transaction;
     private Page<Transaction> pagedTransaction;
 
@@ -54,7 +56,10 @@ class DefaultTransferServiceTest {
     void setUp() throws ValuePlusException {
         String accountNumber = "0011313333";
         initMocks(this);
-        mockUser = mockUser();
+        agentUser = mockUser();
+        adminUser = mockUser();
+        adminUser.setRole(new Role("ADMIN"));
+
         transaction = mockTransaction(accountNumber);
         pagedTransaction = new PageImpl<>(singletonList(transaction));
         when(accountRepository.findByUser_Id(anyLong()))
@@ -63,13 +68,12 @@ class DefaultTransferServiceTest {
                 .thenReturn(mockTransferResponse(BigDecimal.valueOf(100)));
         when(transactionRepository.save(any(Transaction.class)))
                 .then(i -> i.getArgument(0, Transaction.class));
-
     }
 
     @Test
     void transfer() throws ValuePlusException {
         var requestModel = mockPaymentRequestModel(BigDecimal.TEN);
-        TransactionModel model = transferService.transfer(mockUser, requestModel);
+        TransactionModel model = transferService.transfer(agentUser, requestModel);
 
         verify(accountRepository).findByUser_Id(anyLong());
         verify(paymentService).transfer(any(AccountModel.class), any(BigDecimal.class));
@@ -81,7 +85,7 @@ class DefaultTransferServiceTest {
         when(transactionRepository.findByUser_IdOrderByIdDesc(anyLong(), eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getAllUserTransactions(mockUser, pageable);
+        var result = transferService.getAllUserTransactions(agentUser, pageable);
 
         var transaction = result.getContent().get(0);
 
@@ -111,7 +115,7 @@ class DefaultTransferServiceTest {
         when(transactionRepository.findByUser_IdAndReference(anyLong(), anyString()))
                 .thenReturn(Optional.of(transaction));
 
-        var result = transferService.getTransactionByReference(mockUser, "reference");
+        var result = transferService.getTransactionByReference(agentUser, "reference");
 
         assertTrue(result.isPresent());
         assertTransaction(result.get());
@@ -120,14 +124,38 @@ class DefaultTransferServiceTest {
     }
 
     @Test
+    void getTransactionByReference_Admin() throws ValuePlusException {
+        when(transactionRepository.findByReference(anyString()))
+                .thenReturn(Optional.of(transaction));
+
+        var result = transferService.getTransactionByReference(adminUser, "reference");
+
+        assertTrue(result.isPresent());
+        assertTransaction(result.get());
+
+        verify(transactionRepository).findByReference(anyString());
+    }
+
+    @Test
     void getTransactionByReference_returnsEmpty() throws ValuePlusException {
         when(transactionRepository.findByUser_IdAndReference(anyLong(), anyString()))
                 .thenReturn(empty());
-        var result = transferService.getTransactionByReference(mockUser, "reference");
+        var result = transferService.getTransactionByReference(agentUser, "reference");
 
         assertTrue(result.isEmpty());
 
         verify(transactionRepository).findByUser_IdAndReference(anyLong(), anyString());
+    }
+
+    @Test
+    void getTransactionByReference_returnsEmpty_Admin() throws ValuePlusException {
+        when(transactionRepository.findByReference(anyString()))
+                .thenReturn(empty());
+        var result = transferService.getTransactionByReference(adminUser, "reference");
+
+        assertTrue(result.isEmpty());
+
+        verify(transactionRepository).findByReference(anyString());
     }
 
     @Test
@@ -139,7 +167,7 @@ class DefaultTransferServiceTest {
                 eq(pageable)))
                 .thenReturn(pagedTransaction);
 
-        var result = transferService.getTransactionBetween(mockUser, LocalDate.MIN, LocalDate.MAX, pageable);
+        var result = transferService.getTransactionBetween(agentUser, LocalDate.MIN, LocalDate.MAX, pageable);
 
         var transaction = result.getContent().get(0);
 
@@ -148,6 +176,27 @@ class DefaultTransferServiceTest {
 
         verify(transactionRepository).findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
                 anyLong(),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                eq(pageable));
+    }
+
+    @Test
+    void getTransactionBetween_Admin() throws ValuePlusException {
+        when(transactionRepository.findByCreatedAtIsBetweenOrderByIdDesc(
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                eq(pageable)))
+                .thenReturn(pagedTransaction);
+
+        var result = transferService.getTransactionBetween(adminUser, LocalDate.MIN, LocalDate.MAX, pageable);
+
+        var transaction = result.getContent().get(0);
+
+        assertPagedResult(result);
+        assertTransaction(transaction);
+
+        verify(transactionRepository).findByCreatedAtIsBetweenOrderByIdDesc(
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
                 eq(pageable));

@@ -32,6 +32,7 @@ public class ProductOrderModel {
     private String phoneNumber;
     private OrderStatus status;
 
+    private BigDecimal productPrice;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
