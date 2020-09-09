@@ -43,6 +43,7 @@ public class ProductOrder extends BasePersistentEntity {
                 .sellingPrice(this.sellingPrice)
                 .phoneNumber(this.phoneNumber)
                 .status(this.status)
+                .productPrice(this.product.getPrice())
                 .productId(this.product.getId())
                 .productName(this.product.getName())
                 .createdAt(this.createdAt)

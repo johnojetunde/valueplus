@@ -2,6 +2,7 @@ package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
+import com.codeemma.valueplus.domain.enums.TransactionStatus;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.TransferService;
 import com.codeemma.valueplus.domain.util.UserUtils;
@@ -47,6 +48,7 @@ public class TransactionController {
         return transferService.getAllTransactions(pageable);
     }
 
+    @PreAuthorize("hasAnyRole('AGENT')")
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionModel> getUserTransfers(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
@@ -54,14 +56,14 @@ public class TransactionController {
         return transferService.getAllUserTransactions(loggedInUser, pageable);
     }
 
-    @GetMapping("/user/reference/{reference}")
+    @GetMapping("/reference/{reference}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<TransactionModel> getUserTransfers(@PathVariable("reference") String reference) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
         return transferService.getTransactionByReference(loggedInUser, reference);
     }
 
-    @GetMapping("/user/verify/{reference}")
+    @GetMapping("/verify/{reference}")
     @ResponseStatus(HttpStatus.OK)
     public TransactionModel verifyTransaction(@PathVariable("reference") String reference) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
@@ -73,6 +75,17 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public CompletableFuture<Void> verifyPendingTransaction() {
         return transferService.verifyPendingTransactions();
+    }
+
+    @GetMapping("/filter")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<TransactionModel> getTransferByDate(
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(value = "status", required = false) TransactionStatus status,
+            @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+        User loggedInUser = UserUtils.getLoggedInUser();
+        return transferService.filter(loggedInUser, status, startDate, endDate, pageable);
     }
 
     @GetMapping("/user/filter")
