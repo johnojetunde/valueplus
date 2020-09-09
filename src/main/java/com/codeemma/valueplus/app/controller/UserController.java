@@ -37,17 +37,21 @@ public class UserController {
         this.profilePictureService = profilePictureService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping
     public Page<AgentDto> findAll(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
                                   @RequestParam(name = "size", defaultValue = "50") Integer size) {
         log.debug("findAll() pageNumber ={}, size = {}", pageNumber, size);
-        return userService.findUsers(PageRequest.of(pageNumber, size)).map(AgentDto::valueOf);
+        return userService.findUsers(PageRequest.of(pageNumber, size))
+                .map(AgentDto::valueOf);
     }
 
     @GetMapping("/{userId}")
     public AgentDto getUser(@PathVariable("userId") long userId) {
         log.debug("getUser() id = {}", userId);
-        return userService.find(userId).map(AgentDto::valueOf).orElseThrow(() -> new NotFoundException("user not found"));
+        return userService.find(userId)
+                .map(AgentDto::valueOf)
+                .orElseThrow(() -> new NotFoundException("user not found"));
     }
 
     @PreAuthorize("isAuthenticated()")

@@ -17,10 +17,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Optional<Transaction> findByUser_IdAndReference(Long userId, String reference);
 
+    Optional<Transaction> findByReference(String reference);
+
     Page<Transaction> findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(Long userId,
                                                                       LocalDateTime startDate,
                                                                       LocalDateTime endDate,
                                                                       Pageable pageable);
+
+    Page<Transaction> findByCreatedAtIsBetweenOrderByIdDesc(LocalDateTime startDate,
+                                                            LocalDateTime endDate,
+                                                            Pageable pageable);
 
     @Query("select t from Transaction t where t.status<>'success' OR t.status<>'error' OR t.status <> 'failed'")
     List<Transaction> findPendingTransactions();

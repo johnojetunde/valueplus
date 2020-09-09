@@ -47,6 +47,7 @@ public class TransactionController {
         return transferService.getAllTransactions(pageable);
     }
 
+    @PreAuthorize("hasAnyRole('AGENT')")
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionModel> getUserTransfers(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
@@ -54,14 +55,14 @@ public class TransactionController {
         return transferService.getAllUserTransactions(loggedInUser, pageable);
     }
 
-    @GetMapping("/user/reference/{reference}")
+    @GetMapping("/reference/{reference}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<TransactionModel> getUserTransfers(@PathVariable("reference") String reference) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
         return transferService.getTransactionByReference(loggedInUser, reference);
     }
 
-    @GetMapping("/user/verify/{reference}")
+    @GetMapping("/verify/{reference}")
     @ResponseStatus(HttpStatus.OK)
     public TransactionModel verifyTransaction(@PathVariable("reference") String reference) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
@@ -73,6 +74,17 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public CompletableFuture<Void> verifyPendingTransaction() {
         return transferService.verifyPendingTransactions();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/filter")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<TransactionModel> getTransferByDate(
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+        User loggedInUser = UserUtils.getLoggedInUser();
+        return transferService.getTransactionBetween(loggedInUser, startDate, endDate, pageable);
     }
 
     @GetMapping("/user/filter")

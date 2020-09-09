@@ -25,6 +25,7 @@ import java.time.LocalTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
 import static com.codeemma.valueplus.domain.util.FunctionUtil.convertToNaira;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -63,10 +64,17 @@ public class DefaultTransferService implements TransferService {
 
     @Override
     public TransactionModel verify(User user, String referenceNumber) throws ValuePlusException {
-        Transaction transaction = transactionRepository.findByUser_IdAndReference(user.getId(), referenceNumber)
+        Optional<Transaction> transaction;
+        if (isAgent(user)) {
+            transaction = transactionRepository.findByUser_IdAndReference(user.getId(), referenceNumber);
+        } else {
+            transaction = transactionRepository.findByReference(referenceNumber);
+        }
+
+        var transactionEntity = transaction
                 .orElseThrow(() -> new ValuePlusException("No transaction exists with this reference number", BAD_REQUEST));
 
-        return verify(transaction);
+        return verify(transactionEntity);
     }
 
     @Override
@@ -108,8 +116,13 @@ public class DefaultTransferService implements TransferService {
     @Override
     public Optional<TransactionModel> getTransactionByReference(User user, String reference) throws ValuePlusException {
         try {
-            return transactionRepository.findByUser_IdAndReference(user.getId(), reference)
-                    .map(Transaction::toModel);
+            Optional<Transaction> transaction;
+            if (isAgent(user)) {
+                transaction = transactionRepository.findByUser_IdAndReference(user.getId(), reference);
+            } else {
+                transaction = transactionRepository.findByReference(reference);
+            }
+            return transaction.map(Transaction::toModel);
         } catch (Exception e) {
             log.error(TRANSACTION_FETCH_ERROR_MSG, e);
             throw new ValuePlusException(TRANSACTION_FETCH_ERROR_MSG, e);
@@ -124,16 +137,29 @@ public class DefaultTransferService implements TransferService {
         try {
             LocalDateTime startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
             LocalDateTime endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
-            return transactionRepository.findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
-                    user.getId(),
-                    startDateTime,
-                    endDateTime,
-                    pageable)
-                    .map(Transaction::toModel);
+            Page<Transaction> transactions;
+            if (isAgent(user)) {
+                transactions = transactionRepository.findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(
+                        user.getId(),
+                        startDateTime,
+                        endDateTime,
+                        pageable);
+            } else {
+                transactions = transactionRepository.findByCreatedAtIsBetweenOrderByIdDesc(
+                        startDateTime,
+                        endDateTime,
+                        pageable);
+            }
+
+            return transactions.map(Transaction::toModel);
         } catch (Exception e) {
             log.error(TRANSACTION_FETCH_ERROR_MSG, e);
             throw new ValuePlusException(TRANSACTION_FETCH_ERROR_MSG, e);
         }
+    }
+
+    private boolean isAgent(User user) {
+        return AGENT.name().equals(user.getRole().getName());
     }
 
     private TransactionModel verify(Transaction transaction) throws ValuePlusException {
