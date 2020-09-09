@@ -4,13 +4,14 @@ import com.codeemma.valueplus.persistence.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
     Page<Transaction> findByUser_IdOrderByIdDesc(Long userId, Pageable pageable);
 
     Page<Transaction> findAllByOrderByIdDesc(Pageable pageable);

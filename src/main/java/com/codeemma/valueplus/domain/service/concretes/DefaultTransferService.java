@@ -2,6 +2,7 @@ package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
+import com.codeemma.valueplus.domain.enums.TransactionStatus;
 import com.codeemma.valueplus.domain.model.AccountModel;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
@@ -13,10 +14,14 @@ import com.codeemma.valueplus.persistence.entity.Transaction;
 import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.AccountRepository;
 import com.codeemma.valueplus.persistence.repository.TransactionRepository;
+import com.codeemma.valueplus.persistence.specs.SearchCriteria;
+import com.codeemma.valueplus.persistence.specs.SearchOperation;
+import com.codeemma.valueplus.persistence.specs.TransactionSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -156,6 +161,41 @@ public class DefaultTransferService implements TransferService {
             log.error(TRANSACTION_FETCH_ERROR_MSG, e);
             throw new ValuePlusException(TRANSACTION_FETCH_ERROR_MSG, e);
         }
+    }
+
+    @Override
+    public Page<TransactionModel> filter(User user, TransactionStatus status, LocalDate startDate, LocalDate endDate, Pageable pageable) throws ValuePlusException {
+        TransactionSpecification specification = buildSpecification(status, startDate, endDate, user);
+        return transactionRepository.findAll(Specification.where(specification), pageable)
+                .map(Transaction::toModel);
+    }
+
+    private TransactionSpecification buildSpecification(TransactionStatus status,
+                                                        LocalDate startDate,
+                                                        LocalDate endDate,
+                                                        User user) {
+        TransactionSpecification specification = new TransactionSpecification();
+        if (status != null) {
+            specification.add(new SearchCriteria<>("status", status, SearchOperation.EQUAL));
+        }
+
+        if (AGENT.name().equals(user.getRole().getName())) {
+            specification.add(new SearchCriteria<>("user", user, SearchOperation.EQUAL));
+        }
+
+        if (startDate != null) {
+            specification.add(new SearchCriteria<>(
+                    "createdAt",
+                    startDate.atTime(LocalTime.MIN),
+                    SearchOperation.GREATER_THAN_EQUAL));
+        }
+
+        if (endDate != null) {
+            specification.add(new SearchCriteria<>("createdAt",
+                    endDate.atTime(LocalTime.MAX),
+                    SearchOperation.LESS_THAN_EQUAL));
+        }
+        return specification;
     }
 
     private boolean isAgent(User user) {
