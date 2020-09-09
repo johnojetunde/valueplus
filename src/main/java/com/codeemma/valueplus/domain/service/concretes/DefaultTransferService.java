@@ -2,7 +2,7 @@ package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
-import com.codeemma.valueplus.domain.enums.TransactionStatus;
+import com.codeemma.valueplus.domain.enums.TransactionStatusFilter;
 import com.codeemma.valueplus.domain.model.AccountModel;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
@@ -164,19 +164,19 @@ public class DefaultTransferService implements TransferService {
     }
 
     @Override
-    public Page<TransactionModel> filter(User user, TransactionStatus status, LocalDate startDate, LocalDate endDate, Pageable pageable) throws ValuePlusException {
+    public Page<TransactionModel> filter(User user, TransactionStatusFilter status, LocalDate startDate, LocalDate endDate, Pageable pageable) throws ValuePlusException {
         TransactionSpecification specification = buildSpecification(status, startDate, endDate, user);
         return transactionRepository.findAll(Specification.where(specification), pageable)
                 .map(Transaction::toModel);
     }
 
-    private TransactionSpecification buildSpecification(TransactionStatus status,
+    private TransactionSpecification buildSpecification(TransactionStatusFilter status,
                                                         LocalDate startDate,
                                                         LocalDate endDate,
                                                         User user) {
         TransactionSpecification specification = new TransactionSpecification();
         if (status != null) {
-            specification.add(new SearchCriteria<>("status", status.name(), SearchOperation.MATCH));
+            specification.add(new SearchCriteria<>("status", status.name().toLowerCase(), SearchOperation.MATCH));
         }
 
         if (isAgent(user)) {

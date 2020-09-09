@@ -2,7 +2,7 @@ package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
-import com.codeemma.valueplus.domain.enums.TransactionStatus;
+import com.codeemma.valueplus.domain.enums.TransactionStatusFilter;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.TransferService;
 import com.codeemma.valueplus.domain.util.UserUtils;
@@ -82,7 +82,7 @@ public class TransactionController {
     public Page<TransactionModel> getTransferByDate(
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(value = "status", required = false) TransactionStatus status,
+            @RequestParam(value = "status", required = false) TransactionStatusFilter status,
             @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         User loggedInUser = UserUtils.getLoggedInUser();
         return transferService.filter(loggedInUser, status, startDate, endDate, pageable);
