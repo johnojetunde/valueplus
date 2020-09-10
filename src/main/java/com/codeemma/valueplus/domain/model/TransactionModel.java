@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.domain.model;
 
 import com.codeemma.valueplus.domain.enums.TransactionStatus;
+import com.codeemma.valueplus.domain.enums.TransactionStatusFilter;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,6 +18,7 @@ public class TransactionModel {
     private final String currency;
     private final String reference;
     private final TransactionStatus status;
+    private final TransactionStatusFilter paystackStatus;
     private final Long userId;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
