@@ -58,7 +58,7 @@ public class User extends BasePersistentEntity implements UserDetails {
                 .email(agentCreate.getEmail())
                 .firstname(agentCreate.getFirstname())
                 .lastname(agentCreate.getLastname())
-                .address(agentCreate.getPhone());
+                .phone(agentCreate.getPhone());
     }
 
     @Override
