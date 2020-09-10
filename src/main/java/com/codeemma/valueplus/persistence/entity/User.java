@@ -46,7 +46,8 @@ public class User extends BasePersistentEntity implements UserDetails {
     private boolean deleted = false;
 
     public static UserBuilder from(AgentCreate agentCreate) {
-        return builder().email(agentCreate.getEmail())
+        return builder()
+                .email(agentCreate.getEmail())
                 .firstname(agentCreate.getFirstname())
                 .lastname(agentCreate.getLastname())
                 .phone(agentCreate.getPhone())
