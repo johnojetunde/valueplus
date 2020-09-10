@@ -2,7 +2,6 @@ package com.codeemma.valueplus.domain.service.abstracts;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
-import com.codeemma.valueplus.domain.enums.TransactionStatusFilter;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.data.domain.Page;
@@ -31,7 +30,7 @@ public interface TransferService {
                                                  Pageable pageable) throws ValuePlusException;
 
     Page<TransactionModel> filter(User user,
-                                  TransactionStatusFilter status,
+                                  String status,
                                   LocalDate startDate,
                                   LocalDate endDate,
                                   Pageable pageable) throws ValuePlusException;
