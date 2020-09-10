@@ -20,9 +20,9 @@ public class UserDto {
 
     public static UserDto valueOf(User user) {
         return new UserDto(
-                user.getEmail(),
                 user.getFirstname(),
                 user.getLastname(),
+                user.getEmail(),
                 user.getPhone(),
                 user.getAddress(),
                 user.getRole().getName());
