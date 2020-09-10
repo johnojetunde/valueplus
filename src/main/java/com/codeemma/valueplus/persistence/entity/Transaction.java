@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.persistence.entity;
 
+import com.codeemma.valueplus.domain.enums.TransactionStatusFilter;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
@@ -42,6 +43,7 @@ public class Transaction extends BasePersistentEntity {
                 .bankCode(this.bankCode)
                 .reference(this.reference)
                 .status(resolve(this.status))
+                .paystackStatus(TransactionStatusFilter.fromString(this.status))
                 .currency(this.currency)
                 .userId(this.user.getId())
                 .createdAt(this.createdAt)
