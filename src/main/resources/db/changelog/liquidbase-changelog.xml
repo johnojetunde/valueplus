@@ -25,4 +25,6 @@
     <include file="/db/changelog/v0.9_update_user_table.xml"/>
     <include file="/db/changelog/v0.10_update_product_order.xml"/>
     <include file="/db/changelog/v0.11_create_token_store.xml"/>
+    <include file="/db/changelog/v0.12_create_wallet.xml"/>
+    <include file="/db/changelog/v0.13_create_wallet_history.xml"/>
 </databaseChangeLog>

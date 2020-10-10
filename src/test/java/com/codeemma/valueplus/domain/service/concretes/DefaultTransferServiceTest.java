@@ -3,7 +3,9 @@ package com.codeemma.valueplus.domain.service.concretes;
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.domain.model.AccountModel;
 import com.codeemma.valueplus.domain.model.TransactionModel;
+import com.codeemma.valueplus.domain.model.WalletModel;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
+import com.codeemma.valueplus.domain.service.abstracts.WalletService;
 import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.Transaction;
 import com.codeemma.valueplus.persistence.entity.User;
@@ -40,10 +42,10 @@ class DefaultTransferServiceTest {
     private TransactionRepository transactionRepository;
     @Mock
     private AccountRepository accountRepository;
-
     @Mock
     private Pageable pageable;
-
+    @Mock
+    private WalletService walletService;
     @InjectMocks
     private DefaultTransferService transferService;
 
@@ -73,11 +75,15 @@ class DefaultTransferServiceTest {
     @Test
     void transfer() throws ValuePlusException {
         var requestModel = mockPaymentRequestModel(BigDecimal.TEN);
+        when(walletService.debitWallet(eq(agentUser), eq(requestModel.getAmount())))
+                .thenReturn(WalletModel.builder().build());
+
         TransactionModel model = transferService.transfer(agentUser, requestModel);
 
         verify(accountRepository).findByUser_Id(anyLong());
         verify(paymentService).transfer(any(AccountModel.class), any(BigDecimal.class));
         verify(transactionRepository).save(any(Transaction.class));
+        verify(walletService).debitWallet(eq(agentUser), eq(requestModel.getAmount()));
     }
 
     @Test

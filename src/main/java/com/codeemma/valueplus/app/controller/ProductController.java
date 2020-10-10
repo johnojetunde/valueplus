@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -43,7 +45,7 @@ public class ProductController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProductModel> getAll(@PageableDefault Pageable pageable) throws ValuePlusException {
+    public Page<ProductModel> getAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         return productService.get(pageable);
     }
 }

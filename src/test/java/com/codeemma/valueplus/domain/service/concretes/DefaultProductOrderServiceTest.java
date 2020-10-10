@@ -4,10 +4,10 @@ import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.security.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
-import com.codeemma.valueplus.domain.model.RoleType;
+import com.codeemma.valueplus.domain.model.WalletModel;
+import com.codeemma.valueplus.domain.service.abstracts.WalletService;
 import com.codeemma.valueplus.persistence.entity.Product;
 import com.codeemma.valueplus.persistence.entity.ProductOrder;
-import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.ProductOrderRepository;
 import com.codeemma.valueplus.persistence.repository.ProductRepository;
@@ -31,6 +31,7 @@ import java.util.Set;
 
 import static com.codeemma.valueplus.domain.model.RoleType.ADMIN;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
+import static com.codeemma.valueplus.fixtures.TestFixtures.getUser;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,10 +49,12 @@ class DefaultProductOrderServiceTest {
     private ProductOrderRepository repository;
     @Mock
     private Pageable pageable;
-    @InjectMocks
-    private DefaultProductOrderService orderService;
     @Mock
     private UserAuthentication authentication;
+    @Mock
+    private WalletService walletService;
+    @InjectMocks
+    private DefaultProductOrderService orderService;
     private ProductOrderModel productOrderModel;
     private ProductOrder entity;
     private Product product;
@@ -73,13 +76,6 @@ class DefaultProductOrderServiceTest {
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
 
-    }
-
-    private User getUser(RoleType roleType) {
-        return User.builder()
-                .id(1L)
-                .role(new Role(1L, roleType.name()))
-                .build();
     }
 
     @Test
@@ -111,11 +107,12 @@ class DefaultProductOrderServiceTest {
     @Test
     void create_WithInvalidPrice() {
         when(productRepository.findByIdIn(anyList()))
-                .thenReturn(Set.of(product.setPrice(new BigDecimal(2))));
+                .thenReturn(Set.of(product.setPrice(new BigDecimal(20))));
         when(repository.saveAll(anyList()))
                 .thenReturn(List.of(entity));
 
         productOrderModel.setId(null);
+        productOrderModel.setSellingPrice(BigDecimal.TEN);
         List<ProductOrderModel> orders = singletonList(productOrderModel);
 
         assertThatThrownBy(() -> orderService.create(orders, authentication))
@@ -303,6 +300,8 @@ class DefaultProductOrderServiceTest {
                 .thenReturn(Optional.of(entity));
         when(repository.save(any(ProductOrder.class)))
                 .then(i -> i.getArgument(0, ProductOrder.class));
+        when(walletService.creditWallet(eq(entity.getUser()), eq(BigDecimal.valueOf(9))))
+                .thenReturn(WalletModel.builder().build());
 
         ProductOrderModel result = orderService.updateStatus(1L, OrderStatus.COMPLETED, authentication);
         assertThat(result).isNotNull();
@@ -310,6 +309,7 @@ class DefaultProductOrderServiceTest {
 
         verify(repository).findById(eq(1L));
         verify(repository).save(any(ProductOrder.class));
+        verify(walletService).creditWallet(eq(entity.getUser()), eq(BigDecimal.valueOf(90)));
     }
 
     @Test
@@ -333,7 +333,7 @@ class DefaultProductOrderServiceTest {
                 .customerName("customerName")
                 .address("address")
                 .quantity(10L)
-                .sellingPrice(BigDecimal.ONE)
+                .sellingPrice(BigDecimal.TEN)
                 .phoneNumber("09000000000")
                 .status(OrderStatus.IN_PROGRESS)
                 .productId(1L)

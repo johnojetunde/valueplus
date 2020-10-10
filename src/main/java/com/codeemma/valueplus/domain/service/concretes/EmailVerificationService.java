@@ -48,7 +48,7 @@ public class EmailVerificationService {
     public User confirmEmail(String token) throws Exception {
 
         Optional<EmailVerificationToken> emailVerificationToken = verificationTokenRepository.findByVerificationToken(token);
-        if (!emailVerificationToken.isPresent()) {
+        if (emailVerificationToken.isEmpty()) {
             log.error("email verification token not found, token = {}", token);
 
             throw new ValuePlusException("expired link", HttpStatus.NOT_FOUND);
@@ -56,7 +56,7 @@ public class EmailVerificationService {
 
         Long userId = emailVerificationToken.get().getUserId();
         Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             log.error("user not found, userId = {}", userId);
             throw new ValuePlusException("expired link", HttpStatus.NOT_FOUND);
         }

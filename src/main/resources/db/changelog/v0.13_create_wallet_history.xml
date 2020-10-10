@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0.13_create_wallet_history" author="johnojetunde">
+        <createTable tableName="wallet_history">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_wallet-history"/>
+            </column>
+            <column name="amount" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="wallet_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="wallet_id"
+                                 baseTableName="wallet_history"
+                                 constraintName="fk_wallet_history_wallet"
+                                 referencedColumnNames="id"
+                                 referencedTableName="wallet"/>
+        <createIndex tableName="wallet_history" indexName="wallet_history_wallet_id_idx">
+            <column name="wallet_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
