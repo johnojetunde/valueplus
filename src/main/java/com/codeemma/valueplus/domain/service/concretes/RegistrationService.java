@@ -5,7 +5,8 @@ import com.codeemma.valueplus.domain.model.AgentCreate;
 import com.codeemma.valueplus.domain.model.RoleType;
 import com.codeemma.valueplus.domain.model.UserCreate;
 import com.codeemma.valueplus.domain.model.data4Me.AgentCode;
-import com.codeemma.valueplus.domain.model.data4Me.AgentDto;
+import com.codeemma.valueplus.domain.model.data4Me.Data4meAgentDto;
+import com.codeemma.valueplus.domain.service.abstracts.WalletService;
 import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.RoleRepository;
@@ -26,17 +27,20 @@ public class RegistrationService {
     private final RoleRepository roleRepository;
     private final Data4meService data4meService;
     private final EmailVerificationService emailVerificationService;
+    private final WalletService walletService;
 
     public RegistrationService(UserRepository userRepository,
                                PasswordEncoder passwordEncoder,
                                RoleRepository roleRepository,
                                Data4meService data4meService,
-                               EmailVerificationService emailVerificationService) {
+                               EmailVerificationService emailVerificationService,
+                               WalletService walletService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.data4meService = data4meService;
         this.emailVerificationService = emailVerificationService;
+        this.walletService = walletService;
     }
 
     public User createAgent(AgentCreate agentCreate) throws Exception {
@@ -51,10 +55,11 @@ public class RegistrationService {
                 .enabled(true)
                 .build());
 
-        Optional<AgentCode> agentOptional = data4meService.createAgent(AgentDto.from(agentCreate));
+        Optional<AgentCode> agentOptional = data4meService.createAgent(Data4meAgentDto.from(agentCreate));
         agentOptional.ifPresent(agent -> user.setAgentCode(agent.getCode()));
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        walletService.createWallet(savedUser);
         emailVerificationService.sendVerifyEmail(user);
         return user;
     }
@@ -73,7 +78,8 @@ public class RegistrationService {
                 .emailVerified(true)
                 .build());
 
-        userRepository.save(user);
+        user = userRepository.save(user);
+        walletService.createWallet(user);
         emailVerificationService.sendAdminAccountCreationNotification(user, password);
         return user;
     }

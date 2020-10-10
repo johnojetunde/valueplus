@@ -1,12 +1,11 @@
 package com.codeemma.valueplus.fixtures;
 
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
+import com.codeemma.valueplus.domain.enums.TransactionType;
+import com.codeemma.valueplus.domain.model.RoleType;
 import com.codeemma.valueplus.paystack.model.AccountNumberModel;
 import com.codeemma.valueplus.paystack.model.TransferResponse;
-import com.codeemma.valueplus.persistence.entity.Account;
-import com.codeemma.valueplus.persistence.entity.Role;
-import com.codeemma.valueplus.persistence.entity.Transaction;
-import com.codeemma.valueplus.persistence.entity.User;
+import com.codeemma.valueplus.persistence.entity.*;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
@@ -14,10 +13,7 @@ import java.math.BigDecimal;
 @UtilityClass
 public class TestFixtures {
     public static User mockUser() {
-        return User.builder()
-                .id(1L)
-                .role(new Role("AGENT"))
-                .build();
+        return getUser(RoleType.AGENT);
     }
 
     public static Account mockAccount(String accountNumber) {
@@ -58,4 +54,29 @@ public class TestFixtures {
                 .user(mockUser())
                 .build();
     }
+
+    public static User getUser(RoleType roleType) {
+        return User.builder()
+                .id(1L)
+                .role(new Role(1L, roleType.name()))
+                .build();
+    }
+
+    public static Wallet getWallet(User user) {
+        return Wallet.builder()
+                .id(1L)
+                .amount(BigDecimal.ZERO)
+                .user(user)
+                .build();
+    }
+
+    public static WalletHistory getWalletHistory(Wallet wallet, TransactionType type) {
+        return WalletHistory.builder()
+                .id(1L)
+                .type(type)
+                .wallet(wallet)
+                .amount(BigDecimal.ZERO)
+                .build();
+    }
+
 }

@@ -17,8 +17,5 @@ public class AgentCreate extends UserCreate {
     @Size(min = 8, message = "minimum of 8 characters")
     private String password;
     @NotEmpty
-    @NotEmpty
-    private String phone;
-    @NotEmpty
     private String address;
 }

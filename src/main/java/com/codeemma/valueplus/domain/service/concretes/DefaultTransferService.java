@@ -6,6 +6,7 @@ import com.codeemma.valueplus.domain.model.AccountModel;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.PaymentService;
 import com.codeemma.valueplus.domain.service.abstracts.TransferService;
+import com.codeemma.valueplus.domain.service.abstracts.WalletService;
 import com.codeemma.valueplus.paystack.model.TransferResponse;
 import com.codeemma.valueplus.paystack.model.TransferVerificationResponse;
 import com.codeemma.valueplus.persistence.entity.Account;
@@ -42,6 +43,7 @@ public class DefaultTransferService implements TransferService {
     private final PaymentService paymentService;
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
+    private final WalletService walletService;
     private static final String TRANSACTION_FETCH_ERROR_MSG = "Unable to fetch transaction";
 
     @Override
@@ -51,6 +53,7 @@ public class DefaultTransferService implements TransferService {
                 .orElseThrow(() -> new ValuePlusException("User has no existing account", BAD_REQUEST));
 
         TransferResponse response = paymentService.transfer(accountModel, requestModel.getAmount());
+        walletService.debitWallet(user, requestModel.getAmount());
 
         Transaction transaction = Transaction.builder()
                 .accountNumber(accountModel.getAccountNumber())

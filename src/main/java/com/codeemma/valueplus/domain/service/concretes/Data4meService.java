@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.domain.model.data4Me.AgentCode;
-import com.codeemma.valueplus.domain.model.data4Me.AgentDto;
+import com.codeemma.valueplus.domain.model.data4Me.Data4meAgentDto;
 import com.codeemma.valueplus.domain.service.abstracts.HttpApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +47,7 @@ public class Data4meService extends HttpApiClient {
         return empty();
     }
 
-    public Optional<AgentCode> createAgent(final AgentDto agentDto) {
+    public Optional<AgentCode> createAgent(final Data4meAgentDto agentDto) {
         createPassword(agentDto);
         Optional<String> token = authenticate();
 
@@ -58,7 +58,8 @@ public class Data4meService extends HttpApiClient {
         var header = Map.of("Authorization", "Bearer " + token.get());
 
         try {
-            ParameterizedTypeReference<AgentCode> typeReference = new ParameterizedTypeReference<>() {};
+            ParameterizedTypeReference<AgentCode> typeReference = new ParameterizedTypeReference<>() {
+            };
             var result = sendRequest(HttpMethod.POST, "/agent", agentDto, header, typeReference);
             return Optional.ofNullable(result);
         } catch (Exception ex) {
@@ -67,7 +68,7 @@ public class Data4meService extends HttpApiClient {
         }
     }
 
-    private void createPassword(AgentDto agentDto) {
+    private void createPassword(Data4meAgentDto agentDto) {
         agentDto.setPassword(password + agentDto.getEmail().substring(0, 3));
     }
 }
