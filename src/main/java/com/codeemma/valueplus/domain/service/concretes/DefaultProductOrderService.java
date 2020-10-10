@@ -5,6 +5,7 @@ import com.codeemma.valueplus.app.security.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import com.codeemma.valueplus.domain.service.abstracts.ProductOrderService;
+import com.codeemma.valueplus.domain.service.abstracts.WalletService;
 import com.codeemma.valueplus.persistence.entity.Product;
 import com.codeemma.valueplus.persistence.entity.ProductOrder;
 import com.codeemma.valueplus.persistence.entity.User;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.codeemma.valueplus.domain.enums.OrderStatus.COMPLETED;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -39,6 +42,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class DefaultProductOrderService implements ProductOrderService {
     private final ProductOrderRepository repository;
     private final ProductRepository productRepository;
+    private final WalletService walletService;
 
     @Override
     public List<ProductOrderModel> create(List<ProductOrderModel> orders, UserAuthentication authentication) throws ValuePlusException {
@@ -84,7 +88,17 @@ public class DefaultProductOrderService implements ProductOrderService {
         }
 
         productOder.setStatus(status);
-        return repository.save(productOder).toModel();
+
+        ProductOrder savedOrder = repository.save(productOder);
+
+        BigDecimal userProfit = productOder.getSellingPrice().subtract(productOder.getProduct().getPrice());
+        BigDecimal totalProfit = userProfit.multiply(BigDecimal.valueOf(productOder.getQuantity()));
+
+        if (COMPLETED.equals(status)) {
+            walletService.creditWallet(productOder.getUser(), totalProfit);
+        }
+
+        return savedOrder.toModel();
     }
 
     @Override

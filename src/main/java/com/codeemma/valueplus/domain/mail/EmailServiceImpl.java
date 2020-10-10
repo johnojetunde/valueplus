@@ -6,7 +6,9 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -14,6 +16,7 @@ public class EmailServiceImpl implements EmailService {
     public static final String PASSWORD_SUBJECT = "Value Plus Forgot Password";
     public static final String VERIFY_EMAIL_SUBJECT = "Value Plus Verify Email";
     public static final String USER_CREATION_SUBJECT = "Value Plus Admin Account";
+    public static final String WALLET_NOTIFICATION_SUBJECT = "Value Plus Wallet Notification";
 
     private final EmailClient emailClient;
     private final VelocityEngine velocityEngine;
@@ -58,5 +61,27 @@ public class EmailServiceImpl implements EmailService {
         template.merge(context, stringWriter);
 
         emailClient.sendSimpleMessage(user.getEmail(), USER_CREATION_SUBJECT, stringWriter.toString());
+    }
+
+    @Override
+    public void sendCreditNotification(User user, BigDecimal amount) throws Exception {
+        Template template = velocityEngine.getTemplate("/templates/walletcredit.vm");
+        walletNotification(user, amount, template);
+    }
+
+    @Override
+    public void sendDebitNotification(User user, BigDecimal amount) throws Exception {
+        Template template = velocityEngine.getTemplate("/templates/walletdebit.vm");
+        walletNotification(user, amount, template);
+    }
+
+    private void walletNotification(User user, BigDecimal amount, Template template) throws MessagingException {
+        VelocityContext context = new VelocityContext();
+        context.put("name", user.getFirstname());
+        context.put("amount", amount);
+        StringWriter stringWriter = new StringWriter();
+        template.merge(context, stringWriter);
+
+        emailClient.sendSimpleMessage(user.getEmail(), WALLET_NOTIFICATION_SUBJECT, stringWriter.toString());
     }
 }

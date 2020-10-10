@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Getter
-public class AgentDto {
+public class Data4meAgentDto {
     private String name;
     private String email;
     private String cell;
@@ -15,7 +15,7 @@ public class AgentDto {
     @Setter
     private String password;
 
-    public static AgentDto from(AgentCreate agentCreate) {
+    public static Data4meAgentDto from(AgentCreate agentCreate) {
         return builder().email(agentCreate.getEmail())
                 .name(agentCreate.getFirstname().concat(" " + agentCreate.getLastname()))
                 .cell(agentCreate.getPhone())
