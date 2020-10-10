@@ -309,7 +309,7 @@ class DefaultProductOrderServiceTest {
 
         verify(repository).findById(eq(1L));
         verify(repository).save(any(ProductOrder.class));
-        verify(walletService).creditWallet(eq(entity.getUser()), eq(BigDecimal.valueOf(9)));
+        verify(walletService).creditWallet(eq(entity.getUser()), eq(BigDecimal.valueOf(90)));
     }
 
     @Test
