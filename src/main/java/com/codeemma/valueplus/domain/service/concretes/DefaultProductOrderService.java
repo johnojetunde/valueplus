@@ -87,6 +87,9 @@ public class DefaultProductOrderService implements ProductOrderService {
             productOder = getOrder(id);
         }
 
+        if (productOder.getStatus().equals(status)) {
+            throw new ValuePlusException(format("ProductOrder status is presently %s", status), BAD_REQUEST);
+        }
         productOder.setStatus(status);
 
         ProductOrder savedOrder = repository.save(productOder);

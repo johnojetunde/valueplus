@@ -371,7 +371,7 @@
                             <td>
                                 <div class="text" style="padding: 0 2.5em; text-align: center;">
                                     <h2>Hi ${name}, </h2>
-                                    <h3>Your ValuePlus wallet has been credit with &#8358;&#x20A6;${amount}</h3>
+                                    <h3>Your ValuePlus wallet has been credited with &#x20A6;${amount}</h3>
                                 </div>
                             </td>
                         </tr>
