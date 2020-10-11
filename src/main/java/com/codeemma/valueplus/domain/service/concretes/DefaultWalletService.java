@@ -75,20 +75,20 @@ public class DefaultWalletService implements WalletService {
     }
 
     @Override
-    public WalletModel creditWallet(User user, BigDecimal amount) {
+    public WalletModel creditWallet(User user, BigDecimal amount, String description) {
         Wallet wallet = getOrCreateWallet(user);
         BigDecimal newTotal = wallet.getAmount().add(amount);
         wallet.setAmount(newTotal);
 
         wallet = walletRepository.save(wallet);
-        walletHistoryService.createHistoryRecord(wallet, amount, CREDIT);
+        walletHistoryService.createHistoryRecord(wallet, amount, CREDIT, description);
         sendCreditNotification(user, amount);
 
         return wallet.toModel();
     }
 
     @Override
-    public WalletModel debitWallet(User user, BigDecimal amount) throws ValuePlusException {
+    public WalletModel debitWallet(User user, BigDecimal amount, String description) throws ValuePlusException {
         Wallet wallet = getOrCreateWallet(user);
 
         if (isWalletBalanceLessThanAmount(wallet, amount)) {
@@ -99,7 +99,7 @@ public class DefaultWalletService implements WalletService {
         wallet.setAmount(newTotal);
 
         wallet = walletRepository.save(wallet);
-        walletHistoryService.createHistoryRecord(wallet, amount, DEBIT);
+        walletHistoryService.createHistoryRecord(wallet, amount, DEBIT, description);
         sendDebitNotification(user, amount);
 
         return wallet.toModel();

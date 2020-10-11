@@ -300,7 +300,10 @@ class DefaultProductOrderServiceTest {
                 .thenReturn(Optional.of(entity));
         when(repository.save(any(ProductOrder.class)))
                 .then(i -> i.getArgument(0, ProductOrder.class));
-        when(walletService.creditWallet(eq(entity.getUser()), eq(BigDecimal.valueOf(9))))
+        when(walletService.creditWallet(
+                eq(entity.getUser()),
+                eq(BigDecimal.valueOf(9)),
+                eq("Credit from ProductOrder completion (id: 1)")))
                 .thenReturn(WalletModel.builder().build());
 
         ProductOrderModel result = orderService.updateStatus(1L, OrderStatus.COMPLETED, authentication);
@@ -309,7 +312,10 @@ class DefaultProductOrderServiceTest {
 
         verify(repository).findById(eq(1L));
         verify(repository).save(any(ProductOrder.class));
-        verify(walletService).creditWallet(eq(entity.getUser()), eq(BigDecimal.valueOf(90)));
+        verify(walletService).creditWallet(
+                eq(entity.getUser()),
+                eq(BigDecimal.valueOf(90)),
+                eq("Credit from ProductOrder completion (id: 1)"));
     }
 
     @Test

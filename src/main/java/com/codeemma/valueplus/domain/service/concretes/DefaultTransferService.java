@@ -53,7 +53,7 @@ public class DefaultTransferService implements TransferService {
                 .orElseThrow(() -> new ValuePlusException("User has no existing account", BAD_REQUEST));
 
         TransferResponse response = paymentService.transfer(accountModel, requestModel.getAmount());
-        walletService.debitWallet(user, requestModel.getAmount());
+        walletService.debitWallet(user, requestModel.getAmount(), "Debit via Withdrawal from transfer");
 
         Transaction transaction = Transaction.builder()
                 .accountNumber(accountModel.getAccountNumber())

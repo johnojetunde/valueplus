@@ -178,14 +178,14 @@ class DefaultWalletServiceTest {
 
         when(walletRepository.findWalletByUser_Id(eq(1L)))
                 .thenReturn(Optional.of(wallet));
-        when(walletHistoryService.createHistoryRecord(any(Wallet.class), eq(TEN), eq(CREDIT)))
+        when(walletHistoryService.createHistoryRecord(any(Wallet.class), eq(TEN), eq(CREDIT), eq("description")))
                 .thenReturn(WalletHistoryModel.builder().build());
         when(walletRepository.save(any(Wallet.class)))
                 .then(i -> i.getArgument(0, Wallet.class));
         doNothing()
                 .when(emailService).sendCreditNotification(eq(agentUser), eq(TEN));
 
-        WalletModel walletModel = walletService.creditWallet(agentUser, TEN);
+        WalletModel walletModel = walletService.creditWallet(agentUser, TEN, "description");
 
         assertThat(walletModel.getAmount()).isEqualTo(BigDecimal.valueOf(11));
         verify(walletRepository).findWalletByUser_Id(eq(1L));
@@ -200,14 +200,14 @@ class DefaultWalletServiceTest {
 
         when(walletRepository.findWalletByUser_Id(eq(1L)))
                 .thenReturn(Optional.of(wallet));
-        when(walletHistoryService.createHistoryRecord(any(Wallet.class), eq(TEN), eq(DEBIT)))
+        when(walletHistoryService.createHistoryRecord(any(Wallet.class), eq(TEN), eq(DEBIT), eq("description")))
                 .thenReturn(WalletHistoryModel.builder().build());
         when(walletRepository.save(any(Wallet.class)))
                 .then(i -> i.getArgument(0, Wallet.class));
         doNothing()
                 .when(emailService).sendDebitNotification(eq(agentUser), eq(ONE));
 
-        WalletModel walletModel = walletService.debitWallet(agentUser, ONE);
+        WalletModel walletModel = walletService.debitWallet(agentUser, ONE, "description");
 
         assertThat(walletModel.getAmount()).isEqualTo(BigDecimal.valueOf(9));
         verify(walletRepository).findWalletByUser_Id(eq(1L));
@@ -223,7 +223,7 @@ class DefaultWalletServiceTest {
         when(walletRepository.findWalletByUser_Id(eq(1L)))
                 .thenReturn(Optional.of(wallet));
 
-        assertThatThrownBy(() -> walletService.debitWallet(agentUser, BigDecimal.valueOf(20)))
+        assertThatThrownBy(() -> walletService.debitWallet(agentUser, BigDecimal.valueOf(20), "Description"))
                 .isInstanceOf(ValuePlusException.class)
                 .hasFieldOrPropertyWithValue("message", "Amount to be debited more than the balance in user's wallet")
                 .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST);
