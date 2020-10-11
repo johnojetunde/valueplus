@@ -14,6 +14,7 @@ public class WalletHistoryModel {
     private final Long walletHistoryId;
     private final BigDecimal amount;
     private final TransactionType type;
+    private final String description;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 }

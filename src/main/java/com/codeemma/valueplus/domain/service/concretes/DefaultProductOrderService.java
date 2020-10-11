@@ -98,7 +98,7 @@ public class DefaultProductOrderService implements ProductOrderService {
         BigDecimal totalProfit = userProfit.multiply(BigDecimal.valueOf(productOder.getQuantity()));
 
         if (COMPLETED.equals(status)) {
-            walletService.creditWallet(productOder.getUser(), totalProfit);
+            walletService.creditWallet(productOder.getUser(), totalProfit, format("Credit from ProductOrder completion (id: %d)", productOder.getId()));
         }
 
         return savedOrder.toModel();

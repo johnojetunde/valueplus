@@ -75,7 +75,7 @@ class DefaultTransferServiceTest {
     @Test
     void transfer() throws ValuePlusException {
         var requestModel = mockPaymentRequestModel(BigDecimal.TEN);
-        when(walletService.debitWallet(eq(agentUser), eq(requestModel.getAmount())))
+        when(walletService.debitWallet(eq(agentUser), eq(requestModel.getAmount()), anyString()))
                 .thenReturn(WalletModel.builder().build());
 
         TransactionModel model = transferService.transfer(agentUser, requestModel);
@@ -83,7 +83,7 @@ class DefaultTransferServiceTest {
         verify(accountRepository).findByUser_Id(anyLong());
         verify(paymentService).transfer(any(AccountModel.class), any(BigDecimal.class));
         verify(transactionRepository).save(any(Transaction.class));
-        verify(walletService).debitWallet(eq(agentUser), eq(requestModel.getAmount()));
+        verify(walletService).debitWallet(eq(agentUser), eq(requestModel.getAmount()), anyString());
     }
 
     @Test

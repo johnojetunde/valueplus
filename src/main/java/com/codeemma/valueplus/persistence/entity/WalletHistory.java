@@ -21,6 +21,7 @@ public class WalletHistory extends BasePersistentEntity {
     private BigDecimal amount;
     @Enumerated(EnumType.STRING)
     private TransactionType type;
+    private String description;
     @OneToOne
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;
@@ -31,6 +32,7 @@ public class WalletHistory extends BasePersistentEntity {
                 .walletId(this.wallet.getId())
                 .amount(amount)
                 .type(this.type)
+                .description(this.description)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .build();

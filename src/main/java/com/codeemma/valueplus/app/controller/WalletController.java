@@ -65,8 +65,9 @@ public class WalletController {
     @GetMapping("/{walletId}/history")
     @ResponseStatus(HttpStatus.OK)
     public Page<WalletHistoryModel> getWalletHistory(@PathVariable("walletId") Long walletId,
-                                                     @PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
-        return walletHistoryService.getHistory(walletId, pageable);
+                                                     @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+        User user = UserUtils.getLoggedInUser();
+        return walletHistoryService.getHistory(user, walletId, pageable);
     }
 
     @PostMapping("/history/filter")

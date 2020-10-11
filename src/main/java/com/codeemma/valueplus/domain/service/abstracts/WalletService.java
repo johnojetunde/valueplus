@@ -18,7 +18,7 @@ public interface WalletService {
 
     List<WalletModel> createWalletForAllUsers();
 
-    WalletModel creditWallet(User user, BigDecimal amount);
+    WalletModel creditWallet(User user, BigDecimal amount, String description);
 
-    WalletModel debitWallet(User user, BigDecimal amount) throws ValuePlusException;
+    WalletModel debitWallet(User user, BigDecimal amount, String description) throws ValuePlusException;
 }
