@@ -10,7 +10,8 @@ import com.codeemma.valueplus.domain.util.UserUtils;
 import com.codeemma.valueplus.persistence.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Validated
 @Slf4j
@@ -39,10 +42,8 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping
-    public Page<AgentDto> findAll(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
-                                  @RequestParam(name = "size", defaultValue = "50") Integer size) {
-        log.debug("findAll() pageNumber ={}, size = {}", pageNumber, size);
-        return userService.findUsers(PageRequest.of(pageNumber, size))
+    public Page<AgentDto> findAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
+        return userService.findUsers(pageable)
                 .map(AgentDto::valueOf);
     }
 
