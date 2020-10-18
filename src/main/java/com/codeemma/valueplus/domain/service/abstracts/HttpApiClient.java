@@ -3,12 +3,16 @@ package com.codeemma.valueplus.domain.service.abstracts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
 import static java.util.Collections.singletonList;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,8 +29,8 @@ public abstract class HttpApiClient {
         String url = baseUrl.concat(urlPath);
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.setAccept(singletonList(MediaType.APPLICATION_JSON));
+        httpHeaders.setContentType(APPLICATION_JSON);
+        httpHeaders.setAccept(singletonList(APPLICATION_JSON));
         httpHeaders.setAll(headers);
 
         HttpEntity<?> httpEntity = new HttpEntity<>(requestEntity, httpHeaders);
