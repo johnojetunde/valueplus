@@ -8,12 +8,12 @@ import java.math.BigDecimal;
 @Getter
 @Builder
 public class AccountSummary {
-    BigDecimal totalWalletAmount;
+    Integer totalAgents;
     BigDecimal totalProductSales;
     BigDecimal totalProductAgentProfits;
     BigDecimal totalApprovedWithdrawals;
     BigDecimal totalPendingWithdrawal;
     Integer pendingWithdrawalCount;
-    Integer activeUser;
+    Integer totalActiveUsers;
     Integer totalDownloads;
 }
