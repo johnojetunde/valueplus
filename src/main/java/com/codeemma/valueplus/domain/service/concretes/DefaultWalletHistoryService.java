@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
+import static com.codeemma.valueplus.domain.util.UserUtils.isAgent;
 import static java.time.LocalTime.MAX;
 import static java.time.LocalTime.MIN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -33,10 +33,11 @@ public class DefaultWalletHistoryService implements WalletHistoryService {
 
     private final WalletHistoryRepository walletHistoryRepository;
     private final WalletRepository walletRepository;
+    private final UserService userService;
 
     @Override
     public Page<WalletHistoryModel> getHistory(User user, Long walletId, Pageable pageable) throws ValuePlusException {
-        WalletModel wallet = getWallet(user);
+        WalletModel wallet = getWallet(user.getId());
 
         if (isAgent(user) && !isWalletSame(walletId, wallet)) {
             throw new ValuePlusException("You can only get history of your wallet", FORBIDDEN);
@@ -46,8 +47,16 @@ public class DefaultWalletHistoryService implements WalletHistoryService {
                 .map(WalletHistory::toModel);
     }
 
-    private WalletModel getWallet(User user) throws ValuePlusException {
-        return walletRepository.findWalletByUser_Id(user.getId())
+    @Override
+    public Page<WalletHistoryModel> getHistory(Pageable pageable) throws ValuePlusException {
+        WalletModel wallet = getWallet(userService.getAdminUserId());
+
+        return walletHistoryRepository.findWalletHistoriesByWallet_Id(wallet.getWalletId(), pageable)
+                .map(WalletHistory::toModel);
+    }
+
+    private WalletModel getWallet(Long userId) throws ValuePlusException {
+        return walletRepository.findWalletByUser_Id(userId)
                 .map(Wallet::toModel)
                 .orElseThrow(() -> new ValuePlusException("Wallet does not exist", BAD_REQUEST));
     }
@@ -56,9 +65,6 @@ public class DefaultWalletHistoryService implements WalletHistoryService {
         return wallet.getWalletId().equals(walletId);
     }
 
-    private boolean isAgent(User user) {
-        return AGENT.name().equals(user.getRole().getName());
-    }
 
     @Override
     public Page<WalletHistoryModel> search(Long userId,
@@ -66,20 +72,24 @@ public class DefaultWalletHistoryService implements WalletHistoryService {
                                            LocalDate endDate,
                                            Pageable pageable) throws ValuePlusException {
         try {
-            LocalDateTime startDateTime = LocalDateTime.of(startDate, MIN);
-            LocalDateTime endDateTime = LocalDateTime.of(endDate, MAX);
-
-            return userIdNotSet(userId)
-                    ? walletHistoryRepository.findByDateBetween(startDateTime, endDateTime, pageable)
-                    .map(WalletHistory::toModel)
-                    : walletHistoryRepository.findByUserIdAndDateBetween(userId, startDateTime, endDateTime, pageable)
-                    .map(WalletHistory::toModel);
+            return getWalletHistory(userId, startDate, endDate, pageable);
 
         } catch (Exception e) {
             log.error("Error searching for history", e);
             throw new ValuePlusException("Error searching for history", e);
         }
 
+    }
+
+    @Override
+    public Page<WalletHistoryModel> search(LocalDate startDate, LocalDate endDate, Pageable pageable) throws ValuePlusException {
+        try {
+            return getWalletHistory(userService.getAdminUserId(), startDate, endDate, pageable);
+
+        } catch (Exception e) {
+            log.error("Error searching for history", e);
+            throw new ValuePlusException("Error searching for history", e);
+        }
     }
 
     @Override
@@ -92,6 +102,21 @@ public class DefaultWalletHistoryService implements WalletHistoryService {
                 .build();
 
         return walletHistoryRepository.save(walletHistory).toModel();
+    }
+
+    private Page<WalletHistoryModel> getWalletHistory(Long userId,
+                                                      LocalDate startDate,
+                                                      LocalDate endDate,
+                                                      Pageable pageable
+    ) {
+        LocalDateTime startDateTime = LocalDateTime.of(startDate, MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(endDate, MAX);
+
+        return userIdNotSet(userId)
+                ? walletHistoryRepository.findByDateBetween(startDateTime, endDateTime, pageable)
+                .map(WalletHistory::toModel)
+                : walletHistoryRepository.findByUserIdAndDateBetween(userId, startDateTime, endDateTime, pageable)
+                .map(WalletHistory::toModel);
     }
 
     private boolean userIdNotSet(Long userId) {
