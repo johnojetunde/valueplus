@@ -83,6 +83,7 @@ public class TestFixtures {
         return User.builder()
                 .id(1L)
                 .role(new Role(1L, roleType.name()))
+                .agentCode("agent12244")
                 .build();
     }
 
