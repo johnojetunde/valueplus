@@ -5,6 +5,7 @@ import com.codeemma.valueplus.domain.service.abstracts.WalletService;
 import com.codeemma.valueplus.persistence.entity.DeviceReport;
 import com.codeemma.valueplus.persistence.repository.DeviceReportRepository;
 import com.codeemma.valueplus.persistence.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+@Slf4j
 @Service
 public class Data4meMonthlyReportService {
 
@@ -45,6 +47,7 @@ public class Data4meMonthlyReportService {
 
     public void loadMonthlyReport() throws IOException {
         LocalDate reportDate = LocalDate.now().minusMonths(1);
+        log.info("getting monthly agent report for {}", reportDate);
         var result = data4MeService.downloadAgentReport(reportDate);
 
         if (result.isEmpty()) return;
@@ -55,6 +58,7 @@ public class Data4meMonthlyReportService {
                 .forEach(line -> reportContent.add(toAgentReport(line.toString())));
 
         reportContent.forEach(report -> processReport(report, reportDate));
+        log.info("finished monthly agent report for {}", reportDate);
     }
 
     private AgentReport toAgentReport(String file) {
@@ -77,6 +81,8 @@ public class Data4meMonthlyReportService {
         List<DeviceReport> reports = mapToDeviceReport(report, year);
 
         reports.removeAll(deviceReports);
+
+        if (reports.isEmpty()) return;
 
         BigDecimal creditAmount = setScale(BigDecimal.valueOf(reports.size() * deviceCreditAmount));
 

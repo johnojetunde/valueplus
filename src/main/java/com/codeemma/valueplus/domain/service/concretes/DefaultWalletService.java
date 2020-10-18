@@ -83,8 +83,13 @@ public class DefaultWalletService implements WalletService {
 
     @Override
     public WalletModel creditWallet(User user, BigDecimal amount, String description) {
-        amount = setScale(amount);
         Wallet wallet = getOrCreateWallet(user);
+
+        if (isAmountZero(amount)) {
+            return wallet.toModel();
+        }
+
+        amount = setScale(amount);
         BigDecimal newTotal = setScale(wallet.getAmount()).add(amount);
         wallet.setAmount(setScale((newTotal)));
 
@@ -93,6 +98,10 @@ public class DefaultWalletService implements WalletService {
         sendCreditNotification(user, amount);
 
         return wallet.toModel();
+    }
+
+    private boolean isAmountZero(BigDecimal amount) {
+        return setScale(amount).equals(setScale(ZERO));
     }
 
     @Override
