@@ -26,6 +26,23 @@ public class TestFixtures {
                 .build();
     }
 
+    public static ProductOrder productOrder(User user, BigDecimal sellingPrice, Product product) {
+        return ProductOrder.builder()
+                .id(1L)
+                .quantity(1L)
+                .product(product)
+                .sellingPrice(sellingPrice)
+                .user(user)
+                .build();
+    }
+
+    public static Product product(BigDecimal price) {
+        return Product.builder()
+                .id(1L)
+                .price(price)
+                .build();
+    }
+
     public static AccountNumberModel mockAccountNumberModel(String accountNumber) {
         return new AccountNumberModel(accountNumber, "Value Plus", 1L);
     }
@@ -43,15 +60,22 @@ public class TestFixtures {
     }
 
     public static Transaction mockTransaction(String accountNumber) {
+        return mockTransaction(mockUser(), accountNumber, BigDecimal.ONE, "otp");
+    }
+
+    public static Transaction mockTransaction(User user,
+                                              String accountNumber,
+                                              BigDecimal amount,
+                                              String status) {
         return Transaction.builder()
                 .id(1L)
-                .amount(BigDecimal.ONE)
+                .amount(amount)
                 .reference("12232324242")
-                .status("otp")
+                .status(status)
                 .accountNumber(accountNumber)
                 .currency("NGN")
                 .bankCode("044")
-                .user(mockUser())
+                .user(user)
                 .build();
     }
 

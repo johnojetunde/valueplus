@@ -22,6 +22,8 @@ import java.util.Set;
 
 import static com.codeemma.valueplus.domain.enums.TransactionType.CREDIT;
 import static com.codeemma.valueplus.domain.enums.TransactionType.DEBIT;
+import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
+import static java.math.BigDecimal.ZERO;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -35,6 +37,7 @@ public class DefaultWalletService implements WalletService {
     private final WalletHistoryService walletHistoryService;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final UserService userService;
 
     @Override
     public WalletModel createWallet(User user) {
@@ -42,16 +45,20 @@ public class DefaultWalletService implements WalletService {
     }
 
     @Override
-    public WalletModel getWallet(User user) throws ValuePlusException {
-        return walletRepository.findWalletByUser_Id(user.getId())
-                .map(Wallet::toModel)
-                .orElseThrow(() ->
-                        new ValuePlusException("User does not have an existing wallet", BAD_REQUEST));
+    public WalletModel getWallet(User user) {
+        return getOrCreateWallet(user).toModel();
+    }
+
+    @Override
+    public WalletModel getWallet() throws ValuePlusException {
+        User user = getAdminUser();
+        return getOrCreateWallet(user).toModel();
     }
 
     @Override
     public Page<WalletModel> getAllWallet(Pageable pageable) {
-        return walletRepository.findAll(pageable)
+        Long adminUserId = userService.getAdminUserId();
+        return walletRepository.findWalletByUser_IdNot(adminUserId, pageable)
                 .map(Wallet::toModel);
     }
 
@@ -76,9 +83,10 @@ public class DefaultWalletService implements WalletService {
 
     @Override
     public WalletModel creditWallet(User user, BigDecimal amount, String description) {
+        amount = setScale(amount);
         Wallet wallet = getOrCreateWallet(user);
-        BigDecimal newTotal = wallet.getAmount().add(amount);
-        wallet.setAmount(newTotal);
+        BigDecimal newTotal = setScale(wallet.getAmount()).add(amount);
+        wallet.setAmount(setScale((newTotal)));
 
         wallet = walletRepository.save(wallet);
         walletHistoryService.createHistoryRecord(wallet, amount, CREDIT, description);
@@ -88,21 +96,32 @@ public class DefaultWalletService implements WalletService {
     }
 
     @Override
+    public WalletModel creditAdminWallet(BigDecimal amount, String description) throws ValuePlusException {
+        return creditWallet(getAdminUser(), amount, description);
+    }
+
+    @Override
     public WalletModel debitWallet(User user, BigDecimal amount, String description) throws ValuePlusException {
+        amount = setScale(amount);
         Wallet wallet = getOrCreateWallet(user);
 
         if (isWalletBalanceLessThanAmount(wallet, amount)) {
             throw new ValuePlusException("Amount to be debited more than the balance in user's wallet", BAD_REQUEST);
         }
 
-        BigDecimal newTotal = wallet.getAmount().subtract(amount);
-        wallet.setAmount(newTotal);
+        BigDecimal newTotal = setScale(wallet.getAmount()).subtract(amount);
+        wallet.setAmount(setScale(newTotal));
 
         wallet = walletRepository.save(wallet);
         walletHistoryService.createHistoryRecord(wallet, amount, DEBIT, description);
         sendDebitNotification(user, amount);
 
         return wallet.toModel();
+    }
+
+    private User getAdminUser() throws ValuePlusException {
+        return userService.getAdminUserAccount()
+                .orElseThrow(() -> new ValuePlusException("Unable to retrieve admin adhoc account"));
     }
 
     private void sendCreditNotification(User user, BigDecimal amount) {
@@ -139,7 +158,7 @@ public class DefaultWalletService implements WalletService {
     private Wallet newWallet(User user) {
         return Wallet.builder()
                 .user(user)
-                .amount(BigDecimal.ZERO)
+                .amount(setScale(ZERO))
                 .build();
     }
 }

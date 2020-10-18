@@ -20,6 +20,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
 
     Optional<Transaction> findByReference(String reference);
 
+
+    List<Transaction> findAllByUser_Id(Long userId);
+
     Page<Transaction> findByUser_IdAndCreatedAtIsBetweenOrderByIdDesc(Long userId,
                                                                       LocalDateTime startDate,
                                                                       LocalDateTime endDate,
