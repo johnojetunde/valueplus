@@ -31,6 +31,7 @@ import java.util.Set;
 
 import static com.codeemma.valueplus.domain.model.RoleType.ADMIN;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
+import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
 import static com.codeemma.valueplus.fixtures.TestFixtures.getUser;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -302,7 +303,7 @@ class DefaultProductOrderServiceTest {
                 .then(i -> i.getArgument(0, ProductOrder.class));
         when(walletService.creditWallet(
                 eq(entity.getUser()),
-                eq(BigDecimal.valueOf(9)),
+                eq(BigDecimal.valueOf(9.00)),
                 eq("Credit from ProductOrder completion (id: 1)")))
                 .thenReturn(WalletModel.builder().build());
 
@@ -314,7 +315,7 @@ class DefaultProductOrderServiceTest {
         verify(repository).save(any(ProductOrder.class));
         verify(walletService).creditWallet(
                 eq(entity.getUser()),
-                eq(BigDecimal.valueOf(90)),
+                eq(setScale(BigDecimal.valueOf(90.00))),
                 eq("Credit from ProductOrder completion (id: 1)"));
     }
 

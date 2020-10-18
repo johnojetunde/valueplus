@@ -17,26 +17,27 @@ import com.codeemma.valueplus.persistence.repository.TransactionRepository;
 import com.codeemma.valueplus.persistence.specs.SearchCriteria;
 import com.codeemma.valueplus.persistence.specs.SearchOperation;
 import com.codeemma.valueplus.persistence.specs.TransactionSpecification;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
 import static com.codeemma.valueplus.domain.util.FunctionUtil.convertToNaira;
+import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
+import static com.codeemma.valueplus.domain.util.UserUtils.isAgent;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class DefaultTransferService implements TransferService {
 
@@ -45,6 +46,19 @@ public class DefaultTransferService implements TransferService {
     private final AccountRepository accountRepository;
     private final WalletService walletService;
     private static final String TRANSACTION_FETCH_ERROR_MSG = "Unable to fetch transaction";
+    private final Integer withdrawalFeePercent;
+
+    public DefaultTransferService(PaymentService paymentService,
+                                  TransactionRepository transactionRepository,
+                                  AccountRepository accountRepository,
+                                  WalletService walletService,
+                                  @Value("${withdrawal-fee:15}") Integer withdrawalFeePercent) {
+        this.paymentService = paymentService;
+        this.transactionRepository = transactionRepository;
+        this.accountRepository = accountRepository;
+        this.walletService = walletService;
+        this.withdrawalFeePercent = withdrawalFeePercent;
+    }
 
     @Override
     public TransactionModel transfer(User user, PaymentRequestModel requestModel) throws ValuePlusException {
@@ -52,8 +66,14 @@ public class DefaultTransferService implements TransferService {
                 .map(Account::toModel)
                 .orElseThrow(() -> new ValuePlusException("User has no existing account", BAD_REQUEST));
 
-        TransferResponse response = paymentService.transfer(accountModel, requestModel.getAmount());
-        walletService.debitWallet(user, requestModel.getAmount(), "Debit via Withdrawal from transfer");
+        BigDecimal transactionAmount = setScale(requestModel.getAmount());
+        BigDecimal percentageCommission = setScale(BigDecimal.valueOf(withdrawalFeePercent / 100.00));
+        BigDecimal commission = setScale(transactionAmount.multiply(percentageCommission));
+        BigDecimal actualTransferFee = setScale(transactionAmount.subtract(commission));
+
+        TransferResponse response = paymentService.transfer(accountModel, actualTransferFee);
+        walletService.debitWallet(user, transactionAmount, "Debit via Withdrawal from transfer module");
+        walletService.creditAdminWallet(commission, "Credit via Withdrawal from transfer module");
 
         Transaction transaction = Transaction.builder()
                 .accountNumber(accountModel.getAccountNumber())
@@ -198,10 +218,6 @@ public class DefaultTransferService implements TransferService {
                     SearchOperation.LESS_THAN_EQUAL));
         }
         return specification;
-    }
-
-    private boolean isAgent(User user) {
-        return AGENT.name().equals(user.getRole().getName());
     }
 
     private TransactionModel verify(Transaction transaction) throws ValuePlusException {

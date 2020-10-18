@@ -2,6 +2,7 @@ package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.domain.mail.EmailService;
+import com.codeemma.valueplus.domain.model.RoleType;
 import com.codeemma.valueplus.domain.model.WalletHistoryModel;
 import com.codeemma.valueplus.domain.model.WalletModel;
 import com.codeemma.valueplus.domain.service.abstracts.WalletHistoryService;
@@ -24,6 +25,8 @@ import java.util.Optional;
 
 import static com.codeemma.valueplus.domain.enums.TransactionType.CREDIT;
 import static com.codeemma.valueplus.domain.enums.TransactionType.DEBIT;
+import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
+import static com.codeemma.valueplus.fixtures.TestFixtures.getUser;
 import static com.codeemma.valueplus.fixtures.TestFixtures.mockUser;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
@@ -46,6 +49,8 @@ class DefaultWalletServiceTest {
     private EmailService emailService;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserService userService;
     @InjectMocks
     private DefaultWalletService walletService;
     @Mock
@@ -89,7 +94,7 @@ class DefaultWalletServiceTest {
 
         WalletModel walletModel = walletService.createWallet(agentUser);
 
-        assertThat(walletModel.getAmount()).isEqualTo(BigDecimal.ZERO);
+        assertThat(walletModel.getAmount()).isEqualTo(setScale(BigDecimal.ZERO));
         assertThat(walletModel.getWalletId()).isEqualTo(1L);
         assertThat(walletModel.getUserId()).isEqualTo(1L);
 
@@ -98,18 +103,7 @@ class DefaultWalletServiceTest {
     }
 
     @Test
-    void getWallet_fails() {
-        when(walletRepository.findWalletByUser_Id(eq(1L)))
-                .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> walletService.getWallet(agentUser))
-                .isInstanceOf(ValuePlusException.class)
-                .hasFieldOrPropertyWithValue("message", "User does not have an existing wallet")
-                .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST);
-    }
-
-    @Test
-    void getWallet() throws ValuePlusException {
+    void getUserWallet() throws ValuePlusException {
         when(walletRepository.findWalletByUser_Id(eq(1L)))
                 .thenReturn(Optional.of(TestFixtures.getWallet(agentUser)));
 
@@ -122,10 +116,28 @@ class DefaultWalletServiceTest {
     }
 
     @Test
+    void getWallet() throws ValuePlusException {
+        User adminUser = getUser(RoleType.ADMIN);
+        when(userService.getAdminUserAccount())
+                .thenReturn(Optional.of(adminUser));
+        when(walletRepository.findWalletByUser_Id(eq(1L)))
+                .thenReturn(Optional.of(TestFixtures.getWallet(adminUser)));
+
+        WalletModel walletModel = walletService.getWallet();
+        assertThat(walletModel.getAmount()).isEqualTo(BigDecimal.ZERO);
+        assertThat(walletModel.getWalletId()).isEqualTo(1L);
+        assertThat(walletModel.getUserId()).isEqualTo(1L);
+
+        verify(walletRepository).findWalletByUser_Id(eq(1L));
+    }
+
+    @Test
     void getAllWallet() throws ValuePlusException {
         var pagedEntity = new PageImpl<>(singletonList(TestFixtures.getWallet(agentUser)));
-        when(walletRepository.findAll(eq(pageable)))
+        when(walletRepository.findWalletByUser_IdNot(eq(2L), eq(pageable)))
                 .thenReturn(pagedEntity);
+        when(userService.getAdminUserId())
+                .thenReturn(2L);
 
         Page<WalletModel> wallets = walletService.getAllWallet(pageable);
 
@@ -135,7 +147,7 @@ class DefaultWalletServiceTest {
         assertThat(walletModel.getWalletId()).isEqualTo(1L);
         assertThat(walletModel.getUserId()).isEqualTo(1L);
 
-        verify(walletRepository).findAll(eq(pageable));
+        verify(walletRepository).findWalletByUser_IdNot(eq(2L), eq(pageable));
     }
 
     @Test
@@ -187,9 +199,9 @@ class DefaultWalletServiceTest {
 
         WalletModel walletModel = walletService.creditWallet(agentUser, TEN, "description");
 
-        assertThat(walletModel.getAmount()).isEqualTo(BigDecimal.valueOf(11));
+        assertThat(walletModel.getAmount()).isEqualTo(setScale(BigDecimal.valueOf(11)));
         verify(walletRepository).findWalletByUser_Id(eq(1L));
-        verify(emailService).sendCreditNotification(eq(agentUser), eq(TEN));
+        verify(emailService).sendCreditNotification(eq(agentUser), eq(setScale(TEN)));
         verify(walletRepository).save(any(Wallet.class));
     }
 
@@ -209,9 +221,9 @@ class DefaultWalletServiceTest {
 
         WalletModel walletModel = walletService.debitWallet(agentUser, ONE, "description");
 
-        assertThat(walletModel.getAmount()).isEqualTo(BigDecimal.valueOf(9));
+        assertThat(walletModel.getAmount()).isEqualTo(setScale(BigDecimal.valueOf(9)));
         verify(walletRepository).findWalletByUser_Id(eq(1L));
-        verify(emailService).sendDebitNotification(eq(agentUser), eq(ONE));
+        verify(emailService).sendDebitNotification(eq(agentUser), eq(setScale(ONE)));
         verify(walletRepository).save(any(Wallet.class));
     }
 

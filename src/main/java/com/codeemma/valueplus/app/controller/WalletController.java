@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
+import static com.codeemma.valueplus.domain.util.UserUtils.isAgent;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
@@ -51,7 +51,25 @@ public class WalletController {
     @ResponseStatus(HttpStatus.OK)
     public WalletModel getWallet() throws Exception {
         User user = UserUtils.getLoggedInUser();
-        return walletService.getWallet(user);
+        return (isAgent(user))
+                ? walletService.getWallet(user)
+                : walletService.getWallet();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/admin/history")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<WalletHistoryModel> getAdminWalletHistory(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+        return walletHistoryService.getHistory(pageable);
+    }
+
+
+    @PostMapping("/admin/history/filter")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<WalletHistoryModel> getAdminWalletHistory(@RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                          @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                                          @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+        return walletHistoryService.search(startDate, endDate, pageable);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -77,7 +95,7 @@ public class WalletController {
                                                      @RequestParam(value = "userId", required = false, defaultValue = "0") Long userId,
                                                      @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         User user = UserUtils.getLoggedInUser();
-        if (AGENT.name().equals(user.getRole().getName())) {
+        if (isAgent(user)) {
             userId = user.getId();
         }
         return walletHistoryService.search(userId, startDate, endDate, pageable);

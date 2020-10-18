@@ -18,4 +18,7 @@ public class FunctionUtil {
                 .divide(MULTIPLIER, RoundingMode.HALF_UP);
     }
 
+    public static BigDecimal setScale(BigDecimal amount) {
+        return amount.setScale(2, RoundingMode.HALF_UP);
+    }
 }
