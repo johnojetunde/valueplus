@@ -35,7 +35,6 @@ public class EmailVerificationController {
         emailVerificationService.sendVerifyEmail(user);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping("/verify-mail")
     public void verifyMail(@Valid @RequestBody VerifyEmail verifyEmail) throws Exception {
         log.info("verifyMail() received verifyMail = {}", verifyEmail);
