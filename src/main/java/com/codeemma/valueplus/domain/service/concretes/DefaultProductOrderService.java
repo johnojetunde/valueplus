@@ -31,6 +31,7 @@ import java.util.function.Function;
 
 import static com.codeemma.valueplus.domain.enums.OrderStatus.COMPLETED;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
+import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -94,8 +95,12 @@ public class DefaultProductOrderService implements ProductOrderService {
 
         ProductOrder savedOrder = repository.save(productOder);
 
-        BigDecimal userProfit = productOder.getSellingPrice().subtract(productOder.getProduct().getPrice());
-        BigDecimal totalProfit = userProfit.multiply(BigDecimal.valueOf(productOder.getQuantity()));
+        BigDecimal qty = setScale(BigDecimal.valueOf(productOder.getQuantity()));
+        BigDecimal productPrice = setScale(productOder.getProduct().getPrice());
+        BigDecimal sellingPrice = setScale(productOder.getSellingPrice());
+
+        BigDecimal userProfit = sellingPrice.subtract(productPrice);
+        BigDecimal totalProfit = setScale(userProfit.multiply(qty));
 
         if (COMPLETED.equals(status)) {
             walletService.creditWallet(productOder.getUser(), totalProfit, format("Credit from ProductOrder completion (id: %d)", productOder.getId()));

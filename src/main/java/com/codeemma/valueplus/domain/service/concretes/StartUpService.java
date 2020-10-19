@@ -1,5 +1,7 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
+import com.codeemma.valueplus.app.exception.ValuePlusException;
+import com.codeemma.valueplus.domain.service.abstracts.WalletService;
 import com.codeemma.valueplus.persistence.entity.Role;
 import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.RoleRepository;
@@ -17,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class StartUpService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final WalletService walletService;
 
     public CompletableFuture<Void> loadDefaultData() {
         return CompletableFuture.runAsync(() -> {
@@ -44,6 +47,12 @@ public class StartUpService {
                         .build();
 
                 userRepository.save(userprofile);
+
+                try {
+                    walletService.getWallet();
+                } catch (ValuePlusException e) {
+                    log.error("Error getting wallet", e);
+                }
             }
         });
     }

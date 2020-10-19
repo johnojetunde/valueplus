@@ -14,11 +14,15 @@ public interface WalletService {
 
     WalletModel getWallet(User user) throws ValuePlusException;
 
+    WalletModel getWallet() throws ValuePlusException;
+
     Page<WalletModel> getAllWallet(Pageable pageable) throws ValuePlusException;
 
     List<WalletModel> createWalletForAllUsers();
 
     WalletModel creditWallet(User user, BigDecimal amount, String description);
+
+    WalletModel creditAdminWallet(BigDecimal amount, String description) throws ValuePlusException;
 
     WalletModel debitWallet(User user, BigDecimal amount, String description) throws ValuePlusException;
 }

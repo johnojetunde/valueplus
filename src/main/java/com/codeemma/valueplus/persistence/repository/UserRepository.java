@@ -19,4 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("update User u set u.deleted = true where u.id = ?1")
     void deleteUser(Long userId);
+
+    Long countAllByAgentCodeIsNotNull();
+
+    Optional<User> findByAgentCodeAndDeletedFalse(String agentCode);
 }

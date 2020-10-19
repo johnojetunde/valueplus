@@ -14,7 +14,11 @@ import java.time.LocalDate;
 public interface WalletHistoryService {
     Page<WalletHistoryModel> getHistory(User user, Long walletId, Pageable pageable) throws ValuePlusException;
 
+    Page<WalletHistoryModel> getHistory(Pageable pageable) throws ValuePlusException;
+
     Page<WalletHistoryModel> search(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) throws ValuePlusException;
+
+    Page<WalletHistoryModel> search(LocalDate startDate, LocalDate endDate, Pageable pageable) throws ValuePlusException;
 
     WalletHistoryModel createHistoryRecord(Wallet wallet, BigDecimal amount, TransactionType type, String description);
 }

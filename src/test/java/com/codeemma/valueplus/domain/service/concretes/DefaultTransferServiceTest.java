@@ -13,7 +13,6 @@ import com.codeemma.valueplus.persistence.repository.AccountRepository;
 import com.codeemma.valueplus.persistence.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
 import static com.codeemma.valueplus.fixtures.TestFixtures.*;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
@@ -46,7 +46,6 @@ class DefaultTransferServiceTest {
     private Pageable pageable;
     @Mock
     private WalletService walletService;
-    @InjectMocks
     private DefaultTransferService transferService;
 
     private User agentUser;
@@ -58,6 +57,14 @@ class DefaultTransferServiceTest {
     void setUp() throws ValuePlusException {
         String accountNumber = "0011313333";
         initMocks(this);
+
+        transferService = new DefaultTransferService(
+                paymentService,
+                transactionRepository,
+                accountRepository,
+                walletService,
+                15
+        );
         agentUser = mockUser();
         adminUser = mockUser();
         adminUser.setRole(new Role("ADMIN"));
@@ -75,15 +82,22 @@ class DefaultTransferServiceTest {
     @Test
     void transfer() throws ValuePlusException {
         var requestModel = mockPaymentRequestModel(BigDecimal.TEN);
-        when(walletService.debitWallet(eq(agentUser), eq(requestModel.getAmount()), anyString()))
+        var expectedActualTransfer = setScale(BigDecimal.valueOf(8.50));
+        var debitAmount = setScale(requestModel.getAmount());
+        var commission = setScale(BigDecimal.valueOf(1.50));
+
+        when(walletService.debitWallet(eq(agentUser), eq(debitAmount), anyString()))
+                .thenReturn(WalletModel.builder().build());
+        when(walletService.creditAdminWallet(eq(commission), anyString()))
                 .thenReturn(WalletModel.builder().build());
 
         TransactionModel model = transferService.transfer(agentUser, requestModel);
 
         verify(accountRepository).findByUser_Id(anyLong());
-        verify(paymentService).transfer(any(AccountModel.class), any(BigDecimal.class));
+        verify(paymentService).transfer(any(AccountModel.class), eq(expectedActualTransfer));
         verify(transactionRepository).save(any(Transaction.class));
-        verify(walletService).debitWallet(eq(agentUser), eq(requestModel.getAmount()), anyString());
+        verify(walletService).debitWallet(eq(agentUser), eq(debitAmount), anyString());
+        verify(walletService).creditAdminWallet(eq(commission), anyString());
     }
 
     @Test
