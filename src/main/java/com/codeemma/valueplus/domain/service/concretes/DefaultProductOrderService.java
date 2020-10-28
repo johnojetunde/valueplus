@@ -105,7 +105,7 @@ public class DefaultProductOrderService implements ProductOrderService {
             BigDecimal userProfit = sellingPrice.subtract(productPrice);
             BigDecimal totalProfit = setScale(userProfit.multiply(qty));
 
-            emailService.sendProductOrderStatusUpdate(user, savedOrder);
+            emailService.sendProductOrderStatusUpdate(savedOrder.getUser(), savedOrder);
 
             if (COMPLETED.equals(status)) {
                 walletService.creditWallet(productOder.getUser(), totalProfit, format("Credit from ProductOrder completion (id: %d)", productOder.getId()));
