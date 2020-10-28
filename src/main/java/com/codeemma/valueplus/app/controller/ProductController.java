@@ -1,6 +1,7 @@
 package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
+import com.codeemma.valueplus.app.security.UserAuthentication;
 import com.codeemma.valueplus.domain.model.ProductModel;
 import com.codeemma.valueplus.domain.service.abstracts.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,18 +26,27 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class ProductController {
     private final ProductService productService;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public ProductModel create(@Valid @RequestBody ProductModel productModel) throws ValuePlusException {
         return productService.create(productModel);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductModel update(
             @PathVariable("id") Long id,
             @Valid @RequestBody ProductModel productModel) throws ValuePlusException {
         return productService.update(id, productModel);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PostMapping("/{id}/disable")
+    @ResponseStatus(HttpStatus.OK)
+    public ProductModel disable(@PathVariable("id") Long id) throws ValuePlusException {
+        return productService.disable(id);
     }
 
     @GetMapping("/{id}")
@@ -45,7 +57,8 @@ public class ProductController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProductModel> getAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        return productService.get(pageable);
+    public Page<ProductModel> getAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable,
+                                     @AuthenticationPrincipal UserAuthentication user) throws ValuePlusException {
+        return productService.get(pageable, user.getDetails());
     }
 }

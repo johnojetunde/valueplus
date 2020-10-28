@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.domain.mail;
 
+import com.codeemma.valueplus.persistence.entity.ProductOrder;
 import com.codeemma.valueplus.persistence.entity.User;
 
 import java.math.BigDecimal;
@@ -14,4 +15,6 @@ public interface EmailService {
     void sendCreditNotification(User user, BigDecimal amount) throws Exception;
 
     void sendDebitNotification(User user, BigDecimal amount) throws Exception;
+
+    void sendProductOrderStatusUpdate(User user, ProductOrder productOrder) throws Exception;
 }

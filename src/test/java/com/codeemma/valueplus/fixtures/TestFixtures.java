@@ -10,10 +10,12 @@ import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 
+import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
+
 @UtilityClass
 public class TestFixtures {
     public static User mockUser() {
-        return getUser(RoleType.AGENT);
+        return getUser(AGENT);
     }
 
     public static Account mockAccount(String accountNumber) {

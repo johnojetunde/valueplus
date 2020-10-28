@@ -29,4 +29,5 @@
     <include file="/db/changelog/v0.13_create_wallet_history.xml"/>
     <include file="/db/changelog/v0.14_add_columns_to_wallet_history.xml"/>
     <include file="/db/changelog/v0.15_create_device_report.xml"/>
+    <include file="/db/changelog/v0.16_add_columns_to_product.xml"/>
 </databaseChangeLog>

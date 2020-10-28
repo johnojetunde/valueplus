@@ -47,7 +47,7 @@ public class User extends BasePersistentEntity implements UserDetails {
 
     public static UserBuilder from(AgentCreate agentCreate) {
         return builder()
-                .email(agentCreate.getEmail())
+                .email(agentCreate.getEmail().toLowerCase())
                 .firstname(agentCreate.getFirstname())
                 .lastname(agentCreate.getLastname())
                 .phone(agentCreate.getPhone())
@@ -56,7 +56,7 @@ public class User extends BasePersistentEntity implements UserDetails {
 
     public static UserBuilder from(UserCreate agentCreate) {
         return builder()
-                .email(agentCreate.getEmail())
+                .email(agentCreate.getEmail().toLowerCase())
                 .firstname(agentCreate.getFirstname())
                 .lastname(agentCreate.getLastname())
                 .phone(agentCreate.getPhone());
