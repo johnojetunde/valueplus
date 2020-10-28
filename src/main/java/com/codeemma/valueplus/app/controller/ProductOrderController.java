@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.app.security.UserAuthentication;
+import com.codeemma.valueplus.app.model.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import com.codeemma.valueplus.domain.service.abstracts.ProductOrderService;
@@ -29,6 +29,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @RestController
 @RequestMapping(path = "v1/product-orders", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductOrderController {
+
     private final ProductOrderService productOrderService;
 
     @PostMapping
