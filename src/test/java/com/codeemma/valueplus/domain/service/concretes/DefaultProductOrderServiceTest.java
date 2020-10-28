@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.codeemma.valueplus.domain.enums.OrderStatus.CANCELED;
+import static com.codeemma.valueplus.domain.enums.OrderStatus.CANCELLED;
 import static com.codeemma.valueplus.domain.enums.OrderStatus.IN_PROGRESS;
 import static com.codeemma.valueplus.domain.model.RoleType.ADMIN;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
@@ -309,7 +309,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findByIdAndUser_id(anyLong(), anyLong()))
                 .thenReturn(Optional.of(entity));
 
-        assertThatThrownBy(() -> orderService.updateStatus(1L, CANCELED, authentication))
+        assertThatThrownBy(() -> orderService.updateStatus(1L, CANCELLED, authentication))
                 .isInstanceOf(ValuePlusException.class)
                 .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST)
                 .hasMessage("Only Pending ProductOrder can be cancelled");

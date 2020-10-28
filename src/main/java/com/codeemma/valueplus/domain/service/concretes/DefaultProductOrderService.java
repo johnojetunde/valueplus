@@ -173,7 +173,7 @@ public class DefaultProductOrderService implements ProductOrderService {
         if (productOder.getStatus().equals(status)) {
             throw new ValuePlusException(format("ProductOrder status is presently %s", status), BAD_REQUEST);
         }
-        if (CANCELED.equals(status) && !PENDING.equals(productOder.getStatus())) {
+        if (CANCELLED.equals(status) && !PENDING.equals(productOder.getStatus())) {
             throw new ValuePlusException("Only Pending ProductOrder can be cancelled", BAD_REQUEST);
         }
     }
