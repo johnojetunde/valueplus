@@ -1,5 +1,6 @@
 package com.codeemma.valueplus.domain.mail;
 
+import com.codeemma.valueplus.persistence.entity.ProductOrder;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -17,6 +18,7 @@ public class EmailServiceImpl implements EmailService {
     public static final String VERIFY_EMAIL_SUBJECT = "Value Plus Verify Email";
     public static final String USER_CREATION_SUBJECT = "Value Plus Admin Account";
     public static final String WALLET_NOTIFICATION_SUBJECT = "Value Plus Wallet Notification";
+    public static final String PRODUCT_ORDER_STATUS_SUBJECT = "Value Plus Product Order Notification";
 
     private final EmailClient emailClient;
     private final VelocityEngine velocityEngine;
@@ -73,6 +75,21 @@ public class EmailServiceImpl implements EmailService {
     public void sendDebitNotification(User user, BigDecimal amount) throws Exception {
         Template template = velocityEngine.getTemplate("/templates/walletdebit.vm");
         walletNotification(user, amount, template);
+    }
+
+    @Override
+    public void sendProductOrderStatusUpdate(User user, ProductOrder productOrder) throws Exception {
+        Template template = velocityEngine.getTemplate("/templates/product-order-status.vm");
+        VelocityContext context = new VelocityContext();
+        context.put("name", user.getFirstname());
+        context.put("status", productOrder.getStatus().name());
+        context.put("productOrderId", productOrder.getId());
+        context.put("productName", productOrder.getProduct().getName());
+        ;
+        StringWriter stringWriter = new StringWriter();
+        template.merge(context, stringWriter);
+
+        emailClient.sendSimpleMessage(user.getEmail(), PRODUCT_ORDER_STATUS_SUBJECT, stringWriter.toString());
     }
 
     private void walletNotification(User user, BigDecimal amount, Template template) throws MessagingException {

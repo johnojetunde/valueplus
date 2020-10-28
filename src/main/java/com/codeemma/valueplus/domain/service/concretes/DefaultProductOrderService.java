@@ -3,6 +3,7 @@ package com.codeemma.valueplus.domain.service.concretes;
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.security.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
+import com.codeemma.valueplus.domain.mail.EmailService;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import com.codeemma.valueplus.domain.service.abstracts.ProductOrderService;
 import com.codeemma.valueplus.domain.service.abstracts.WalletService;
@@ -44,6 +45,7 @@ public class DefaultProductOrderService implements ProductOrderService {
     private final ProductOrderRepository repository;
     private final ProductRepository productRepository;
     private final WalletService walletService;
+    private final EmailService emailService;
 
     @Override
     public List<ProductOrderModel> create(List<ProductOrderModel> orders, UserAuthentication authentication) throws ValuePlusException {
@@ -80,33 +82,42 @@ public class DefaultProductOrderService implements ProductOrderService {
 
     @Override
     public ProductOrderModel updateStatus(Long id, OrderStatus status, UserAuthentication authentication) throws ValuePlusException {
-        User user = authentication.getDetails();
-        ProductOrder productOder;
-        if (AGENT.name().equals(user.getRole().getName())) {
-            productOder = getOrder(id, authentication.getDetails());
-        } else {
-            productOder = getOrder(id);
+        try {
+            User user = authentication.getDetails();
+            ProductOrder productOder;
+            if (AGENT.name().equals(user.getRole().getName())) {
+                productOder = getOrder(id, authentication.getDetails());
+            } else {
+                productOder = getOrder(id);
+            }
+
+            if (productOder.getStatus().equals(status)) {
+                throw new ValuePlusException(format("ProductOrder status is presently %s", status), BAD_REQUEST);
+            }
+            productOder.setStatus(status);
+
+            ProductOrder savedOrder = repository.save(productOder);
+
+            BigDecimal qty = setScale(BigDecimal.valueOf(productOder.getQuantity()));
+            BigDecimal productPrice = setScale(productOder.getProduct().getPrice());
+            BigDecimal sellingPrice = setScale(productOder.getSellingPrice());
+
+            BigDecimal userProfit = sellingPrice.subtract(productPrice);
+            BigDecimal totalProfit = setScale(userProfit.multiply(qty));
+
+            emailService.sendProductOrderStatusUpdate(user, savedOrder);
+
+            if (COMPLETED.equals(status)) {
+                walletService.creditWallet(productOder.getUser(), totalProfit, format("Credit from ProductOrder completion (id: %d)", productOder.getId()));
+            }
+
+            return savedOrder.toModel();
+        } catch (Exception e) {
+            if (e instanceof ValuePlusException) {
+                throw (ValuePlusException) e;
+            }
+            throw new ValuePlusException(e.getMessage());
         }
-
-        if (productOder.getStatus().equals(status)) {
-            throw new ValuePlusException(format("ProductOrder status is presently %s", status), BAD_REQUEST);
-        }
-        productOder.setStatus(status);
-
-        ProductOrder savedOrder = repository.save(productOder);
-
-        BigDecimal qty = setScale(BigDecimal.valueOf(productOder.getQuantity()));
-        BigDecimal productPrice = setScale(productOder.getProduct().getPrice());
-        BigDecimal sellingPrice = setScale(productOder.getSellingPrice());
-
-        BigDecimal userProfit = sellingPrice.subtract(productPrice);
-        BigDecimal totalProfit = setScale(userProfit.multiply(qty));
-
-        if (COMPLETED.equals(status)) {
-            walletService.creditWallet(productOder.getUser(), totalProfit, format("Credit from ProductOrder completion (id: %d)", productOder.getId()));
-        }
-
-        return savedOrder.toModel();
     }
 
     @Override
@@ -129,13 +140,13 @@ public class DefaultProductOrderService implements ProductOrderService {
     public Page<ProductOrderModel> getByProductId(Long productId, UserAuthentication authentication, Pageable pageable) throws ValuePlusException {
         try {
             User user = authentication.getDetails();
-            Page<ProductOrder> productOders;
+            Page<ProductOrder> productOrders;
             if (AGENT.name().equals(user.getRole().getName())) {
-                productOders = repository.findByUser_idAndProduct_id(user.getId(), productId, pageable);
+                productOrders = repository.findByUser_idAndProduct_id(user.getId(), productId, pageable);
             } else {
-                productOders = repository.findByProduct_id(productId, pageable);
+                productOrders = repository.findByProduct_id(productId, pageable);
             }
-            return productOders.map(ProductOrder::toModel);
+            return productOrders.map(ProductOrder::toModel);
         } catch (Exception e) {
             throw new ValuePlusException(format("Error getting orders by productId %d", productId), e);
         }

@@ -31,6 +31,8 @@ public class Product extends BasePersistentEntity {
     private String image;
     @Column(nullable = false)
     private boolean deleted;
+    @Column(nullable = false)
+    private boolean disabled;
 
     public ProductModel toModel() {
         return ProductModel.builder()
@@ -41,6 +43,7 @@ public class Product extends BasePersistentEntity {
                 .image(this.image)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
+                .disabled(this.disabled)
                 .build();
     }
 

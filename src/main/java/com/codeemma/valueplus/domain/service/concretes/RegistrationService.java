@@ -44,7 +44,7 @@ public class RegistrationService {
     }
 
     public User createAgent(AgentCreate agentCreate) throws Exception {
-        if (userRepository.findByEmailAndDeletedFalse(agentCreate.getEmail())
+        if (userRepository.findByEmailAndDeletedFalse(agentCreate.getEmail().toLowerCase())
                 .isPresent()) {
             throw new ValuePlusException("User profile exists", HttpStatus.BAD_REQUEST);
         }

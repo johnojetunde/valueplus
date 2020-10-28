@@ -3,6 +3,7 @@ package com.codeemma.valueplus.domain.service.concretes;
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.security.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
+import com.codeemma.valueplus.domain.mail.EmailService;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import com.codeemma.valueplus.domain.model.WalletModel;
 import com.codeemma.valueplus.domain.service.abstracts.WalletService;
@@ -52,6 +53,8 @@ class DefaultProductOrderServiceTest {
     private Pageable pageable;
     @Mock
     private UserAuthentication authentication;
+    @Mock
+    private EmailService emailService;
     @Mock
     private WalletService walletService;
     @InjectMocks

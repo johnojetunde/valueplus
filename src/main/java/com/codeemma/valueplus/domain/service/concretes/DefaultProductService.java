@@ -4,6 +4,7 @@ import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.domain.model.ProductModel;
 import com.codeemma.valueplus.domain.service.abstracts.ProductService;
 import com.codeemma.valueplus.persistence.entity.Product;
+import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,11 +14,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.codeemma.valueplus.domain.util.UserUtils.isAgent;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class DefaultProductService implements ProductService {
+
     private final ProductRepository repository;
 
     @Override
@@ -54,6 +57,14 @@ public class DefaultProductService implements ProductService {
     }
 
     @Override
+    public ProductModel disable(Long id) throws ValuePlusException {
+        Product product = getProduct(id);
+        product.setDisabled(true);
+
+        return repository.save(product).toModel();
+    }
+
+    @Override
     public boolean delete(Long id) throws ValuePlusException {
         Product entity = getProduct(id);
 
@@ -69,10 +80,13 @@ public class DefaultProductService implements ProductService {
     }
 
     @Override
-    public Page<ProductModel> get(Pageable pageable) throws ValuePlusException {
+    public Page<ProductModel> get(Pageable pageable, User user) throws ValuePlusException {
         try {
-            return repository.findAll(pageable)
-                    .map(Product::toModel);
+            Page<Product> products = isAgent(user)
+                    ? repository.findProductsByDisabledFalse(pageable)
+                    : repository.findAll(pageable);
+
+            return products.map(Product::toModel);
         } catch (Exception e) {
             throw new ValuePlusException("Error getting all products", e);
         }

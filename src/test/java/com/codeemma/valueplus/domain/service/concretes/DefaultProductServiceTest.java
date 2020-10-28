@@ -2,7 +2,9 @@ package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.domain.model.ProductModel;
+import com.codeemma.valueplus.domain.model.RoleType;
 import com.codeemma.valueplus.persistence.entity.Product;
+import com.codeemma.valueplus.persistence.entity.User;
 import com.codeemma.valueplus.persistence.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.codeemma.valueplus.fixtures.TestFixtures.getUser;
+import static com.codeemma.valueplus.fixtures.TestFixtures.mockUser;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -160,15 +164,41 @@ class DefaultProductServiceTest {
     }
 
     @Test
-    void getAll_successful() throws ValuePlusException {
-        when(repository.findAll(any(Pageable.class)))
+    void getAll_successfulAgent() throws ValuePlusException {
+        when(repository.findProductsByDisabledFalse(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(singletonList(entity)));
 
-        Page<ProductModel> result = productService.get(pageable);
+        User agent = mockUser();
+
+        Page<ProductModel> result = productService.get(pageable, agent);
 
         assertThat(result.hasContent()).isTrue();
         assertThat(result.getContent().get(0).getId()).isEqualTo(1L);
     }
+
+    @Test
+    void disableProduct_successful() throws ValuePlusException {
+        when(repository.findById(anyLong()))
+                .thenReturn(Optional.of(entity));
+
+        ProductModel result = productService.disable(1L);
+        assertThat(result).isNotNull();
+        assertThat(result.isDisabled()).isTrue();
+    }
+
+    @Test
+    void getAll_successfulAdmin() throws ValuePlusException {
+        when(repository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(singletonList(entity)));
+
+        User agent = getUser(RoleType.ADMIN);
+
+        Page<ProductModel> result = productService.get(pageable, agent);
+
+        assertThat(result.hasContent()).isTrue();
+        assertThat(result.getContent().get(0).getId()).isEqualTo(1L);
+    }
+
 
     private ProductModel productFixture() {
         return ProductModel.builder()

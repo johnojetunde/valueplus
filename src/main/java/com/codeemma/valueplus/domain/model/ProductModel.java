@@ -27,4 +27,5 @@ public class ProductModel {
     private BigDecimal price;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean disabled;
 }
