@@ -40,7 +40,7 @@ public class WalletController {
         return walletService.createWallet(loggedInUser);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PostMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<WalletModel> createAllUserWallets() {

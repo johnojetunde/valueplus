@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.app.security;
+package com.codeemma.valueplus.app.model;
 
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.security.core.Authentication;
@@ -7,7 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 public class UserAuthentication implements Authentication {
-        private static final long serialVersionUID = 4161658715015553004L;
+
+    private static final long serialVersionUID = 4161658715015553004L;
         private final User user;
         private boolean authenticated = true;
 

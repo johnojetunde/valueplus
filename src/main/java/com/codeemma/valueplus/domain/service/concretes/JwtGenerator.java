@@ -1,4 +1,4 @@
-package com.codeemma.valueplus.app.security;
+package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.persistence.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -18,7 +18,7 @@ import java.util.Map;
  * Created by WFG on 6/22/2017.
  */
 @Component
-public class JwtUtils {
+public class JwtGenerator {
     @Value("${token.secret}")
     private String secret;
     @Value("${token.expiration}")

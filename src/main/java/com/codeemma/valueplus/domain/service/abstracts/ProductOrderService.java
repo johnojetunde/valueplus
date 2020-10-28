@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.domain.service.abstracts;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.app.security.UserAuthentication;
+import com.codeemma.valueplus.app.model.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import org.springframework.data.domain.Page;

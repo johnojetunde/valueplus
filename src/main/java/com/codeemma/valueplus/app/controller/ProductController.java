@@ -1,7 +1,7 @@
 package com.codeemma.valueplus.app.controller;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.app.security.UserAuthentication;
+import com.codeemma.valueplus.app.model.UserAuthentication;
 import com.codeemma.valueplus.domain.model.ProductModel;
 import com.codeemma.valueplus.domain.service.abstracts.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +24,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @RestController
 @RequestMapping(path = "v1/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
+
     private final ProductService productService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
