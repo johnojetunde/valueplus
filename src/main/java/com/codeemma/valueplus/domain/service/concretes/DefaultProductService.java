@@ -65,6 +65,14 @@ public class DefaultProductService implements ProductService {
     }
 
     @Override
+    public ProductModel enable(Long id) throws ValuePlusException {
+        Product product = getProduct(id);
+        product.setDisabled(false);
+
+        return repository.save(product).toModel();
+    }
+
+    @Override
     public boolean delete(Long id) throws ValuePlusException {
         Product entity = getProduct(id);
 

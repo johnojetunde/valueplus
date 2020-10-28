@@ -186,6 +186,19 @@ class DefaultProductServiceTest {
         assertThat(result.isDisabled()).isTrue();
     }
 
+
+    @Test
+    void enableProduct_successful() throws ValuePlusException {
+        entity.setDisabled(true);
+
+        when(repository.findById(anyLong()))
+                .thenReturn(Optional.of(entity));
+
+        ProductModel result = productService.enable(1L);
+        assertThat(result).isNotNull();
+        assertThat(result.isDisabled()).isFalse();
+    }
+
     @Test
     void getAll_successfulAdmin() throws ValuePlusException {
         when(repository.findAll(any(Pageable.class)))

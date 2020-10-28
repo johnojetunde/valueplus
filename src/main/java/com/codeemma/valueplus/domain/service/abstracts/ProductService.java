@@ -13,6 +13,8 @@ public interface ProductService {
 
     ProductModel disable(Long id) throws ValuePlusException;
 
+    ProductModel enable(Long id) throws ValuePlusException;
+
 
     boolean delete(Long id) throws ValuePlusException;
 
