@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.codeemma.valueplus.domain.enums.OrderStatus.CANCELED;
+import static com.codeemma.valueplus.domain.enums.OrderStatus.CANCELLED;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
@@ -76,7 +76,7 @@ public class ProductOrderController {
     @ResponseStatus(HttpStatus.OK)
     public ProductOrderModel cancelOrder(@PathVariable("id") Long orderId,
                                          @AuthenticationPrincipal UserAuthentication user) throws ValuePlusException {
-        return productOrderService.updateStatus(orderId, CANCELED, user);
+        return productOrderService.updateStatus(orderId, CANCELLED, user);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")

@@ -30,10 +30,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.codeemma.valueplus.domain.enums.OrderStatus.CANCELLED;
+import static com.codeemma.valueplus.domain.enums.OrderStatus.IN_PROGRESS;
 import static com.codeemma.valueplus.domain.model.RoleType.ADMIN;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
 import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
 import static com.codeemma.valueplus.fixtures.TestFixtures.getUser;
+import static com.codeemma.valueplus.fixtures.TestFixtures.mockUser;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -295,6 +298,25 @@ class DefaultProductOrderServiceTest {
         verify(repository).findByIdAndUser_id(eq(1L), eq(1L));
     }
 
+
+    @Test
+    void cancelProductOrder() throws ValuePlusException {
+        User user = mockUser();
+        entity.setStatus(IN_PROGRESS);
+
+        when(authentication.getDetails())
+                .thenReturn(user);
+        when(repository.findByIdAndUser_id(anyLong(), anyLong()))
+                .thenReturn(Optional.of(entity));
+
+        assertThatThrownBy(() -> orderService.updateStatus(1L, CANCELLED, authentication))
+                .isInstanceOf(ValuePlusException.class)
+                .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST)
+                .hasMessage("Only Pending ProductOrder can be cancelled");
+
+        verify(repository).findByIdAndUser_id(eq(1L), eq(1L));
+    }
+
     @Test
     void updateStatus_successful_Admin() throws ValuePlusException {
         User user = getUser(ADMIN);
@@ -345,7 +367,7 @@ class DefaultProductOrderServiceTest {
                 .quantity(10L)
                 .sellingPrice(BigDecimal.TEN)
                 .phoneNumber("09000000000")
-                .status(OrderStatus.IN_PROGRESS)
+                .status(IN_PROGRESS)
                 .productId(1L)
                 .build();
     }

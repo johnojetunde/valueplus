@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static com.codeemma.valueplus.domain.enums.OrderStatus.COMPLETED;
+import static com.codeemma.valueplus.domain.enums.OrderStatus.*;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
 import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
 import static java.lang.String.format;
@@ -85,15 +85,15 @@ public class DefaultProductOrderService implements ProductOrderService {
         try {
             User user = authentication.getDetails();
             ProductOrder productOder;
+
             if (AGENT.name().equals(user.getRole().getName())) {
                 productOder = getOrder(id, authentication.getDetails());
             } else {
                 productOder = getOrder(id);
             }
 
-            if (productOder.getStatus().equals(status)) {
-                throw new ValuePlusException(format("ProductOrder status is presently %s", status), BAD_REQUEST);
-            }
+            validateStatusUpdateRequest(status, productOder);
+
             productOder.setStatus(status);
 
             ProductOrder savedOrder = repository.save(productOder);
@@ -105,7 +105,7 @@ public class DefaultProductOrderService implements ProductOrderService {
             BigDecimal userProfit = sellingPrice.subtract(productPrice);
             BigDecimal totalProfit = setScale(userProfit.multiply(qty));
 
-            emailService.sendProductOrderStatusUpdate(user, savedOrder);
+            emailService.sendProductOrderStatusUpdate(savedOrder.getUser(), savedOrder);
 
             if (COMPLETED.equals(status)) {
                 walletService.creditWallet(productOder.getUser(), totalProfit, format("Credit from ProductOrder completion (id: %d)", productOder.getId()));
@@ -169,6 +169,15 @@ public class DefaultProductOrderService implements ProductOrderService {
                 .map(ProductOrder::toModel);
     }
 
+    private void validateStatusUpdateRequest(OrderStatus status, ProductOrder productOder) throws ValuePlusException {
+        if (productOder.getStatus().equals(status)) {
+            throw new ValuePlusException(format("ProductOrder status is presently %s", status), BAD_REQUEST);
+        }
+        if (CANCELLED.equals(status) && !PENDING.equals(productOder.getStatus())) {
+            throw new ValuePlusException("Only Pending ProductOrder can be cancelled", BAD_REQUEST);
+        }
+    }
+
     private List<ProductOrder> convertToEntities(List<ProductOrderModel> orders, Map<Long, Product> productMap, User user) throws ValuePlusException {
         List<ProductOrder> productOrderList = new ArrayList<>();
         for (ProductOrderModel order : orders) {
@@ -176,7 +185,7 @@ public class DefaultProductOrderService implements ProductOrderService {
             ensureSellingPriceIsValid(order, product);
 
             productOrderList.add(ProductOrder.fromModel(order, product, user)
-                    .setStatus(OrderStatus.PENDING));
+                    .setStatus(PENDING));
         }
         return productOrderList;
     }
