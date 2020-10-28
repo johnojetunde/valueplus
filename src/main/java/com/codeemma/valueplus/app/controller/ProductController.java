@@ -49,6 +49,13 @@ public class ProductController {
         return productService.disable(id);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PostMapping("/{id}/enable")
+    @ResponseStatus(HttpStatus.OK)
+    public ProductModel enable(@PathVariable("id") Long id) throws ValuePlusException {
+        return productService.enable(id);
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductModel get(@PathVariable("id") Long id) throws ValuePlusException {
