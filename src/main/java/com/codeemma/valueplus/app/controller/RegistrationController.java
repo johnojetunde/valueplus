@@ -1,6 +1,9 @@
 package com.codeemma.valueplus.app.controller;
 
-import com.codeemma.valueplus.domain.model.*;
+import com.codeemma.valueplus.domain.model.AgentCreate;
+import com.codeemma.valueplus.domain.model.AgentDto;
+import com.codeemma.valueplus.domain.model.UserCreate;
+import com.codeemma.valueplus.domain.model.UserDto;
 import com.codeemma.valueplus.domain.service.concretes.RegistrationService;
 import com.codeemma.valueplus.persistence.entity.User;
 import org.springframework.http.HttpStatus;
@@ -10,6 +13,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import static com.codeemma.valueplus.domain.model.RoleType.ADMIN;
 
 @RestController
 @RequestMapping(path = "v1/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,7 +38,7 @@ public class RegistrationController {
     @PostMapping("/admin")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto registerAdmin(@Valid @RequestBody UserCreate userCreate) throws Exception {
-        User registered = registrationService.createAdmin(userCreate, RoleType.ADMIN);
+        User registered = registrationService.createAdmin(userCreate, ADMIN);
         return UserDto.valueOf(registered);
     }
 }

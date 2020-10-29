@@ -7,7 +7,6 @@ import com.codeemma.valueplus.domain.util.UserUtils;
 import com.codeemma.valueplus.persistence.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +26,6 @@ public class EmailVerificationController {
         this.emailVerificationService = emailVerificationService;
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping("/current/send-verify-mail")
     public void sendVerifyMail() throws Exception {
         User user = UserUtils.getLoggedInUser();

@@ -1,8 +1,6 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.app.model.UserAuthentication;
-import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.mail.EmailService;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
 import com.codeemma.valueplus.domain.model.WalletModel;
@@ -30,8 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.codeemma.valueplus.domain.enums.OrderStatus.CANCELLED;
-import static com.codeemma.valueplus.domain.enums.OrderStatus.IN_PROGRESS;
+import static com.codeemma.valueplus.domain.enums.OrderStatus.*;
 import static com.codeemma.valueplus.domain.model.RoleType.ADMIN;
 import static com.codeemma.valueplus.domain.model.RoleType.AGENT;
 import static com.codeemma.valueplus.domain.util.FunctionUtil.setScale;
@@ -55,8 +52,6 @@ class DefaultProductOrderServiceTest {
     @Mock
     private Pageable pageable;
     @Mock
-    private UserAuthentication authentication;
-    @Mock
     private EmailService emailService;
     @Mock
     private WalletService walletService;
@@ -66,12 +61,13 @@ class DefaultProductOrderServiceTest {
     private ProductOrder entity;
     private Product product;
 
+    private User agentUser;
+
     @BeforeEach
     void setUp() {
         initMocks(this);
         User user = getUser(AGENT);
-        when(authentication.getDetails())
-                .thenReturn(user);
+        agentUser = mockUser();
 
         productOrderModel = orderModelFixture();
         product = Product.builder()
@@ -89,7 +85,7 @@ class DefaultProductOrderServiceTest {
     void create_WithBadData() {
         List<ProductOrderModel> orders = singletonList(productOrderModel);
 
-        assertThatThrownBy(() -> orderService.create(orders, authentication))
+        assertThatThrownBy(() -> orderService.create(orders, agentUser))
                 .isInstanceOf(ValuePlusException.class)
                 .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST)
                 .hasMessage("Order items contains an order with id");
@@ -103,7 +99,7 @@ class DefaultProductOrderServiceTest {
         productOrderModel.setId(null);
         List<ProductOrderModel> orders = singletonList(productOrderModel);
 
-        assertThatThrownBy(() -> orderService.create(orders, authentication))
+        assertThatThrownBy(() -> orderService.create(orders, agentUser))
                 .isInstanceOf(ValuePlusException.class)
                 .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST)
                 .hasMessage("Product 1 does not exist");
@@ -122,7 +118,7 @@ class DefaultProductOrderServiceTest {
         productOrderModel.setSellingPrice(BigDecimal.TEN);
         List<ProductOrderModel> orders = singletonList(productOrderModel);
 
-        assertThatThrownBy(() -> orderService.create(orders, authentication))
+        assertThatThrownBy(() -> orderService.create(orders, agentUser))
                 .isInstanceOf(ValuePlusException.class)
                 .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST)
                 .hasMessage("Selling price must not be less than product price");
@@ -140,7 +136,7 @@ class DefaultProductOrderServiceTest {
         productOrderModel.setId(null);
         List<ProductOrderModel> orders = singletonList(productOrderModel);
 
-        List<ProductOrderModel> result = orderService.create(orders, authentication);
+        List<ProductOrderModel> result = orderService.create(orders, agentUser);
 
         assertThat(result).isNotNull();
         assertThat(result.get(0).getCreatedAt()).isNotNull();
@@ -154,13 +150,11 @@ class DefaultProductOrderServiceTest {
     @Test
     void getById_successfulAdmin() throws ValuePlusException {
         User user = getUser(ADMIN);
-        when(authentication.getDetails())
-                .thenReturn(user);
 
         when(repository.findById(eq(1L)))
                 .thenReturn(Optional.of(entity));
 
-        ProductOrderModel result = orderService.get(1L, authentication);
+        ProductOrderModel result = orderService.get(1L, agentUser);
 
         assertThat(result).isNotNull();
         assertThat(result.getProductId()).isEqualTo(1L);
@@ -175,7 +169,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findByIdAndUser_id(eq(1L), eq(1L)))
                 .thenReturn(Optional.of(entity));
 
-        ProductOrderModel result = orderService.get(1L, authentication);
+        ProductOrderModel result = orderService.get(1L, agentUser);
 
         assertThat(result).isNotNull();
         assertThat(result.getProductId()).isEqualTo(1L);
@@ -190,7 +184,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findByIdAndUser_id(eq(1L), eq(1L)))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> orderService.get(1L, authentication))
+        assertThatThrownBy(() -> orderService.get(1L, agentUser))
                 .isInstanceOf(ValuePlusException.class)
                 .hasFieldOrPropertyWithValue("httpStatus", NOT_FOUND)
                 .hasMessage("Order does not exist");
@@ -201,13 +195,11 @@ class DefaultProductOrderServiceTest {
     @Test
     void getAll_successful_Admin() throws ValuePlusException {
         User user = getUser(ADMIN);
-        when(authentication.getDetails())
-                .thenReturn(user);
 
         when(repository.findAll(eq(pageable)))
                 .thenReturn(new PageImpl<>(singletonList(entity)));
 
-        Page<ProductOrderModel> result = orderService.get(authentication, pageable);
+        Page<ProductOrderModel> result = orderService.get(agentUser, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent().get(0).getCreatedAt()).isNotNull();
@@ -221,7 +213,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findByUser_id(eq(1L), eq(pageable)))
                 .thenReturn(new PageImpl<>(singletonList(entity)));
 
-        Page<ProductOrderModel> result = orderService.get(authentication, pageable);
+        Page<ProductOrderModel> result = orderService.get(agentUser, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent().get(0).getCreatedAt()).isNotNull();
@@ -233,12 +225,11 @@ class DefaultProductOrderServiceTest {
     @Test
     void getByProductId_Admin() throws ValuePlusException {
         User user = getUser(ADMIN);
-        when(authentication.getDetails())
-                .thenReturn(user);
+
         when(repository.findByProduct_id(eq(1L), eq(pageable)))
                 .thenReturn(new PageImpl<>(singletonList(entity)));
 
-        Page<ProductOrderModel> result = orderService.getByProductId(1L, authentication, pageable);
+        Page<ProductOrderModel> result = orderService.getByProductId(1L, agentUser, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent().get(0).getCreatedAt()).isNotNull();
@@ -252,7 +243,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findByUser_idAndProduct_id(eq(1L), eq(1L), eq(pageable)))
                 .thenReturn(new PageImpl<>(singletonList(entity)));
 
-        Page<ProductOrderModel> result = orderService.getByProductId(1L, authentication, pageable);
+        Page<ProductOrderModel> result = orderService.getByProductId(1L, agentUser, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent().get(0).getCreatedAt()).isNotNull();
@@ -275,7 +266,7 @@ class DefaultProductOrderServiceTest {
                 LocalDate.now(),
                 null,
                 pageable,
-                authentication);
+                agentUser);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent().get(0).getCreatedAt()).isNotNull();
@@ -290,7 +281,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findByIdAndUser_id(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> orderService.updateStatus(1L, OrderStatus.COMPLETED, authentication))
+        assertThatThrownBy(() -> orderService.updateStatus(1L, COMPLETED, agentUser))
                 .isInstanceOf(ValuePlusException.class)
                 .hasMessage("Order does not exist")
                 .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.NOT_FOUND);
@@ -304,12 +295,10 @@ class DefaultProductOrderServiceTest {
         User user = mockUser();
         entity.setStatus(IN_PROGRESS);
 
-        when(authentication.getDetails())
-                .thenReturn(user);
         when(repository.findByIdAndUser_id(anyLong(), anyLong()))
                 .thenReturn(Optional.of(entity));
 
-        assertThatThrownBy(() -> orderService.updateStatus(1L, CANCELLED, authentication))
+        assertThatThrownBy(() -> orderService.updateStatus(1L, CANCELLED, agentUser))
                 .isInstanceOf(ValuePlusException.class)
                 .hasFieldOrPropertyWithValue("httpStatus", BAD_REQUEST)
                 .hasMessage("Only Pending ProductOrder can be cancelled");
@@ -320,8 +309,7 @@ class DefaultProductOrderServiceTest {
     @Test
     void updateStatus_successful_Admin() throws ValuePlusException {
         User user = getUser(ADMIN);
-        when(authentication.getDetails())
-                .thenReturn(user);
+
         when(repository.findById(anyLong()))
                 .thenReturn(Optional.of(entity));
         when(repository.save(any(ProductOrder.class)))
@@ -332,9 +320,9 @@ class DefaultProductOrderServiceTest {
                 eq("Credit from ProductOrder completion (id: 1)")))
                 .thenReturn(WalletModel.builder().build());
 
-        ProductOrderModel result = orderService.updateStatus(1L, OrderStatus.COMPLETED, authentication);
+        ProductOrderModel result = orderService.updateStatus(1L, COMPLETED, agentUser);
         assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(OrderStatus.COMPLETED);
+        assertThat(result.getStatus()).isEqualTo(COMPLETED);
 
         verify(repository).findById(eq(1L));
         verify(repository).save(any(ProductOrder.class));
@@ -351,9 +339,9 @@ class DefaultProductOrderServiceTest {
         when(repository.save(any(ProductOrder.class)))
                 .then(i -> i.getArgument(0, ProductOrder.class));
 
-        ProductOrderModel result = orderService.updateStatus(1L, OrderStatus.COMPLETED, authentication);
+        ProductOrderModel result = orderService.updateStatus(1L, COMPLETED, agentUser);
         assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(OrderStatus.COMPLETED);
+        assertThat(result.getStatus()).isEqualTo(COMPLETED);
 
         verify(repository).findByIdAndUser_id(eq(1L), eq(1L));
         verify(repository).save(any(ProductOrder.class));
