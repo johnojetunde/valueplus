@@ -154,7 +154,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findById(eq(1L)))
                 .thenReturn(Optional.of(entity));
 
-        ProductOrderModel result = orderService.get(1L, agentUser);
+        ProductOrderModel result = orderService.get(1L, user);
 
         assertThat(result).isNotNull();
         assertThat(result.getProductId()).isEqualTo(1L);
@@ -199,7 +199,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findAll(eq(pageable)))
                 .thenReturn(new PageImpl<>(singletonList(entity)));
 
-        Page<ProductOrderModel> result = orderService.get(agentUser, pageable);
+        Page<ProductOrderModel> result = orderService.get(user, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent().get(0).getCreatedAt()).isNotNull();
@@ -229,7 +229,7 @@ class DefaultProductOrderServiceTest {
         when(repository.findByProduct_id(eq(1L), eq(pageable)))
                 .thenReturn(new PageImpl<>(singletonList(entity)));
 
-        Page<ProductOrderModel> result = orderService.getByProductId(1L, agentUser, pageable);
+        Page<ProductOrderModel> result = orderService.getByProductId(1L, user, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent().get(0).getCreatedAt()).isNotNull();
@@ -320,7 +320,7 @@ class DefaultProductOrderServiceTest {
                 eq("Credit from ProductOrder completion (id: 1)")))
                 .thenReturn(WalletModel.builder().build());
 
-        ProductOrderModel result = orderService.updateStatus(1L, COMPLETED, agentUser);
+        ProductOrderModel result = orderService.updateStatus(1L, COMPLETED, user);
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(COMPLETED);
 
