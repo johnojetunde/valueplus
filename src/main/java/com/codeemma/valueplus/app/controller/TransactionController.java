@@ -4,8 +4,6 @@ import com.codeemma.valueplus.app.exception.ValuePlusException;
 import com.codeemma.valueplus.app.model.PaymentRequestModel;
 import com.codeemma.valueplus.domain.model.TransactionModel;
 import com.codeemma.valueplus.domain.service.abstracts.TransferService;
-import com.codeemma.valueplus.domain.util.UserUtils;
-import com.codeemma.valueplus.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +21,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.codeemma.valueplus.domain.util.UserUtils.getLoggedInUser;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Validated
@@ -36,8 +35,7 @@ public class TransactionController {
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     public TransactionModel initiate(@Valid @RequestBody PaymentRequestModel request) throws ValuePlusException {
-        User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.transfer(loggedInUser, request);
+        return transferService.transfer(getLoggedInUser(), request);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -51,22 +49,19 @@ public class TransactionController {
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionModel> getUserTransfers(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.getAllUserTransactions(loggedInUser, pageable);
+        return transferService.getAllUserTransactions(getLoggedInUser(), pageable);
     }
 
     @GetMapping("/reference/{reference}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<TransactionModel> getUserTransfers(@PathVariable("reference") String reference) throws ValuePlusException {
-        User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.getTransactionByReference(loggedInUser, reference);
+        return transferService.getTransactionByReference(getLoggedInUser(), reference);
     }
 
     @GetMapping("/verify/{reference}")
     @ResponseStatus(HttpStatus.OK)
     public TransactionModel verifyTransaction(@PathVariable("reference") String reference) throws ValuePlusException {
-        User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.verify(loggedInUser, reference);
+        return transferService.verify(getLoggedInUser(), reference);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -83,8 +78,7 @@ public class TransactionController {
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(value = "status", required = false) String status,
             @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.filter(loggedInUser, status, startDate, endDate, pageable);
+        return transferService.filter(getLoggedInUser(), status, startDate, endDate, pageable);
     }
 
     @GetMapping("/user/filter")
@@ -93,7 +87,6 @@ public class TransactionController {
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        User loggedInUser = UserUtils.getLoggedInUser();
-        return transferService.getTransactionBetween(loggedInUser, startDate, endDate, pageable);
+        return transferService.getTransactionBetween(getLoggedInUser(), startDate, endDate, pageable);
     }
 }

@@ -5,7 +5,6 @@ import com.codeemma.valueplus.domain.model.WalletHistoryModel;
 import com.codeemma.valueplus.domain.model.WalletModel;
 import com.codeemma.valueplus.domain.service.abstracts.WalletHistoryService;
 import com.codeemma.valueplus.domain.service.abstracts.WalletService;
-import com.codeemma.valueplus.domain.util.UserUtils;
 import com.codeemma.valueplus.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.codeemma.valueplus.domain.util.UserUtils.getLoggedInUser;
 import static com.codeemma.valueplus.domain.util.UserUtils.isAgent;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -36,7 +36,7 @@ public class WalletController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public WalletModel create() {
-        User loggedInUser = UserUtils.getLoggedInUser();
+        User loggedInUser = getLoggedInUser();
         return walletService.createWallet(loggedInUser);
     }
 
@@ -50,7 +50,7 @@ public class WalletController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public WalletModel getWallet() throws Exception {
-        User user = UserUtils.getLoggedInUser();
+        User user = getLoggedInUser();
         return (isAgent(user))
                 ? walletService.getWallet(user)
                 : walletService.getWallet();
@@ -84,7 +84,7 @@ public class WalletController {
     @ResponseStatus(HttpStatus.OK)
     public Page<WalletHistoryModel> getWalletHistory(@PathVariable("walletId") Long walletId,
                                                      @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        User user = UserUtils.getLoggedInUser();
+        User user = getLoggedInUser();
         return walletHistoryService.getHistory(user, walletId, pageable);
     }
 
@@ -94,7 +94,7 @@ public class WalletController {
                                                      @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
                                                      @RequestParam(value = "userId", required = false, defaultValue = "0") Long userId,
                                                      @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
-        User user = UserUtils.getLoggedInUser();
+        User user = getLoggedInUser();
         if (isAgent(user)) {
             userId = user.getId();
         }

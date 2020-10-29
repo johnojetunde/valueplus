@@ -1,7 +1,6 @@
 package com.codeemma.valueplus.domain.service.concretes;
 
 import com.codeemma.valueplus.app.exception.ValuePlusException;
-import com.codeemma.valueplus.app.model.UserAuthentication;
 import com.codeemma.valueplus.domain.enums.OrderStatus;
 import com.codeemma.valueplus.domain.mail.EmailService;
 import com.codeemma.valueplus.domain.model.ProductOrderModel;
@@ -42,13 +41,14 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequiredArgsConstructor
 @Service
 public class DefaultProductOrderService implements ProductOrderService {
+
     private final ProductOrderRepository repository;
     private final ProductRepository productRepository;
     private final WalletService walletService;
     private final EmailService emailService;
 
     @Override
-    public List<ProductOrderModel> create(List<ProductOrderModel> orders, UserAuthentication authentication) throws ValuePlusException {
+    public List<ProductOrderModel> create(List<ProductOrderModel> orders, User user) throws ValuePlusException {
         boolean anyRecordWithId = orders.stream()
                 .anyMatch(order -> order.getId() != null);
 
@@ -61,7 +61,7 @@ public class DefaultProductOrderService implements ProductOrderService {
 
         ensureAllProductExists(products, productMap);
 
-        List<ProductOrder> productOrderList = convertToEntities(orders, productMap, authentication.getDetails());
+        List<ProductOrder> productOrderList = convertToEntities(orders, productMap, user);
 
         return repository.saveAll(productOrderList).stream()
                 .map(ProductOrder::toModel)
@@ -69,11 +69,10 @@ public class DefaultProductOrderService implements ProductOrderService {
     }
 
     @Override
-    public ProductOrderModel get(Long id, UserAuthentication authentication) throws ValuePlusException {
-        User user = authentication.getDetails();
+    public ProductOrderModel get(Long id, User user) throws ValuePlusException {
         ProductOrder productOder;
         if (AGENT.name().equals(user.getRole().getName())) {
-            productOder = getOrder(id, authentication.getDetails());
+            productOder = getOrder(id, user);
         } else {
             productOder = getOrder(id);
         }
@@ -81,13 +80,12 @@ public class DefaultProductOrderService implements ProductOrderService {
     }
 
     @Override
-    public ProductOrderModel updateStatus(Long id, OrderStatus status, UserAuthentication authentication) throws ValuePlusException {
+    public ProductOrderModel updateStatus(Long id, OrderStatus status, User user) throws ValuePlusException {
         try {
-            User user = authentication.getDetails();
             ProductOrder productOder;
 
             if (AGENT.name().equals(user.getRole().getName())) {
-                productOder = getOrder(id, authentication.getDetails());
+                productOder = getOrder(id, user);
             } else {
                 productOder = getOrder(id);
             }
@@ -121,9 +119,8 @@ public class DefaultProductOrderService implements ProductOrderService {
     }
 
     @Override
-    public Page<ProductOrderModel> get(UserAuthentication authentication, Pageable pageable) throws ValuePlusException {
+    public Page<ProductOrderModel> get(User user, Pageable pageable) throws ValuePlusException {
         try {
-            User user = authentication.getDetails();
             Page<ProductOrder> productOders;
             if (AGENT.name().equals(user.getRole().getName())) {
                 productOders = repository.findByUser_id(user.getId(), pageable);
@@ -137,9 +134,8 @@ public class DefaultProductOrderService implements ProductOrderService {
     }
 
     @Override
-    public Page<ProductOrderModel> getByProductId(Long productId, UserAuthentication authentication, Pageable pageable) throws ValuePlusException {
+    public Page<ProductOrderModel> getByProductId(Long productId, User user, Pageable pageable) throws ValuePlusException {
         try {
-            User user = authentication.getDetails();
             Page<ProductOrder> productOrders;
             if (AGENT.name().equals(user.getRole().getName())) {
                 productOrders = repository.findByUser_idAndProduct_id(user.getId(), productId, pageable);
@@ -159,12 +155,12 @@ public class DefaultProductOrderService implements ProductOrderService {
                                                  LocalDate startDate,
                                                  LocalDate endDate,
                                                  Pageable pageable,
-                                                 UserAuthentication authentication) throws ValuePlusException {
+                                                 User user) throws ValuePlusException {
         Product product = null;
         if (productId != null) {
             product = productRepository.findById(productId).orElse(null);
         }
-        ProductOrderSpecification specification = buildSpecification(customerName, status, startDate, endDate, product, authentication.getDetails());
+        ProductOrderSpecification specification = buildSpecification(customerName, status, startDate, endDate, product, user);
         return repository.findAll(Specification.where(specification), pageable)
                 .map(ProductOrder::toModel);
     }
