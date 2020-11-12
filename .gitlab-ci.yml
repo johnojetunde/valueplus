@@ -1,21 +1,10 @@
-name: Value Plus Dev Build
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+stages:
+  - build
 
-jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build spring boot
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
-
+build:
+  stage: build
+  image: maven:3.6-jdk-11
+  script:
+    - 'mvn package'
+  tags:
+    - docker
