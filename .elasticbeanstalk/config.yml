@@ -9,4 +9,4 @@ global:
   sc: git
   workspace_type: Application
 deploy:
-  artifact: build/libs/valueplus-0.0.1-SNAPSHOT.jar
+  artifact: target/valueplus-0.0.1-SNAPSHOT.jar
