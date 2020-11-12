@@ -50,12 +50,10 @@ class Data4MeMonthlyReportServiceTest {
     @MockBean
     private WalletService walletService;
 
-    private Clock clock;
     private User user;
 
     @BeforeEach
     void setUp() {
-        clock = Clock.fixed(Instant.parse("2020-09-03T10:15:30.00Z"), ZoneId.of("Africa/Lagos"));
         user = mockUser();
     }
 
