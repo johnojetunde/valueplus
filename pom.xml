@@ -151,7 +151,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>com.codeemma.valueplus.ValueplusApplication</mainClass>
+					<mainClass>com.valueplus.ValueplusApplication</mainClass>
 				</configuration>
 				<executions>
 					<execution>
