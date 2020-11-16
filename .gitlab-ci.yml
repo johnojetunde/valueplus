@@ -22,7 +22,7 @@ deploy:
     - aws configure set aws_secret_access_key $AWS_SECRET_KEY
     - aws configure set region af-south-1
     - pip install awsebcli --upgrade --user
-    - ~/.local/bin/eb deploy Vpbackend-env
+    - ~/.local/bin/eb deploy Valueplus-env
   dependencies:
     - build
   only:
