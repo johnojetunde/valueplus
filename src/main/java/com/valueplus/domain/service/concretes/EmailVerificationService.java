@@ -38,8 +38,13 @@ public class EmailVerificationService {
 
         EmailVerificationToken emailVerificationToken = new EmailVerificationToken(user.getId(), token);
         verificationTokenRepository.save(emailVerificationToken);
-
-        emailService.sendEmailVerification(user, verifyEmailLink.concat(emailVerificationToken.getVerificationToken()));
+        log.info("save token in the repo");
+        try {
+            emailService.sendEmailVerification(user, verifyEmailLink.concat(emailVerificationToken.getVerificationToken()));
+        }catch (Exception e){
+            log.error("Unable to send email to user",e);
+        }
+        log.info("send verification to the user");
     }
 
     public void sendAdminAccountCreationNotification(User user, String password) throws Exception {
