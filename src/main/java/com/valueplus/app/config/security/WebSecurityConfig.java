@@ -15,6 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Component
 @Configuration
@@ -37,6 +40,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    protected CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        return source;
+    }
+    @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
@@ -44,7 +53,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable().authorizeRequests()
+        httpSecurity.cors().configurationSource(corsConfigurationSource())
+                .and()
+                .csrf().disable()
+                .authorizeRequests()
                 .antMatchers("/v1/auth/**",
                         "/swagger**",
                         "/swagger-resources/**",
@@ -55,9 +67,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/actuator/health",
                         "/actuator/info",
                         "/actuator/metrics",
-                        "/actuator/**").permitAll()
-                .antMatchers("/v1/register").permitAll()
-                .antMatchers("/v1/user/reset-password", "/v1/user/new-password", "/v1/user/verify-mail").permitAll()
+                        "/actuator/**",
+                        "/v1/register",
+                        "/v1/user/reset-password",
+                        "/v1/user/new-password",
+                        "/v1/user/verify-mail").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);

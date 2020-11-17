@@ -33,6 +33,7 @@ public class EmailVerificationService {
     }
 
     public void sendVerifyEmail(User user) throws Exception {
+        log.info("sending verification to user");
         String token = GeneratorUtils.generateRandomString(16);
 
         EmailVerificationToken emailVerificationToken = new EmailVerificationToken(user.getId(), token);
