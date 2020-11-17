@@ -63,7 +63,6 @@ public class RegistrationService {
         User savedUser = userRepository.save(user);
         walletService.createWallet(savedUser);
         emailVerificationService.sendVerifyEmail(user);
-        log.info("registration is done from inside here");
         return user;
     }
 

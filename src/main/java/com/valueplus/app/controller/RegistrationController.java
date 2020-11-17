@@ -34,7 +34,6 @@ public class RegistrationController {
     @ResponseStatus(CREATED)
     public AgentDto register(@Valid @RequestBody AgentCreate agentCreate) throws Exception {
         User registered = registrationService.createAgent(agentCreate);
-        log.info("registration is done");
         return AgentDto.valueOf(registered);
     }
 

@@ -33,18 +33,12 @@ public class EmailVerificationService {
     }
 
     public void sendVerifyEmail(User user) throws Exception {
-        log.info("sending verification to user");
+        log.debug("sending verification to user");
         String token = GeneratorUtils.generateRandomString(16);
 
         EmailVerificationToken emailVerificationToken = new EmailVerificationToken(user.getId(), token);
         verificationTokenRepository.save(emailVerificationToken);
-        log.info("save token in the repo");
-        try {
-            emailService.sendEmailVerification(user, verifyEmailLink.concat(emailVerificationToken.getVerificationToken()));
-        }catch (Exception e){
-            log.error("Unable to send email to user",e);
-        }
-        log.info("send verification to the user");
+        emailService.sendEmailVerification(user, verifyEmailLink.concat(emailVerificationToken.getVerificationToken()));
     }
 
     public void sendAdminAccountCreationNotification(User user, String password) throws Exception {
