@@ -11,6 +11,7 @@ import com.valueplus.persistence.entity.Role;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.RoleRepository;
 import com.valueplus.persistence.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import static com.valueplus.domain.model.RoleType.AGENT;
 import static com.valueplus.domain.util.GeneratorUtils.generateRandomString;
 
+@Slf4j
 @Service
 public class RegistrationService {
     private final UserRepository userRepository;
@@ -61,6 +63,7 @@ public class RegistrationService {
         User savedUser = userRepository.save(user);
         walletService.createWallet(savedUser);
         emailVerificationService.sendVerifyEmail(user);
+        log.info("registration is done from inside here");
         return user;
     }
 
