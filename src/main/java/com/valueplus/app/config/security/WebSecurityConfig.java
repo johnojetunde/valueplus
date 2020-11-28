@@ -2,6 +2,7 @@ package com.valueplus.app.config.security;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,9 +43,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     protected CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.applyPermitDefaultValues().addAllowedHeader("*");
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
