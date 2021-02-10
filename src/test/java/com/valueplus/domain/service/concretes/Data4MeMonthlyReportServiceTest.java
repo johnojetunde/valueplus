@@ -20,7 +20,10 @@ import org.springframework.test.context.TestPropertySources;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Set;
 
@@ -58,12 +61,12 @@ class Data4MeMonthlyReportServiceTest {
     @Test
     void getReport() throws IOException {
         reportService.loadMonthlyReport();
-
     }
 
     @Test
     void processReport() {
-        LocalDate now = LocalDate.now();
+        Clock fixedClock = Clock.fixed(Instant.parse("2020-04-29T10:15:30.00Z"), ZoneId.systemDefault());
+        LocalDate now = LocalDate.now(fixedClock);
         String agentCode = "agentCode";
         AgentReport report = new AgentReport(agentCode, Set.of(123, 143, 154));
 
