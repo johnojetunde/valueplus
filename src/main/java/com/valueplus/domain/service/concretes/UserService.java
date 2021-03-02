@@ -1,22 +1,28 @@
 package com.valueplus.domain.service.concretes;
 
 import com.valueplus.app.exception.NotFoundException;
+import com.valueplus.app.exception.ValuePlusException;
+import com.valueplus.app.exception.ValuePlusRuntimeException;
+import com.valueplus.domain.model.PinUpdate;
+import com.valueplus.domain.service.abstracts.PinUpdateService;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
+import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
+
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final List<PinUpdateService> pinUpdateServiceList;
 
     public Page<User> findUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -38,6 +44,19 @@ public class UserService {
         return userRepository.save(builder.build());
     }
 
+    public User pinUpdate(Long userId, PinUpdate pinUpdate) throws ValuePlusException {
+        User user = getUserById(userId);
+        var pinUpdateService = getUpdateService(user);
+        user = pinUpdateService.updateOrCreatePin(user, pinUpdate);
+
+        return userRepository.save(user);
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("user not found"));
+    }
+
     public void deleteUser(Long userId) {
         userRepository.deleteUser(userId);
     }
@@ -48,5 +67,12 @@ public class UserService {
 
     public Long getAdminUserId() {
         return getAdminUserAccount().map(User::getId).orElse(0L);
+    }
+
+    private PinUpdateService getUpdateService(User user) {
+        return emptyIfNullStream(pinUpdateServiceList)
+                .filter(p -> p.useStrategy(user))
+                .findFirst()
+                .orElseThrow(() -> new ValuePlusRuntimeException("Error retrieving implementation for PinUpdate"));
     }
 }

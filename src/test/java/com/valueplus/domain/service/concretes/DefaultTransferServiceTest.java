@@ -2,37 +2,43 @@ package com.valueplus.domain.service.concretes;
 
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.model.AccountModel;
+import com.valueplus.domain.model.SettingModel;
 import com.valueplus.domain.model.TransactionModel;
 import com.valueplus.domain.model.WalletModel;
 import com.valueplus.domain.service.abstracts.PaymentService;
+import com.valueplus.domain.service.abstracts.SettingsService;
 import com.valueplus.domain.service.abstracts.WalletService;
+import com.valueplus.fixtures.TestFixtures;
 import com.valueplus.persistence.entity.Role;
 import com.valueplus.persistence.entity.Transaction;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.AccountRepository;
 import com.valueplus.persistence.repository.TransactionRepository;
-import com.valueplus.domain.util.FunctionUtil;
-import com.valueplus.fixtures.TestFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.valueplus.domain.util.FunctionUtil.setScale;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 class DefaultTransferServiceTest {
 
@@ -46,6 +52,11 @@ class DefaultTransferServiceTest {
     private Pageable pageable;
     @Mock
     private WalletService walletService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private SettingsService settingsService;
+
     private DefaultTransferService transferService;
 
     private User agentUser;
@@ -63,8 +74,8 @@ class DefaultTransferServiceTest {
                 transactionRepository,
                 accountRepository,
                 walletService,
-                15
-        );
+                passwordEncoder,
+                settingsService);
         agentUser = TestFixtures.mockUser();
         adminUser = TestFixtures.mockUser();
         adminUser.setRole(new Role("ADMIN"));
@@ -77,14 +88,65 @@ class DefaultTransferServiceTest {
                 .thenReturn(TestFixtures.mockTransferResponse(BigDecimal.valueOf(100)));
         when(transactionRepository.save(any(Transaction.class)))
                 .then(i -> i.getArgument(0, Transaction.class));
+        when(passwordEncoder.matches(isA(CharSequence.class), isA(String.class)))
+                .thenReturn(true);
+        var settings = SettingModel.builder()
+                .commissionPercentage(BigDecimal.valueOf(15))
+                .build();
+        when(settingsService.getCurrentSetting()).thenReturn(Optional.of(settings));
+    }
+
+    @Test
+    void transferFailsWhenPinIsNotSet() {
+        var requestModel = TestFixtures.mockPaymentRequestModel(BigDecimal.TEN, "1234");
+        agentUser.setTransactionPin(null);
+
+        assertThatThrownBy(() -> transferService.transfer(agentUser, requestModel))
+                .isInstanceOf(ValuePlusException.class)
+                .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST)
+                .hasFieldOrPropertyWithValue("message", "You need to set your transaction pin");
+    }
+
+    @Test
+    void transferFailsWhenPinDoesNotMatch() {
+        when(passwordEncoder.matches(isA(CharSequence.class), isA(String.class)))
+                .thenReturn(false);
+
+        var requestModel = TestFixtures.mockPaymentRequestModel(BigDecimal.TEN, "1122");
+
+        assertThatThrownBy(() -> transferService.transfer(agentUser, requestModel))
+                .isInstanceOf(ValuePlusException.class)
+                .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.UNAUTHORIZED)
+                .hasFieldOrPropertyWithValue("message", "Incorrect pin");
+    }
+
+    @Test
+    void transferFailWhenSettingDoesNotExist() throws ValuePlusException {
+        when(settingsService.getCurrentSetting()).thenReturn(Optional.empty());
+        var requestModel = TestFixtures.mockPaymentRequestModel(BigDecimal.TEN, "1234");
+        var expectedActualTransfer = setScale(BigDecimal.valueOf(8.50));
+        var debitAmount = setScale(requestModel.getAmount());
+        var commission = setScale(BigDecimal.valueOf(1.50));
+
+        when(walletService.debitWallet(eq(agentUser), eq(debitAmount), anyString()))
+                .thenReturn(WalletModel.builder().build());
+        when(walletService.creditAdminWallet(eq(commission), anyString()))
+                .thenReturn(WalletModel.builder().build());
+
+        assertThatThrownBy(() -> transferService.transfer(agentUser, requestModel))
+                .isInstanceOf(ValuePlusException.class)
+                .hasFieldOrPropertyWithValue("httpStatus", INTERNAL_SERVER_ERROR)
+                .hasFieldOrPropertyWithValue("message", "Unable to retrieve commission");
+
+        verify(accountRepository).findByUser_Id(anyLong());
     }
 
     @Test
     void transfer() throws ValuePlusException {
-        var requestModel = TestFixtures.mockPaymentRequestModel(BigDecimal.TEN);
-        var expectedActualTransfer = FunctionUtil.setScale(BigDecimal.valueOf(8.50));
-        var debitAmount = FunctionUtil.setScale(requestModel.getAmount());
-        var commission = FunctionUtil.setScale(BigDecimal.valueOf(1.50));
+        var requestModel = TestFixtures.mockPaymentRequestModel(BigDecimal.TEN, "1234");
+        var expectedActualTransfer = setScale(BigDecimal.valueOf(8.50));
+        var debitAmount = setScale(requestModel.getAmount());
+        var commission = setScale(BigDecimal.valueOf(1.50));
 
         when(walletService.debitWallet(eq(agentUser), eq(debitAmount), anyString()))
                 .thenReturn(WalletModel.builder().build());

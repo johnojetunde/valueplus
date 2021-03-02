@@ -52,7 +52,6 @@ public class Data4meService extends HttpApiClient {
     }
 
     public Optional<AgentCode> createAgent(final Data4meAgentDto agentDto) {
-        createPassword(agentDto);
         Optional<String> token = authenticate();
 
         if (token.isEmpty()) {
@@ -60,7 +59,14 @@ public class Data4meService extends HttpApiClient {
         }
 
         var header = Map.of("Authorization", "Bearer " + token.get());
+        var existingAgentCode = getAgentInfo(header, agentDto.getEmail());
 
+        return existingAgentCode.isPresent()
+                ? existingAgentCode
+                : createAgent(header, agentDto);
+    }
+
+    private Optional<AgentCode> createAgent(Map<String, String> header, Data4meAgentDto agentDto) {
         try {
             ParameterizedTypeReference<AgentCode> typeReference = new ParameterizedTypeReference<>() {
             };
@@ -68,6 +74,19 @@ public class Data4meService extends HttpApiClient {
             return ofNullable(result);
         } catch (Exception ex) {
             log.error("data4me create agent error - " + ex.getMessage());
+            return empty();
+        }
+    }
+
+    public Optional<AgentCode> getAgentInfo(Map<String, String> header, final String email) {
+        var agentInfoRequest = new AgentInfoModel(email);
+        try {
+            ParameterizedTypeReference<AgentCode> typeReference = new ParameterizedTypeReference<>() {
+            };
+            var result = sendRequest(HttpMethod.POST, "/agentinfo", agentInfoRequest, header, typeReference);
+            return ofNullable(result);
+        } catch (Exception ex) {
+            log.error("data4me retrieving agent info - " + ex.getMessage());
             return empty();
         }
     }
@@ -102,8 +121,8 @@ public class Data4meService extends HttpApiClient {
         }
     }
 
-
-    private void createPassword(Data4meAgentDto agentDto) {
-        agentDto.setPassword(password + agentDto.getEmail().substring(0, 3));
+    @lombok.Value
+    private static class AgentInfoModel {
+        String email;
     }
 }

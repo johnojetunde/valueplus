@@ -2,6 +2,7 @@ package com.valueplus.fixtures;
 
 import com.valueplus.app.model.PaymentRequestModel;
 import com.valueplus.domain.enums.TransactionType;
+import com.valueplus.domain.model.PinUpdate;
 import com.valueplus.domain.model.RoleType;
 import com.valueplus.paystack.model.AccountNumberModel;
 import com.valueplus.paystack.model.TransferResponse;
@@ -28,6 +29,10 @@ public class TestFixtures {
                 .build();
     }
 
+    public static PinUpdate pinUpdate() {
+        return new PinUpdate("password", "1345", "1234");
+    }
+
     public static ProductOrder productOrder(User user, BigDecimal sellingPrice, Product product) {
         return ProductOrder.builder()
                 .id(1L)
@@ -49,8 +54,8 @@ public class TestFixtures {
         return new AccountNumberModel(accountNumber, "Value Plus", 1L);
     }
 
-    public static PaymentRequestModel mockPaymentRequestModel(BigDecimal amount) {
-        return new PaymentRequestModel(amount);
+    public static PaymentRequestModel mockPaymentRequestModel(BigDecimal amount, String pin) {
+        return new PaymentRequestModel(amount, pin);
     }
 
     public static TransferResponse mockTransferResponse(BigDecimal amount) {
@@ -86,6 +91,8 @@ public class TestFixtures {
                 .id(1L)
                 .role(new Role(1L, roleType.name()))
                 .agentCode("agent12244")
+                .isTransactionTokenSet(true)
+                .transactionPin("gdhgvhgerbdugdfudgfduyf")
                 .build();
     }
 

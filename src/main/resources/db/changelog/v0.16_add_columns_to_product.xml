@@ -13,4 +13,24 @@
             </column>
         </addColumn>
     </changeSet>
+
+    <changeSet id="v0.17_add_columns_to_user" author="johnojetunde">
+        <addColumn tableName="users">
+            <column name="transaction_pin" type="${text}"/>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="v0.18_create_setting" author="johnojetunde">
+        <createTable tableName="setting">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_setting"/>
+            </column>
+            <column name="commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

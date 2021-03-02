@@ -17,6 +17,8 @@ public class UserDto {
     private String phone;
     private String address;
     private String roleType;
+    private boolean isTransactionTokenSet;
+
 
     public static UserDto valueOf(User user) {
         return new UserDto(
@@ -25,6 +27,8 @@ public class UserDto {
                 user.getEmail(),
                 user.getPhone(),
                 user.getAddress(),
-                user.getRole().getName());
+                user.getRole().getName(),
+                user.isTransactionTokenSet()
+        );
     }
 }

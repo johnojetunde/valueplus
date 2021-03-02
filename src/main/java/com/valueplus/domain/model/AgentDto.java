@@ -28,7 +28,7 @@ public class AgentDto extends UserDto {
                     String link,
                     String photo,
                     boolean emailVerified) {
-        super(firstname, lastname, email, phone, address, roleType);
+        super(firstname, lastname, email, phone, address, roleType, false);
         this.agentCode = agentCode;
         this.link = link;
         this.photo = photo;
@@ -53,6 +53,8 @@ public class AgentDto extends UserDto {
         ofNullable(user.getAgentCode())
                 .ifPresent(agentCode -> builder.agentCode(agentCode).link(BASE_LINK.concat(agentCode)));
 
-        return builder.build();
+        var agentDto = builder.build();
+        agentDto.setTransactionTokenSet(user.isTransactionTokenSet());
+        return agentDto;
     }
 }

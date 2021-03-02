@@ -1,7 +1,9 @@
 package com.valueplus.app.controller;
 
 import com.valueplus.app.exception.NotFoundException;
+import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.model.AgentDto;
+import com.valueplus.domain.model.PinUpdate;
 import com.valueplus.domain.model.ProfilePictureDto;
 import com.valueplus.domain.model.UserUpdate;
 import com.valueplus.domain.service.concretes.ProfilePictureService;
@@ -34,8 +36,7 @@ public class UserController {
     private final ProfilePictureService profilePictureService;
 
     public UserController(UserService userService,
-                          ProfilePictureService profilePictureService
-    ) {
+                          ProfilePictureService profilePictureService) {
         this.userService = userService;
         this.profilePictureService = profilePictureService;
     }
@@ -78,6 +79,12 @@ public class UserController {
     public AgentDto update(@Valid @RequestBody UserUpdate userUpdate) {
         long userId = UserUtils.getLoggedInUser().getId();
         return AgentDto.valueOf(userService.update(userUpdate.toUser(userId)));
+    }
+
+    @PostMapping("/update-pin")
+    public AgentDto pinUpdate(@Valid @RequestBody PinUpdate pinUpdate) throws ValuePlusException {
+        long userId = UserUtils.getLoggedInUser().getId();
+        return AgentDto.valueOf(userService.pinUpdate(userId, pinUpdate));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")

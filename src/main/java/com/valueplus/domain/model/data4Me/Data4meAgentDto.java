@@ -19,6 +19,7 @@ public class Data4meAgentDto {
         return builder().email(agentCreate.getEmail())
                 .name(agentCreate.getFirstname().concat(" " + agentCreate.getLastname()))
                 .cell(agentCreate.getPhone())
+                .password(agentCreate.getPassword())
                 .address(agentCreate.getAddress()).build();
     }
 }

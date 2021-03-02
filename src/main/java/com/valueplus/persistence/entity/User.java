@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -37,6 +39,7 @@ public class User extends BasePersistentEntity implements UserDetails {
     @Setter
     private String agentCode;
     private boolean emailVerified;
+    private String transactionPin;
 
     @OneToOne
     @JoinColumn(name = "role_id")
@@ -44,6 +47,8 @@ public class User extends BasePersistentEntity implements UserDetails {
 
     private boolean enabled = true;
     private boolean deleted = false;
+    @Transient
+    private transient boolean isTransactionTokenSet;
 
     public static UserBuilder from(AgentCreate agentCreate) {
         return builder()
@@ -112,5 +117,9 @@ public class User extends BasePersistentEntity implements UserDetails {
                 .enabled(enabled)
                 .deleted(deleted)
                 .role(role);
+    }
+
+    public boolean isTransactionTokenSet() {
+        return !isNullOrEmpty(transactionPin);
     }
 }

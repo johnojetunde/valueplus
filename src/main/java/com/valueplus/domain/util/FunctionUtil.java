@@ -4,6 +4,8 @@ import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collection;
+import java.util.stream.Stream;
 
 @UtilityClass
 public class FunctionUtil {
@@ -20,5 +22,9 @@ public class FunctionUtil {
 
     public static BigDecimal setScale(BigDecimal amount) {
         return amount.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static <T> Stream<T> emptyIfNullStream(Collection<T> list) {
+        return (list == null) ? Stream.empty() : list.stream();
     }
 }

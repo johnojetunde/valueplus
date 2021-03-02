@@ -7,12 +7,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,7 +19,7 @@ import java.util.Optional;
 import static java.util.Collections.emptyList;
 
 @Component
-public class AuthenticationFilter extends GenericFilterBean {
+public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenAuthenticationService tokenAuthenticationService;
 
@@ -31,12 +29,9 @@ public class AuthenticationFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws ServletException, IOException {
-
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        HttpServletResponse servletResponse = (HttpServletResponse) response;
+    public void doFilterInternal(HttpServletRequest httpServletRequest,
+                                 HttpServletResponse httpServletResponse,
+                                 FilterChain chain) throws ServletException, IOException {
 
         if (HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())) {
             User user = new User("test_user", "test_password", emptyList());
@@ -45,7 +40,7 @@ public class AuthenticationFilter extends GenericFilterBean {
                     user, null, user.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            chain.doFilter(request, response);
+            chain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
 
@@ -61,10 +56,10 @@ public class AuthenticationFilter extends GenericFilterBean {
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
 
-            chain.doFilter(request, servletResponse);
+            chain.doFilter(httpServletRequest, httpServletResponse);
         } catch (Exception e) {
-            servletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            servletResponse.getWriter().write("Invalid credentials");
+            httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpServletResponse.getWriter().write("Invalid credentials");
         }
     }
 }

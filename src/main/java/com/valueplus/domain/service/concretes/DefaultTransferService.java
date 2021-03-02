@@ -5,6 +5,7 @@ import com.valueplus.app.model.PaymentRequestModel;
 import com.valueplus.domain.model.AccountModel;
 import com.valueplus.domain.model.TransactionModel;
 import com.valueplus.domain.service.abstracts.PaymentService;
+import com.valueplus.domain.service.abstracts.SettingsService;
 import com.valueplus.domain.service.abstracts.TransferService;
 import com.valueplus.domain.service.abstracts.WalletService;
 import com.valueplus.paystack.model.TransferResponse;
@@ -18,10 +19,10 @@ import com.valueplus.persistence.specs.SearchCriteria;
 import com.valueplus.persistence.specs.SearchOperation;
 import com.valueplus.persistence.specs.TransactionSpecification;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,38 +37,47 @@ import static com.valueplus.domain.util.FunctionUtil.setScale;
 import static com.valueplus.domain.util.UserUtils.isAgent;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Slf4j
 @Service
 public class DefaultTransferService implements TransferService {
 
+    private static final String TRANSACTION_FETCH_ERROR_MSG = "Unable to fetch transaction";
     private final PaymentService paymentService;
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final WalletService walletService;
-    private static final String TRANSACTION_FETCH_ERROR_MSG = "Unable to fetch transaction";
-    private final Integer withdrawalFeePercent;
+    private final PasswordEncoder passwordEncoder;
+    private final SettingsService settingsService;
 
     public DefaultTransferService(PaymentService paymentService,
                                   TransactionRepository transactionRepository,
                                   AccountRepository accountRepository,
                                   WalletService walletService,
-                                  @Value("${withdrawal-fee:15}") Integer withdrawalFeePercent) {
+                                  PasswordEncoder passwordEncoder,
+                                  SettingsService settingsService) {
         this.paymentService = paymentService;
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.walletService = walletService;
-        this.withdrawalFeePercent = withdrawalFeePercent;
+        this.passwordEncoder = passwordEncoder;
+        this.settingsService = settingsService;
     }
 
     @Override
     public TransactionModel transfer(User user, PaymentRequestModel requestModel) throws ValuePlusException {
+        ensureUserHasPinSet(user);
+        ensureUserPinIsMatching(user, requestModel);
+
         AccountModel accountModel = accountRepository.findByUser_Id(user.getId())
                 .map(Account::toModel)
                 .orElseThrow(() -> new ValuePlusException("User has no existing account", BAD_REQUEST));
+        var settings = settingsService.getCurrentSetting()
+                .orElseThrow(() -> new ValuePlusException("Unable to retrieve commission"));
 
+        BigDecimal percentageCommission = settings.getCommissionPercentage().divide(BigDecimal.valueOf(100.00));
         BigDecimal transactionAmount = setScale(requestModel.getAmount());
-        BigDecimal percentageCommission = setScale(BigDecimal.valueOf(withdrawalFeePercent / 100.00));
         BigDecimal commission = setScale(transactionAmount.multiply(percentageCommission));
         BigDecimal actualTransferFee = setScale(transactionAmount.subtract(commission));
 
@@ -224,5 +234,15 @@ public class DefaultTransferService implements TransferService {
         TransferVerificationResponse response = paymentService.verifyTransfer(transaction.getReference());
         transaction.setStatus(response.getStatus());
         return transactionRepository.save(transaction).toModel();
+    }
+
+    private void ensureUserPinIsMatching(User user, PaymentRequestModel requestModel) throws ValuePlusException {
+        if (!passwordEncoder.matches(requestModel.getPin(), user.getTransactionPin()))
+            throw new ValuePlusException("Incorrect pin", UNAUTHORIZED);
+    }
+
+    private void ensureUserHasPinSet(User user) throws ValuePlusException {
+        if (!user.isTransactionTokenSet())
+            throw new ValuePlusException("You need to set your transaction pin", BAD_REQUEST);
     }
 }
