@@ -33,4 +33,45 @@
             <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="v0.19_create_setting_log" author="johnojetunde">
+        <createTable tableName="setting_log">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_setting_log"/>
+            </column>
+            <column name="commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prev_commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="initiator" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v0.19_create_setting_schedule" author="johnojetunde">
+        <createTable tableName="setting_schedule">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_setting_schedule"/>
+            </column>
+            <column name="commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="initiator" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="effective_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

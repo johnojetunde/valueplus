@@ -3,12 +3,12 @@ package com.valueplus.domain.service.concretes;
 import com.valueplus.domain.model.AgentReport;
 import com.valueplus.domain.model.WalletModel;
 import com.valueplus.domain.service.abstracts.WalletService;
+import com.valueplus.domain.util.FunctionUtil;
+import com.valueplus.fixtures.TestFixtures;
 import com.valueplus.persistence.entity.DeviceReport;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.DeviceReportRepository;
 import com.valueplus.persistence.repository.UserRepository;
-import com.valueplus.domain.util.FunctionUtil;
-import com.valueplus.fixtures.TestFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -43,6 +43,8 @@ class Data4MeMonthlyReportServiceTest {
 
     @Autowired
     private Data4meMonthlyReportService reportService;
+    @MockBean
+    Clock clock;
 
     @MockBean
     private DeviceReportRepository deviceReportRepository;

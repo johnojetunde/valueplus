@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Clock;
+
 @Configuration
 public class AppConfig {
 
@@ -48,5 +50,10 @@ public class AppConfig {
         velocityEngine.setProperty("resource.loader", "class");
         velocityEngine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
         return velocityEngine;
+    }
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
     }
 }

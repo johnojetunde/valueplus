@@ -6,20 +6,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 @Getter
 @Setter
-@SuperBuilder
-public class SettingModel {
+public class SettingCreateRequest extends SettingModel {
     @NotNull
-    @Min(1)
-    private BigDecimal commissionPercentage;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDate commissionEffectiveDate;
 }
