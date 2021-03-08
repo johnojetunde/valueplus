@@ -39,7 +39,6 @@ public class SettingsController {
         return settingsService.update(settings, loggedInUser);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @GetMapping
     @ApiResponses({@ApiResponse(code = 200, message = "success", response = SettingModel.class)})
     public SettingModel getCurrentSetting() {
