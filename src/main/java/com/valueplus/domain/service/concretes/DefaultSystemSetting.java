@@ -5,6 +5,7 @@ import com.valueplus.domain.enums.Status;
 import com.valueplus.domain.model.SettingCreateRequest;
 import com.valueplus.domain.model.SettingLogModel;
 import com.valueplus.domain.model.SettingModel;
+import com.valueplus.domain.model.SettingScheduleModel;
 import com.valueplus.domain.service.abstracts.SettingsService;
 import com.valueplus.persistence.entity.Setting;
 import com.valueplus.persistence.entity.SettingLog;
@@ -128,5 +129,11 @@ public class DefaultSystemSetting implements SettingsService {
     public Page<SettingLogModel> getSettingLogs(Pageable pageable) {
         return settingsLogRepository.findAll(pageable)
                 .map(SettingLog::toModel);
+    }
+
+    @Override
+    public Page<SettingScheduleModel> getScheduledCommission(Pageable pageable) {
+        return settingScheduleRepository.findAll(pageable)
+                .map(SettingsSchedule::toModel);
     }
 }

@@ -1,6 +1,7 @@
 package com.valueplus.persistence.entity;
 
 import com.valueplus.domain.enums.Status;
+import com.valueplus.domain.model.SettingScheduleModel;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,4 +24,15 @@ public class SettingsSchedule extends BasePersistentEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
     private String initiator;
+
+    public SettingScheduleModel toModel() {
+        return SettingScheduleModel.builder()
+                .id(id)
+                .commissionPercentage(commissionPercentage)
+                .initiator(initiator)
+                .status(status)
+                .updatedAt(updatedAt)
+                .createdAt(createdAt)
+                .build();
+    }
 }

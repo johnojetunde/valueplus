@@ -4,6 +4,7 @@ import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.model.SettingCreateRequest;
 import com.valueplus.domain.model.SettingLogModel;
 import com.valueplus.domain.model.SettingModel;
+import com.valueplus.domain.model.SettingScheduleModel;
 import com.valueplus.domain.service.abstracts.SettingsService;
 import com.valueplus.domain.util.UserUtils;
 import com.valueplus.persistence.entity.User;
@@ -49,5 +50,11 @@ public class SettingsController {
     @GetMapping("/logs")
     public Page<SettingLogModel> getSettingLogs(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return settingsService.getSettingLogs(pageable);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/schedules")
+    public Page<SettingScheduleModel> getSettingScheduleLogs(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
+        return settingsService.getScheduledCommission(pageable);
     }
 }
