@@ -39,20 +39,20 @@ public class SettingsController {
         return settingsService.update(settings, loggedInUser);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @GetMapping
     @ApiResponses({@ApiResponse(code = 200, message = "success", response = SettingModel.class)})
     public SettingModel getCurrentSetting() {
         return settingsService.getCurrentSetting().orElse(null);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @GetMapping("/logs")
     public Page<SettingLogModel> getSettingLogs(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return settingsService.getSettingLogs(pageable);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @GetMapping("/schedules")
     public Page<SettingScheduleModel> getSettingScheduleLogs(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return settingsService.getScheduledCommission(pageable);

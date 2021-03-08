@@ -29,6 +29,7 @@ public class SettingsSchedule extends BasePersistentEntity {
         return SettingScheduleModel.builder()
                 .id(id)
                 .commissionPercentage(commissionPercentage)
+                .effectiveDate(effectiveDate)
                 .initiator(initiator)
                 .status(status)
                 .updatedAt(updatedAt)
