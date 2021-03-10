@@ -91,7 +91,7 @@ public class DefaultSystemSetting implements SettingsService {
     private void updateSchedules(SettingsSchedule newSchedule) {
         updateExistingSchedules();
 
-        newSchedule.setStatus(Status.EFFECTIVE);
+        newSchedule.setStatus(Status.EFFECTED);
         settingScheduleRepository.save(newSchedule);
     }
 
