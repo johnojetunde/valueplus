@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+
+import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 
 @NoArgsConstructor
@@ -16,6 +19,7 @@ public class AgentDto extends UserDto {
     private String link;
     private String photo;
     private boolean emailVerified;
+    private String superAgentCode;
 
     @Builder
     public AgentDto(String firstname,
@@ -27,11 +31,14 @@ public class AgentDto extends UserDto {
                     String agentCode,
                     String link,
                     String photo,
-                    boolean emailVerified) {
-        super(firstname, lastname, email, phone, address, roleType, false);
+                    boolean emailVerified,
+                    String referralCode,
+                    String superAgentCode) {
+        super(firstname, lastname, email, phone, address, roleType, referralCode, false, emptySet());
         this.agentCode = agentCode;
         this.link = link;
         this.photo = photo;
+        this.superAgentCode = superAgentCode;
         this.emailVerified = emailVerified;
     }
 
@@ -48,6 +55,8 @@ public class AgentDto extends UserDto {
                 .address(user.getAddress())
                 .emailVerified(user.isEmailVerified())
                 .roleType(user.getRole().getName())
+                .referralCode(user.getReferralCode())
+                .superAgentCode(Optional.ofNullable(user.getSuperAgent()).map(User::getReferralCode).orElse(null))
                 .photo(photo);
 
         ofNullable(user.getAgentCode())
@@ -55,6 +64,7 @@ public class AgentDto extends UserDto {
 
         var agentDto = builder.build();
         agentDto.setTransactionTokenSet(user.isTransactionTokenSet());
+        agentDto.setAuthorities(extractAuthorities(user));
         return agentDto;
     }
 }

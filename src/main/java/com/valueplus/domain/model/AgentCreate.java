@@ -18,4 +18,5 @@ public class AgentCreate extends UserCreate {
     private String password;
     @NotEmpty
     private String address;
+    private String superAgentCode;
 }

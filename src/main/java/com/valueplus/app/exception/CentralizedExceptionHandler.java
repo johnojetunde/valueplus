@@ -1,9 +1,9 @@
 package com.valueplus.app.exception;
 
-import com.valueplus.paystack.model.ResponseModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.valueplus.paystack.model.ResponseModel;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @ControllerAdvice
 public class CentralizedExceptionHandler extends ResponseEntityExceptionHandler {
@@ -30,7 +31,7 @@ public class CentralizedExceptionHandler extends ResponseEntityExceptionHandler 
             MissingServletRequestParameterException exception, HttpHeaders headers,
             HttpStatus status, WebRequest request) {
         String error = String.format("%s parameter is missing", exception.getParameterName());
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, exception.getLocalizedMessage(), error);
+        ApiError apiError = new ApiError(BAD_REQUEST, exception.getLocalizedMessage(), error);
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
@@ -53,6 +54,12 @@ public class CentralizedExceptionHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(apiError, HttpStatus.valueOf(ex.getRawStatusCode()));
     }
 
+    @ExceptionHandler({BadRequestException.class})
+    public ResponseEntity<Object> handleBadRequestException(BadRequestException ex) {
+        var apiError = new ApiError(BAD_REQUEST, ex.getMessage(), ex.getMessage());
+        return new ResponseEntity<>(apiError, BAD_REQUEST);
+    }
+
     @ExceptionHandler({ValuePlusException.class})
     public ResponseEntity<Object> handleValuePlusException(ValuePlusException ex) {
         var apiError = new ApiError(ex.getHttpStatus(), ex.getMessage(), ex.getMessage());
@@ -63,7 +70,8 @@ public class CentralizedExceptionHandler extends ResponseEntityExceptionHandler 
         try {
             error = error.replace(arrayIndex, "").trim();
 
-            TypeReference<List<ResponseModel>> reference = new TypeReference<>() {};
+            TypeReference<List<ResponseModel>> reference = new TypeReference<>() {
+            };
             return new ObjectMapper().readValue(error, reference);
         } catch (JsonProcessingException ignored) {
 

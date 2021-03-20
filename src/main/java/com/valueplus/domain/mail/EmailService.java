@@ -12,6 +12,8 @@ public interface EmailService {
 
     void sendAdminUserCreationEmail(User user, String password) throws Exception;
 
+    void sendSuperAgentUserCreationEmail(User user, String password) throws Exception;
+
     void sendCreditNotification(User user, BigDecimal amount) throws Exception;
 
     void sendDebitNotification(User user, BigDecimal amount) throws Exception;

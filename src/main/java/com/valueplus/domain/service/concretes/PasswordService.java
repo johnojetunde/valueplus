@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.valueplus.domain.model.RoleType.AGENT;
+import static com.valueplus.domain.util.UserUtils.isAgent;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
@@ -67,7 +67,7 @@ public class PasswordService {
         PasswordResetToken resetToken = new PasswordResetToken(user.getId(), token);
         passwordResetTokenRepository.save(resetToken);
 
-        String resetLink = (AGENT.name().equals(user.getRole().getName()))
+        String resetLink = isAgent(user)
                 ? userPasswordResetLink
                 : adminPasswordResetLink;
 

@@ -17,6 +17,7 @@ public class EmailServiceImpl implements EmailService {
     public static final String PASSWORD_SUBJECT = "Value Plus Forgot Password";
     public static final String VERIFY_EMAIL_SUBJECT = "Value Plus Verify Email";
     public static final String USER_CREATION_SUBJECT = "Value Plus Admin Account";
+    public static final String USER_SUPER_AGENT_CREATION_SUBJECT = "Value Plus Super Agent Account";
     public static final String WALLET_NOTIFICATION_SUBJECT = "Value Plus Wallet Notification";
     public static final String PRODUCT_ORDER_STATUS_SUBJECT = "Value Plus Product Order Notification";
 
@@ -63,6 +64,19 @@ public class EmailServiceImpl implements EmailService {
         template.merge(context, stringWriter);
 
         emailClient.sendSimpleMessage(user.getEmail(), USER_CREATION_SUBJECT, stringWriter.toString());
+    }
+
+    @Override
+    public void sendSuperAgentUserCreationEmail(User user, String password) throws Exception {
+        Template template = velocityEngine.getTemplate("/templates/superagentcreate.vm");
+        VelocityContext context = new VelocityContext();
+        context.put("username", user.getEmail());
+        context.put("name", user.getFirstname());
+        context.put("password", password);
+        StringWriter stringWriter = new StringWriter();
+        template.merge(context, stringWriter);
+
+        emailClient.sendSimpleMessage(user.getEmail(), USER_SUPER_AGENT_CREATION_SUBJECT, stringWriter.toString());
     }
 
     @Override

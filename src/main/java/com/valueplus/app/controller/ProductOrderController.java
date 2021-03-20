@@ -74,7 +74,7 @@ public class ProductOrderController {
         return productOrderService.updateStatus(orderId, OrderStatus.CANCELLED, UserUtils.getLoggedInUser());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT_ORDER_STATUS')")
     @PostMapping("/{id}/status/{status}/update")
     @ResponseStatus(HttpStatus.OK)
     public ProductOrderModel updateStatus(@PathVariable("id") Long orderId,

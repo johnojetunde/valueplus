@@ -30,4 +30,7 @@
     <include file="/db/changelog/v0.14_add_columns_to_wallet_history.xml"/>
     <include file="/db/changelog/v0.15_create_device_report.xml"/>
     <include file="/db/changelog/v0.16_add_columns_to_product.xml"/>
+    <include file="/db/changelog/v0_17_create_authority.xml"/>
+    <include file="/db/changelog/v0_18_create_user_authority.xml"/>
+    <include file="/db/changelog/v0_19_insert_authorities.xml"/>
 </databaseChangeLog>

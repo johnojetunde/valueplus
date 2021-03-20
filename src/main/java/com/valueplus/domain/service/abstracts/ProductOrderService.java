@@ -29,4 +29,12 @@ public interface ProductOrderService {
                                           LocalDate endDate,
                                           Pageable pageable,
                                           User user) throws ValuePlusException;
+
+
+    List<ProductOrderModel> getAllProducts(Long productId,
+                                           String customerName,
+                                           OrderStatus status,
+                                           LocalDate startDate,
+                                           LocalDate endDate,
+                                           User user) throws ValuePlusException;
 }

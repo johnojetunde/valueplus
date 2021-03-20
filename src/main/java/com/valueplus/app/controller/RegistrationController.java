@@ -7,7 +7,6 @@ import com.valueplus.domain.model.UserDto;
 import com.valueplus.domain.service.concretes.RegistrationService;
 import com.valueplus.persistence.entity.User;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +29,7 @@ public class RegistrationController {
         this.registrationService = registrationService;
     }
 
+    @PreAuthorize("permitAll()")
     @PostMapping
     @ResponseStatus(CREATED)
     public AgentDto register(@Valid @RequestBody AgentCreate agentCreate) throws Exception {
@@ -37,11 +37,19 @@ public class RegistrationController {
         return AgentDto.valueOf(registered);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('CREATE_ADMIN')")
     @PostMapping("/admin")
     @ResponseStatus(CREATED)
     public UserDto registerAdmin(@Valid @RequestBody UserCreate userCreate) throws Exception {
         User registered = registrationService.createAdmin(userCreate, ADMIN);
+        return UserDto.valueOf(registered);
+    }
+
+    @PreAuthorize("hasAuthority('CREATE_SUPER_AGENT')")
+    @PostMapping("/super-agent")
+    @ResponseStatus(CREATED)
+    public UserDto registerSuperAgent(@Valid @RequestBody UserCreate userCreate) throws Exception {
+        User registered = registrationService.createSuperAgent(userCreate);
         return UserDto.valueOf(registered);
     }
 }

@@ -20,7 +20,7 @@ public class AgentReportController {
 
     private final Data4meMonthlyReportService data4meMonthlyReportService;
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('AGENT_REPORT')")
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public void getAll() throws Exception {

@@ -6,6 +6,7 @@ import com.valueplus.domain.mail.EmailService;
 import com.valueplus.domain.model.ProductOrderModel;
 import com.valueplus.domain.service.abstracts.ProductOrderService;
 import com.valueplus.domain.service.abstracts.WalletService;
+import com.valueplus.domain.util.FunctionUtil;
 import com.valueplus.persistence.entity.Product;
 import com.valueplus.persistence.entity.ProductOrder;
 import com.valueplus.persistence.entity.User;
@@ -14,7 +15,6 @@ import com.valueplus.persistence.repository.ProductRepository;
 import com.valueplus.persistence.specs.ProductOrderSpecification;
 import com.valueplus.persistence.specs.SearchCriteria;
 import com.valueplus.persistence.specs.SearchOperation;
-import com.valueplus.domain.util.FunctionUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static com.valueplus.domain.model.RoleType.AGENT;
+import static com.valueplus.domain.util.UserUtils.isAgent;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -70,7 +70,7 @@ public class DefaultProductOrderService implements ProductOrderService {
     @Override
     public ProductOrderModel get(Long id, User user) throws ValuePlusException {
         ProductOrder productOder;
-        if (AGENT.name().equals(user.getRole().getName())) {
+        if (isAgent(user)) {
             productOder = getOrder(id, user);
         } else {
             productOder = getOrder(id);
@@ -83,7 +83,7 @@ public class DefaultProductOrderService implements ProductOrderService {
         try {
             ProductOrder productOder;
 
-            if (AGENT.name().equals(user.getRole().getName())) {
+            if (isAgent(user)) {
                 productOder = getOrder(id, user);
             } else {
                 productOder = getOrder(id);
@@ -121,7 +121,7 @@ public class DefaultProductOrderService implements ProductOrderService {
     public Page<ProductOrderModel> get(User user, Pageable pageable) throws ValuePlusException {
         try {
             Page<ProductOrder> productOders;
-            if (AGENT.name().equals(user.getRole().getName())) {
+            if (isAgent(user)) {
                 productOders = repository.findByUser_id(user.getId(), pageable);
             } else {
                 productOders = repository.findAll(pageable);
@@ -136,7 +136,7 @@ public class DefaultProductOrderService implements ProductOrderService {
     public Page<ProductOrderModel> getByProductId(Long productId, User user, Pageable pageable) throws ValuePlusException {
         try {
             Page<ProductOrder> productOrders;
-            if (AGENT.name().equals(user.getRole().getName())) {
+            if (isAgent(user)) {
                 productOrders = repository.findByUser_idAndProduct_id(user.getId(), productId, pageable);
             } else {
                 productOrders = repository.findByProduct_id(productId, pageable);
@@ -154,7 +154,7 @@ public class DefaultProductOrderService implements ProductOrderService {
                                                  LocalDate startDate,
                                                  LocalDate endDate,
                                                  Pageable pageable,
-                                                 User user) throws ValuePlusException {
+                                                 User user) {
         Product product = null;
         if (productId != null) {
             product = productRepository.findById(productId).orElse(null);
@@ -162,6 +162,23 @@ public class DefaultProductOrderService implements ProductOrderService {
         ProductOrderSpecification specification = buildSpecification(customerName, status, startDate, endDate, product, user);
         return repository.findAll(Specification.where(specification), pageable)
                 .map(ProductOrder::toModel);
+    }
+
+    @Override
+    public List<ProductOrderModel> getAllProducts(Long productId,
+                                                  String customerName,
+                                                  OrderStatus status,
+                                                  LocalDate startDate,
+                                                  LocalDate endDate,
+                                                  User user) {
+        Product product = null;
+        if (productId != null) {
+            product = productRepository.findById(productId).orElse(null);
+        }
+        ProductOrderSpecification specification = buildSpecification(customerName, status, startDate, endDate, product, user);
+        return repository.findAll(Specification.where(specification)).stream()
+                .map(ProductOrder::toModel)
+                .collect(toList());
     }
 
     private void validateStatusUpdateRequest(OrderStatus status, ProductOrder productOder) throws ValuePlusException {
@@ -240,7 +257,7 @@ public class DefaultProductOrderService implements ProductOrderService {
             specification.add(new SearchCriteria<>("status", status, SearchOperation.EQUAL));
         }
 
-        if (AGENT.name().equals(user.getRole().getName())) {
+        if (isAgent(user)) {
             specification.add(new SearchCriteria<>("user", user, SearchOperation.EQUAL));
         }
 

@@ -79,7 +79,7 @@ public class DefaultSystemSetting implements SettingsService {
     }
 
     public void effectCommission() {
-        log.info("checking scheduled commission and affecting it");
+        log.info("checking scheduled commission and effecting it");
         var date = LocalDate.now(clock);
         var schedules = settingScheduleRepository.findSettingsScheduleByStatusAndEffectiveDateIsLessThanEqual(SCHEDULED, date)
                 .stream().findFirst();

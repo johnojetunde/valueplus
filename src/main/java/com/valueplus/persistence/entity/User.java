@@ -3,6 +3,7 @@ package com.valueplus.persistence.entity;
 import com.valueplus.domain.model.AgentCreate;
 import com.valueplus.domain.model.UserCreate;
 import lombok.*;
+import org.hibernate.annotations.NaturalId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
+import static javax.persistence.FetchType.EAGER;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,12 +41,29 @@ public class User extends BasePersistentEntity implements UserDetails {
     private String address;
     @Setter
     private String agentCode;
+    @NaturalId
+    private String referralCode;
     private boolean emailVerified;
     private String transactionPin;
 
     @OneToOne
+    @JoinColumn(name = "super_agent_id")
+    private User superAgent;
+
+    @OneToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @ManyToMany(fetch = EAGER)
+    @JoinTable(
+            name = "user_authority",
+            joinColumns = @JoinColumn(
+                    name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "authority_id", referencedColumnName = "id"
+            )
+    )
+    private Collection<Authority> authorities;
 
     private boolean enabled = true;
     private boolean deleted = false;
@@ -75,6 +95,16 @@ public class User extends BasePersistentEntity implements UserDetails {
             String roleName = "ROLE_" + role.getName();
             authorities.add(new SimpleGrantedAuthority(roleName));
         }
+
+        emptyIfNullStream(this.authorities)
+                .map(a -> a.getAuthority().toUpperCase())
+                .map(SimpleGrantedAuthority::new)
+                .forEach(authorities::add);
+
+        return authorities;
+    }
+
+    public Collection<Authority> getUserAuthorities() {
         return authorities;
     }
 

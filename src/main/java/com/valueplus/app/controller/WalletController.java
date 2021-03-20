@@ -5,8 +5,8 @@ import com.valueplus.domain.model.WalletHistoryModel;
 import com.valueplus.domain.model.WalletModel;
 import com.valueplus.domain.service.abstracts.WalletHistoryService;
 import com.valueplus.domain.service.abstracts.WalletService;
-import com.valueplus.persistence.entity.User;
 import com.valueplus.domain.util.UserUtils;
+import com.valueplus.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,7 +39,7 @@ public class WalletController {
         return walletService.createWallet(loggedInUser);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('CREATE_WALLET_FOR_ALL_USERS')")
     @PostMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<WalletModel> createAllUserWallets() {
@@ -55,7 +55,7 @@ public class WalletController {
                 : walletService.getWallet();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('VIEW_ADMIN_WALLET_HISTORY')")
     @GetMapping("/admin/history")
     @ResponseStatus(HttpStatus.OK)
     public Page<WalletHistoryModel> getAdminWalletHistory(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
@@ -63,6 +63,7 @@ public class WalletController {
     }
 
 
+    @PreAuthorize("hasAuthority('SEARCH_ADMIN_WALLET_HISTORY')")
     @PostMapping("/admin/history/filter")
     @ResponseStatus(HttpStatus.OK)
     public Page<WalletHistoryModel> getAdminWalletHistory(@RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -71,7 +72,7 @@ public class WalletController {
         return walletHistoryService.search(startDate, endDate, pageable);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('VIEW_ALL_WALLET')")
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public Page<WalletModel> getAllWallet(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws Exception {

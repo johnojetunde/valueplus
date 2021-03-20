@@ -5,8 +5,7 @@ import com.valueplus.persistence.entity.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static com.valueplus.domain.model.RoleType.ADMIN;
-import static com.valueplus.domain.model.RoleType.AGENT;
+import static com.valueplus.domain.model.RoleType.*;
 
 
 public final class UserUtils {
@@ -23,7 +22,7 @@ public final class UserUtils {
     }
 
     public static boolean isAgent(User user) {
-        return AGENT.name().equals(user.getRole().getName());
+        return AGENT.name().equals(user.getRole().getName()) || SUPER_AGENT.name().equals(user.getRole().getName());
     }
 
     public static boolean isAdmin(User user) {

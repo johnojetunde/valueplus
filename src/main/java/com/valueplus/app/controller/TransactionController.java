@@ -38,7 +38,7 @@ public class TransactionController {
         return transferService.transfer(UserUtils.getLoggedInUser(), request);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('VIEW_ALL_TRANSFERS')")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionModel> getAllTransfers(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
@@ -64,7 +64,7 @@ public class TransactionController {
         return transferService.verify(UserUtils.getLoggedInUser(), reference);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('VIEW_PENDING_TRANSFERS')")
     @GetMapping("/verify")
     @ResponseStatus(HttpStatus.OK)
     public CompletableFuture<Void> verifyPendingTransaction() {

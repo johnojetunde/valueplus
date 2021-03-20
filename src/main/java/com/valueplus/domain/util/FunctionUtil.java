@@ -5,7 +5,10 @@ import lombok.experimental.UtilityClass;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
 
 @UtilityClass
 public class FunctionUtil {
@@ -26,5 +29,9 @@ public class FunctionUtil {
 
     public static <T> Stream<T> emptyIfNullStream(Collection<T> list) {
         return (list == null) ? Stream.empty() : list.stream();
+    }
+
+    public static <T> List<T> emptyIfNull(List<T> list) {
+        return (list == null) ? emptyList() : list;
     }
 }

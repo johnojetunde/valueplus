@@ -26,14 +26,14 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public ProductModel create(@Valid @RequestBody ProductModel productModel) throws ValuePlusException {
         return productService.create(productModel);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductModel update(
@@ -42,14 +42,14 @@ public class ProductController {
         return productService.update(id, productModel);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('DISABLE_PRODUCT')")
     @PostMapping("/{id}/disable")
     @ResponseStatus(HttpStatus.OK)
     public ProductModel disable(@PathVariable("id") Long id) throws ValuePlusException {
         return productService.disable(id);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('ENABLE_PRODUCT')")
     @PostMapping("/{id}/enable")
     @ResponseStatus(HttpStatus.OK)
     public ProductModel enable(@PathVariable("id") Long id) throws ValuePlusException {

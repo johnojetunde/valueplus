@@ -45,6 +45,10 @@ public class EmailVerificationService {
         emailService.sendAdminUserCreationEmail(user, password);
     }
 
+    public void sendSuperAgentAccountCreationNotification(User user, String password) throws Exception {
+        emailService.sendSuperAgentUserCreationEmail(user, password);
+    }
+
     public User confirmEmail(String token) throws Exception {
 
         Optional<EmailVerificationToken> emailVerificationToken = verificationTokenRepository.findByVerificationToken(token);

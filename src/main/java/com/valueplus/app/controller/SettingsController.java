@@ -31,7 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class SettingsController {
     private final SettingsService settingsService;
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('UPDATE_SETTINGS')")
     @PutMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String update(@Valid @RequestBody SettingCreateRequest settings) throws ValuePlusException {
@@ -45,13 +45,13 @@ public class SettingsController {
         return settingsService.getCurrentSetting().orElse(null);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('VIEW_SETTINGS_LOG')")
     @GetMapping("/logs")
     public Page<SettingLogModel> getSettingLogs(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return settingsService.getSettingLogs(pageable);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('VIEW_SETTINGS_SCHEDULE')")
     @GetMapping("/schedules")
     public Page<SettingScheduleModel> getSettingScheduleLogs(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return settingsService.getScheduledCommission(pageable);

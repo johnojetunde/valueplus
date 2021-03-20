@@ -1,10 +1,16 @@
 package com.valueplus.domain.model;
 
+import com.valueplus.persistence.entity.Authority;
 import com.valueplus.persistence.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
+
+import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
+import static java.util.stream.Collectors.toSet;
 
 @Setter
 @Getter
@@ -17,7 +23,9 @@ public class UserDto {
     private String phone;
     private String address;
     private String roleType;
+    private String referralCode;
     private boolean isTransactionTokenSet;
+    private Set<String> authorities;
 
 
     public static UserDto valueOf(User user) {
@@ -28,7 +36,15 @@ public class UserDto {
                 user.getPhone(),
                 user.getAddress(),
                 user.getRole().getName(),
-                user.isTransactionTokenSet()
+                user.getReferralCode(),
+                user.isTransactionTokenSet(),
+                extractAuthorities(user)
         );
+    }
+
+    static Set<String> extractAuthorities(User user) {
+        return emptyIfNullStream(user.getUserAuthorities())
+                .map(Authority::getAuthority)
+                .collect(toSet());
     }
 }
