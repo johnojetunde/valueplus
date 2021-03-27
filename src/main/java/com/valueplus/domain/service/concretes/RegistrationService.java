@@ -24,6 +24,7 @@ import java.util.Optional;
 import static com.valueplus.domain.model.RoleType.AGENT;
 import static com.valueplus.domain.model.RoleType.SUPER_AGENT;
 import static com.valueplus.domain.util.GeneratorUtils.generateRandomString;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -60,6 +61,7 @@ public class RegistrationService {
     }
 
     public User createAdmin(UserCreate userCreate, RoleType roleType) throws Exception {
+        ensureAuthorityIsPresent(userCreate);
         ensureUserIsUnique(userCreate.getEmail());
         List<Authority> authorities = userUtilService.getAdminAuthority(userCreate.getAuthorityIds());
 
@@ -71,6 +73,12 @@ public class RegistrationService {
         walletService.createWallet(user);
         emailVerificationService.sendAdminAccountCreationNotification(user, password);
         return user;
+    }
+
+    private void ensureAuthorityIsPresent(UserCreate userCreate) throws ValuePlusException {
+        if (userCreate.getAuthorityIds() == null || userCreate.getAuthorityIds().size() == 0) {
+            throw new ValuePlusException("Authority is required for an admin user", BAD_REQUEST);
+        }
     }
 
     public User createSuperAgent(UserCreate userCreate) throws Exception {
