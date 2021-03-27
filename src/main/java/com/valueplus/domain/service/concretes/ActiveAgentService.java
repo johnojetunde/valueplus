@@ -14,11 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static com.valueplus.domain.util.FunctionUtil.emptyIfNull;
-import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
@@ -27,18 +24,6 @@ public class ActiveAgentService {
 
     private final UserService userService;
     private final ProductOrderService productOrderService;
-
-    public List<AgentDto> getAllActiveSuperAgents(SuperAgentFilter filter) {
-        var superAgent = userService.findByReferralCode(filter.getSuperAgentCode())
-                .orElseThrow(() -> new BadRequestException("Invalid Super Agent Code"));
-
-        List<User> allAgents = userService.findUserBySuperAgent(superAgent);
-
-        return emptyIfNullStream(allAgents)
-                .filter(ag -> isActiveAgent(ag, filter.getStartDate(), filter.getEndDate()))
-                .map(AgentDto::valueOf)
-                .collect(toList());
-    }
 
     public Page<AgentDto> getAllActiveSuperAgents(SuperAgentFilter filter, Pageable pageable) {
         userService.findByReferralCode(filter.getSuperAgentCode())

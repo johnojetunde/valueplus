@@ -102,6 +102,7 @@ public class RegistrationService {
                 .password(passwordEncoder.encode(password))
                 .enabled(true)
                 .emailVerified(true)
+                .superAgent(null)
                 .build());
     }
 

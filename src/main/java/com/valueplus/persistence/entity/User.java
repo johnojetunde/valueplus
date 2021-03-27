@@ -3,7 +3,6 @@ package com.valueplus.persistence.entity;
 import com.valueplus.domain.model.AgentCreate;
 import com.valueplus.domain.model.UserCreate;
 import lombok.*;
-import org.hibernate.annotations.NaturalId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,7 +40,6 @@ public class User extends BasePersistentEntity implements UserDetails {
     private String address;
     @Setter
     private String agentCode;
-    @NaturalId
     private String referralCode;
     private boolean emailVerified;
     private String transactionPin;
