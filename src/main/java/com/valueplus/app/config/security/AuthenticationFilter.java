@@ -1,12 +1,8 @@
 package com.valueplus.app.config.security;
 
-import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.app.model.UserAuthentication;
 import com.valueplus.domain.service.concretes.TokenAuthenticationService;
-import lombok.SneakyThrows;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.mail.MailAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -32,7 +28,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         this.tokenAuthenticationService = tokenAuthenticationService;
     }
 
-    @SneakyThrows
     @Override
     public void doFilterInternal(HttpServletRequest httpServletRequest,
                                  HttpServletResponse httpServletResponse,
@@ -62,8 +57,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             }
 
             chain.doFilter(httpServletRequest, httpServletResponse);
-        } catch (MailAuthenticationException e) {
-            throw new ValuePlusException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             logger.info(e.getMessage());
             httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
