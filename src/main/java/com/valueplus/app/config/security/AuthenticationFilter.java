@@ -58,7 +58,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
             chain.doFilter(httpServletRequest, httpServletResponse);
         } catch (Exception e) {
-            logger.debug(e.getMessage());
+            logger.info(e.getMessage());
             httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             httpServletResponse.getWriter().write("Invalid credentials");
         }
