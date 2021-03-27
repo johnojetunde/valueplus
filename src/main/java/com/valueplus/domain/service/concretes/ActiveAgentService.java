@@ -9,6 +9,8 @@ import com.valueplus.domain.service.abstracts.ProductOrderService;
 import com.valueplus.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -36,6 +38,14 @@ public class ActiveAgentService {
                 .filter(ag -> isActiveAgent(ag, filter.getStartDate(), filter.getEndDate()))
                 .map(AgentDto::valueOf)
                 .collect(toList());
+    }
+
+    public Page<AgentDto> getAllActiveSuperAgents(SuperAgentFilter filter, Pageable pageable) {
+        userService.findByReferralCode(filter.getSuperAgentCode())
+                .orElseThrow(() -> new BadRequestException("Invalid Super Agent Code"));
+
+        return userService.findAllUserBySuperAgentCode(filter.getSuperAgentCode(), filter.getStartDate(), filter.getEndDate(), pageable)
+                .map(AgentDto::valueOf);
     }
 
     private boolean isActiveAgent(User agent, LocalDate startDate, LocalDate endDate) {

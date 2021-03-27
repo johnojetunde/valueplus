@@ -17,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -24,6 +27,9 @@ import java.util.Set;
 import static com.valueplus.domain.model.RoleType.ADMIN;
 import static com.valueplus.domain.model.RoleType.SUPER_ADMIN;
 import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
+import static java.time.LocalTime.MAX;
+import static java.time.LocalTime.MIN;
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +39,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<PinUpdateService> pinUpdateServiceList;
     private final UserUtilService userUtilService;
+    private final Clock clock;
 
     public Page<User> findUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -52,6 +59,21 @@ public class UserService {
 
     public Page<User> findAllUserBySuperAgentCode(String superAgentCode, Pageable pageable) {
         return userRepository.findUserBySuperAgent_ReferralCode(superAgentCode, pageable);
+    }
+
+    public Page<User> findAllUserBySuperAgentCode(String superAgentCode,
+                                                  LocalDate startDate,
+                                                  LocalDate endDate,
+                                                  Pageable pageable) {
+        LocalDate todayDate = LocalDate.now(clock);
+        LocalDateTime startDateTime = ofNullable(startDate)
+                .map(st -> LocalDateTime.of(startDate, MIN))
+                .orElseGet(() -> LocalDateTime.of(todayDate.minusDays(30), MIN));
+        LocalDateTime endDateTime = ofNullable(startDate)
+                .map(st -> LocalDateTime.of(endDate, MAX))
+                .orElseGet(() -> LocalDateTime.of(todayDate, MAX));
+
+        return userRepository.findActiveSuperAgentUsers(startDateTime, endDateTime, superAgentCode, pageable);
     }
 
     public User update(User user) {

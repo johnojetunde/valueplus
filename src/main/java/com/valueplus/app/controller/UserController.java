@@ -22,7 +22,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -62,8 +61,8 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('VIEW_SUPER_AGENTS')")
     @PostMapping("/super-agents/filter-active-users")
-    public List<AgentDto> getUserBySuperAgentCode(@Valid @RequestBody SuperAgentFilter superAgentFilter) {
-        return activeAgentService.getAllActiveSuperAgents(superAgentFilter);
+    public Page<AgentDto> getUserBySuperAgentCode(@Valid @RequestBody SuperAgentFilter superAgentFilter, @PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
+        return activeAgentService.getAllActiveSuperAgents(superAgentFilter, pageable);
     }
 
     @GetMapping("/{userId}")

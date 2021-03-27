@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("update User u set u.deleted = true where u.id = ?1")
     void deleteUser(Long userId);
+
+    @Query(value = "SELECT u from User u where " +
+            "u IN (select p.user from ProductOrder p where " +
+            "p.createdAt>=?1 " +
+            "AND p.createdAt<=?2 " +
+            "AND p.status='COMPLETED' " +
+            "AND p.user.superAgent.referralCode=?3)")
+    Page<User> findActiveSuperAgentUsers(LocalDateTime startDate, LocalDateTime endDate, String superAgentCode, Pageable pageable);
 
     Long countAllByAgentCodeIsNotNull();
 
