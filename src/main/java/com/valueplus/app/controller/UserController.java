@@ -51,7 +51,7 @@ public class UserController {
                 .map(AgentDto::valueOf);
     }
 
-    @PreAuthorize("hasAuthority('VIEW_SUPER_AGENTS')")
+    @PreAuthorize("hasAnyAuthority('VIEW_SUPER_AGENTS','ROLE_SUPER_AGENT')")
     @GetMapping("/super-agents/{agentCode}/users")
     public Page<AgentDto> getUserBySuperAgentCode(@PathVariable("agentCode") String superAgentCode, @PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         log.debug("getUser() referralCode = {}", superAgentCode.toLowerCase());
@@ -59,7 +59,7 @@ public class UserController {
                 .map(AgentDto::valueOf);
     }
 
-    @PreAuthorize("hasAuthority('VIEW_SUPER_AGENTS')")
+    @PreAuthorize("hasAnyAuthority('VIEW_SUPER_AGENTS','ROLE_SUPER_AGENT')")
     @PostMapping("/super-agents/filter-active-users")
     public Page<AgentDto> getUserBySuperAgentCode(@Valid @RequestBody SuperAgentFilter superAgentFilter, @PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return activeAgentService.getAllActiveSuperAgents(superAgentFilter, pageable);
