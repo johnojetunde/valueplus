@@ -32,6 +32,7 @@ public class ProductOrderModel {
     private String phoneNumber;
     private OrderStatus status;
     private Long agentId;
+    private AgentDto agent;
 
     private BigDecimal productPrice;
     private BigDecimal totalProfit;

@@ -1,6 +1,7 @@
 package com.valueplus.persistence.entity;
 
 import com.valueplus.domain.enums.OrderStatus;
+import com.valueplus.domain.model.AgentDto;
 import com.valueplus.domain.model.ProductOrderModel;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -51,6 +52,7 @@ public class ProductOrder extends BasePersistentEntity {
                 .updatedAt(this.updatedAt)
                 .agentId(this.user.getId())
                 .totalProfit(totalProfit)
+                .agent(AgentDto.valueOf(this.user))
                 .build();
     }
 
