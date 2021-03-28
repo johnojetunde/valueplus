@@ -4,17 +4,21 @@ import com.valueplus.app.exception.BadRequestException;
 import com.valueplus.app.exception.NotFoundException;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.app.exception.ValuePlusRuntimeException;
-import com.valueplus.domain.model.AuthorityModel;
-import com.valueplus.domain.model.PinUpdate;
-import com.valueplus.domain.model.RoleType;
+import com.valueplus.domain.model.*;
 import com.valueplus.domain.service.abstracts.PinUpdateService;
 import com.valueplus.persistence.entity.Authority;
+import com.valueplus.persistence.entity.Role;
 import com.valueplus.persistence.entity.User;
+import com.valueplus.persistence.repository.RoleRepository;
 import com.valueplus.persistence.repository.UserRepository;
+import com.valueplus.persistence.specs.SearchCriteria;
+import com.valueplus.persistence.specs.SearchOperation;
+import com.valueplus.persistence.specs.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -25,11 +29,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.valueplus.domain.model.RoleType.ADMIN;
-import static com.valueplus.domain.model.RoleType.SUPER_ADMIN;
 import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
 import static java.time.LocalTime.MAX;
 import static java.time.LocalTime.MIN;
 import static java.util.Optional.ofNullable;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,6 +44,7 @@ public class UserService {
     private final List<PinUpdateService> pinUpdateServiceList;
     private final UserUtilService userUtilService;
     private final Clock clock;
+    private final RoleRepository roleRepository;
 
     public Page<User> findUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -92,7 +97,7 @@ public class UserService {
         User user = userRepository.findById(userid)
                 .orElseThrow(() -> new NotFoundException("user not found"));
 
-        if (!ADMIN.name().equals(user.getRole().getName()) && !SUPER_ADMIN.name().equals(user.getRole().getName())) {
+        if (!ADMIN.name().equals(user.getRole().getName())) {
             throw new BadRequestException("Authority update only applies to admin users");
         }
 
@@ -131,14 +136,41 @@ public class UserService {
         return getAdminUserAccount().map(User::getId).orElse(0L);
     }
 
-    public List<User> findUserBySuperAgent(User superAgent) {
-        return userRepository.findUserBySuperAgent(superAgent);
-    }
-
     private PinUpdateService getUpdateService(User user) {
         return emptyIfNullStream(pinUpdateServiceList)
                 .filter(p -> p.useStrategy(user))
                 .findFirst()
                 .orElseThrow(() -> new ValuePlusRuntimeException("Error retrieving implementation for PinUpdate"));
+    }
+
+    public Page<AgentDto> searchUsers(UserSearchFilter searchFilter, Pageable pageable) throws ValuePlusException {
+        UserSpecification specification = buildSpecification(searchFilter);
+        return userRepository.findAll(Specification.where(specification), pageable)
+                .map(AgentDto::valueOf);
+    }
+
+    private UserSpecification buildSpecification(UserSearchFilter searchFilter) throws ValuePlusException {
+        UserSpecification specification = new UserSpecification();
+        if (searchFilter.getFirstname() != null) {
+            specification.add(new SearchCriteria<>("firstname", searchFilter.getFirstname(), SearchOperation.MATCH));
+        }
+        if (searchFilter.getLastname() != null) {
+            specification.add(new SearchCriteria<>("lastname", searchFilter.getLastname(), SearchOperation.MATCH));
+        }
+
+        if (searchFilter.getRoleType() != null) {
+            Role role = roleRepository.findByName(searchFilter.getRoleType().name()).get();
+            specification.add(new SearchCriteria<>("role", role, SearchOperation.EQUAL));
+        }
+        if (searchFilter.getEmail() != null) {
+            specification.add(new SearchCriteria<>("email", searchFilter.getEmail(), SearchOperation.EQUAL));
+        }
+        if (searchFilter.getSuperAgentCode() != null) {
+            User superAgent = userRepository.findByReferralCode(searchFilter.getSuperAgentCode())
+                    .orElseThrow(() -> new ValuePlusException("Invalid super Agent code ", BAD_REQUEST));
+            specification.add(new SearchCriteria<>("superAgent", superAgent, SearchOperation.EQUAL));
+        }
+
+        return specification;
     }
 }

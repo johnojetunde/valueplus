@@ -36,5 +36,4 @@ public class UserUtilService {
                 .map(Authority::toModel)
                 .collect(toSet());
     }
-
 }

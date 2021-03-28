@@ -4,6 +4,7 @@ import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.enums.OrderStatus;
 import com.valueplus.domain.mail.EmailService;
 import com.valueplus.domain.model.ProductOrderModel;
+import com.valueplus.domain.model.SearchProductOrder;
 import com.valueplus.domain.service.abstracts.ProductOrderService;
 import com.valueplus.domain.service.abstracts.WalletService;
 import com.valueplus.domain.util.FunctionUtil;
@@ -12,6 +13,7 @@ import com.valueplus.persistence.entity.ProductOrder;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.ProductOrderRepository;
 import com.valueplus.persistence.repository.ProductRepository;
+import com.valueplus.persistence.repository.UserRepository;
 import com.valueplus.persistence.specs.ProductOrderSpecification;
 import com.valueplus.persistence.specs.SearchCriteria;
 import com.valueplus.persistence.specs.SearchOperation;
@@ -30,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.valueplus.domain.util.FunctionUtil.toDate;
 import static com.valueplus.domain.util.UserUtils.isAgent;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -45,6 +48,7 @@ public class DefaultProductOrderService implements ProductOrderService {
     private final ProductRepository productRepository;
     private final WalletService walletService;
     private final EmailService emailService;
+    private final UserRepository userRepository;
 
     @Override
     public List<ProductOrderModel> create(List<ProductOrderModel> orders, User user) throws ValuePlusException {
@@ -165,20 +169,25 @@ public class DefaultProductOrderService implements ProductOrderService {
     }
 
     @Override
-    public List<ProductOrderModel> getAllProducts(Long productId,
-                                                  String customerName,
-                                                  OrderStatus status,
-                                                  LocalDate startDate,
-                                                  LocalDate endDate,
-                                                  User user) {
+    public Page<ProductOrderModel> searchProduct(SearchProductOrder model, Pageable pageable, User user) throws ValuePlusException {
+        var userFilter = user;
         Product product = null;
-        if (productId != null) {
-            product = productRepository.findById(productId).orElse(null);
+        if (model.getProductId() != null) {
+            product = productRepository.findById(model.getProductId()).orElse(null);
         }
-        ProductOrderSpecification specification = buildSpecification(customerName, status, startDate, endDate, product, user);
-        return repository.findAll(Specification.where(specification)).stream()
-                .map(ProductOrder::toModel)
-                .collect(toList());
+        if (model.getAgentId() != null && !isAgent(user)) {
+            userFilter = userRepository.findById(model.getAgentId())
+                    .orElseThrow(() -> new ValuePlusException(format("Invalid agent id %d", model.getAgentId())));
+        }
+
+        ProductOrderSpecification specification = buildSpecification(model.getCustomerName(),
+                model.getStatus(),
+                toDate(model.getStartDate()),
+                toDate(model.getEndDate()),
+                product,
+                userFilter);
+        return repository.findAll(Specification.where(specification), pageable)
+                .map(ProductOrder::toModel);
     }
 
     private void validateStatusUpdateRequest(OrderStatus status, ProductOrder productOder) throws ValuePlusException {

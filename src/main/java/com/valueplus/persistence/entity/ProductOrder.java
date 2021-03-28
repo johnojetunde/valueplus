@@ -35,6 +35,7 @@ public class ProductOrder extends BasePersistentEntity {
     private User user;
 
     public ProductOrderModel toModel() {
+        BigDecimal totalProfit = sellingPrice.subtract(product.getPrice()).multiply(BigDecimal.valueOf(quantity));
         return ProductOrderModel.builder()
                 .id(this.id)
                 .customerName(this.customerName)
@@ -48,6 +49,8 @@ public class ProductOrder extends BasePersistentEntity {
                 .productName(this.product.getName())
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
+                .agentId(this.user.getId())
+                .totalProfit(totalProfit)
                 .build();
     }
 

@@ -3,6 +3,7 @@ package com.valueplus.app.controller;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.enums.OrderStatus;
 import com.valueplus.domain.model.ProductOrderModel;
+import com.valueplus.domain.model.SearchProductOrder;
 import com.valueplus.domain.service.abstracts.ProductOrderService;
 import com.valueplus.domain.util.UserUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +17,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.valueplus.domain.util.FunctionUtil.toDate;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
@@ -68,6 +68,17 @@ public class ProductOrderController {
                 UserUtils.getLoggedInUser());
     }
 
+    @PostMapping("/searches")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<ProductOrderModel> filterProduct(@Valid @RequestBody SearchProductOrder searchProductOrder,
+                                                 @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+
+        return productOrderService.searchProduct(
+                searchProductOrder,
+                pageable,
+                UserUtils.getLoggedInUser());
+    }
+
     @PostMapping("/{id}/cancel")
     @ResponseStatus(HttpStatus.OK)
     public ProductOrderModel cancelOrder(@PathVariable("id") Long orderId) throws ValuePlusException {
@@ -86,10 +97,5 @@ public class ProductOrderController {
     @ResponseStatus(HttpStatus.OK)
     public Page<ProductOrderModel> getAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         return productOrderService.get(UserUtils.getLoggedInUser(), pageable);
-    }
-
-    private LocalDate toDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return (date != null) ? LocalDate.parse(date, formatter) : null;
     }
 }

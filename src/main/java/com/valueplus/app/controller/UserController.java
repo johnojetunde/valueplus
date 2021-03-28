@@ -44,6 +44,12 @@ public class UserController {
                 .map(AgentDto::valueOf);
     }
 
+    @PreAuthorize("hasAuthority('VIEW_ALL_USERS')")
+    @PostMapping("/searches")
+    public Page<AgentDto> searchUsers(@Valid @RequestBody UserSearchFilter searchFilter, @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+        return userService.searchUsers(searchFilter, pageable);
+    }
+
     @PreAuthorize("hasAuthority('VIEW_SUPER_AGENTS')")
     @GetMapping("/super-agents")
     public Page<AgentDto> findAllSuperAgents(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {

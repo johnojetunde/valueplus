@@ -1,7 +1,7 @@
 package com.valueplus.domain.model;
 
-import com.valueplus.domain.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.valueplus.domain.enums.OrderStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -31,8 +31,10 @@ public class ProductOrderModel {
     @NotBlank
     private String phoneNumber;
     private OrderStatus status;
+    private Long agentId;
 
     private BigDecimal productPrice;
+    private BigDecimal totalProfit;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

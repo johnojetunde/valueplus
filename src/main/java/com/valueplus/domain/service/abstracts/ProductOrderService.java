@@ -3,6 +3,7 @@ package com.valueplus.domain.service.abstracts;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.enums.OrderStatus;
 import com.valueplus.domain.model.ProductOrderModel;
+import com.valueplus.domain.model.SearchProductOrder;
 import com.valueplus.persistence.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,11 +31,7 @@ public interface ProductOrderService {
                                           Pageable pageable,
                                           User user) throws ValuePlusException;
 
-
-    List<ProductOrderModel> getAllProducts(Long productId,
-                                           String customerName,
-                                           OrderStatus status,
-                                           LocalDate startDate,
-                                           LocalDate endDate,
-                                           User user) throws ValuePlusException;
+    Page<ProductOrderModel> searchProduct(SearchProductOrder searchProductOrder,
+                                          Pageable pageable,
+                                          User user) throws ValuePlusException;
 }
