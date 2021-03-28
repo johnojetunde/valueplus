@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toSet;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDto {
+    private Long id;
     private String firstname;
     private String lastname;
     private String email;
@@ -30,6 +31,7 @@ public class UserDto {
 
     public static UserDto valueOf(User user) {
         return new UserDto(
+                user.getId(),
                 user.getFirstname(),
                 user.getLastname(),
                 user.getEmail(),

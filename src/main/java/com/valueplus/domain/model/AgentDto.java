@@ -20,7 +20,8 @@ public class AgentDto extends UserDto {
     private String superAgentCode;
 
     @Builder
-    public AgentDto(String firstname,
+    public AgentDto(Long id,
+                    String firstname,
                     String lastname,
                     String email,
                     String phone,
@@ -32,7 +33,7 @@ public class AgentDto extends UserDto {
                     boolean emailVerified,
                     String referralCode,
                     String superAgentCode) {
-        super(firstname, lastname, email, phone, address, roleType, referralCode, false, emptySet());
+        super(id, firstname, lastname, email, phone, address, roleType, referralCode, false, emptySet());
         this.agentCode = agentCode;
         this.link = link;
         this.photo = photo;
@@ -46,6 +47,7 @@ public class AgentDto extends UserDto {
 
     public static AgentDto valueOf(User user, String photo) {
         AgentDtoBuilder builder = builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
