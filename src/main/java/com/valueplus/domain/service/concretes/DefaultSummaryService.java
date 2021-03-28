@@ -3,6 +3,7 @@ package com.valueplus.domain.service.concretes;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.model.AccountSummary;
 import com.valueplus.domain.service.abstracts.SummaryService;
+import com.valueplus.domain.util.FunctionUtil;
 import com.valueplus.persistence.entity.ProductOrder;
 import com.valueplus.persistence.entity.Transaction;
 import com.valueplus.persistence.entity.User;
@@ -10,18 +11,23 @@ import com.valueplus.persistence.repository.DeviceReportRepository;
 import com.valueplus.persistence.repository.ProductOrderRepository;
 import com.valueplus.persistence.repository.TransactionRepository;
 import com.valueplus.persistence.repository.UserRepository;
-import com.valueplus.domain.util.FunctionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.valueplus.domain.enums.OrderStatus.COMPLETED;
+import static com.valueplus.domain.model.RoleType.SUPER_AGENT;
+import static java.time.LocalTime.MAX;
+import static java.time.LocalTime.MIN;
+import static java.util.Optional.ofNullable;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
 @RequiredArgsConstructor
 @Service
@@ -31,14 +37,13 @@ public class DefaultSummaryService implements SummaryService {
     private final ProductOrderRepository productOrderRepository;
     private final TransactionRepository transactionRepository;
     private final DeviceReportRepository deviceReportRepository;
+    private final Clock clock;
 
     @Override
     public AccountSummary getSummary(User user) throws ValuePlusException {
         Integer totalDownloads = 0;
-        Integer activeUsers = deviceReportRepository.countAllByAgentCode(user.getAgentCode()).intValue();
-        Integer totalAgents = Optional.ofNullable(user.getAgentCode())
-                .map(a -> Strings.isNotBlank(a) ? 1 : 0)
-                .orElse(0);
+        Integer activeUsers = countActiveUsers(user.getRole().getName(), user.getReferralCode(), user.getAgentCode());
+        Integer totalAgents = countTotalAgentUsers(user.getRole().getName(), user.getReferralCode(), user.getAgentCode());
 
         ProductSummary productSummary = calculateProductSummary(productOrderRepository.findByUser_idAndStatus(user.getId(), COMPLETED));
         TransactionSummary transactionSummary = calculateTransactionSummary(transactionRepository.findAllByUser_Id(user.getId()));
@@ -74,6 +79,28 @@ public class DefaultSummaryService implements SummaryService {
                 .totalActiveUsers(activeUsers)
                 .totalDownloads(totalDownloads)
                 .build();
+    }
+
+    private Integer countActiveUsers(String roleName, String referralCode, String agentCode) {
+        LocalDate todayDate = LocalDate.now(clock);
+
+        if (SUPER_AGENT.name().equals(roleName)) {
+            LocalDateTime startDateTime = LocalDateTime.of(todayDate.minusDays(30), MIN);
+            LocalDateTime endDateTime = LocalDateTime.of(todayDate, MAX);
+            return userRepository.findActiveSuperAgentListUsers(startDateTime, endDateTime, referralCode).size();
+        }
+
+        return deviceReportRepository.countAllByAgentCode(agentCode).intValue();
+    }
+
+    private Integer countTotalAgentUsers(String roleName, String referralCode, String agentCode) {
+        if (SUPER_AGENT.name().equals(roleName)) {
+            return userRepository.findUsersBySuperAgent_ReferralCode(referralCode).size();
+        }
+
+        return ofNullable(agentCode)
+                .map(a -> isNotBlank(a) ? 1 : 0)
+                .orElse(0);
     }
 
     private ProductSummary calculateProductSummary(List<ProductOrder> productOrders) {

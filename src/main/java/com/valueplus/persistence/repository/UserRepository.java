@@ -31,6 +31,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND p.user.superAgent.referralCode=?3)")
     Page<User> findActiveSuperAgentUsers(LocalDateTime startDate, LocalDateTime endDate, String superAgentCode, Pageable pageable);
 
+    @Query(value = "SELECT u from User u where " +
+            "u IN (select p.user from ProductOrder p where " +
+            "p.createdAt>=?1 " +
+            "AND p.createdAt<=?2 " +
+            "AND p.status='COMPLETED' " +
+            "AND p.user.superAgent.referralCode=?3)")
+    List<User> findActiveSuperAgentListUsers(LocalDateTime startDate, LocalDateTime endDate, String superAgentCode);
+
+
     Long countAllByAgentCodeIsNotNull();
 
     Optional<User> findByAgentCodeAndDeletedFalse(String agentCode);
@@ -42,4 +51,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findUserByRole_Name(String role, Pageable pageable);
 
     List<User> findUserBySuperAgent(User superAgent);
+
+    List<User> findUsersBySuperAgent_ReferralCode(String referralCode);
 }
