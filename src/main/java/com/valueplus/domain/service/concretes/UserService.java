@@ -80,13 +80,12 @@ public class UserService {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("user not found"));
 
-        var userEntity = existingUser.toBuilder().lastname(user.getLastname())
-                .firstname(user.getFirstname())
-                .phone(user.getPhone())
-                .address(user.getAddress())
-                .build();
+        existingUser.setLastname(user.getLastname());
+        existingUser.setFirstname(user.getFirstname());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setAddress(user.getAddress());
 
-        return userRepository.save(userEntity);
+        return userRepository.save(user);
     }
 
     public User updateUserAuthority(Long userid, Set<Long> userAuthorities) {

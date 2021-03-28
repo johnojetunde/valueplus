@@ -17,7 +17,7 @@ public class ActiveAgentService {
     private final UserService userService;
 
     public Page<AgentDto> getAllActiveSuperAgents(SuperAgentFilter filter, Pageable pageable) {
-        userService.findByReferralCode(filter.getSuperAgentCode())
+        userService.findByReferralCode(filter.getSuperAgentCode().toLowerCase())
                 .orElseThrow(() -> new BadRequestException("Invalid Super Agent Code"));
 
         return userService.findAllUserBySuperAgentCode(filter.getSuperAgentCode(), filter.getStartDate(), filter.getEndDate(), pageable)

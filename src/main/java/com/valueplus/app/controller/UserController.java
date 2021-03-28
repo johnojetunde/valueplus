@@ -7,7 +7,6 @@ import com.valueplus.domain.model.*;
 import com.valueplus.domain.service.concretes.ActiveAgentService;
 import com.valueplus.domain.service.concretes.ProfilePictureService;
 import com.valueplus.domain.service.concretes.UserService;
-import com.valueplus.domain.util.UserUtils;
 import com.valueplus.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Set;
 
+import static com.valueplus.domain.util.UserUtils.getLoggedInUser;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RequiredArgsConstructor
@@ -54,8 +54,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('VIEW_SUPER_AGENTS')")
     @GetMapping("/super-agents/{agentCode}/users")
     public Page<AgentDto> getUserBySuperAgentCode(@PathVariable("agentCode") String superAgentCode, @PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
-        log.debug("getUser() referralCode = {}", superAgentCode);
-        return userService.findAllUserBySuperAgentCode(superAgentCode, pageable)
+        log.debug("getUser() referralCode = {}", superAgentCode.toLowerCase());
+        return userService.findAllUserBySuperAgentCode(superAgentCode.toLowerCase(), pageable)
                 .map(AgentDto::valueOf);
     }
 
@@ -76,7 +76,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.GET, path = "/current")
     public AgentDto getCurrentUser() {
-        User user = UserUtils.getLoggedInUser();
+        User user = getLoggedInUser();
         String photo = profilePictureService.get(user)
                 .map(ProfilePictureDto::valueOf)
                 .map(ProfilePictureDto::getPhoto)
@@ -94,7 +94,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/current")
     public AgentDto update(@Valid @RequestBody UserUpdate userUpdate) {
-        long userId = UserUtils.getLoggedInUser().getId();
+        long userId = getLoggedInUser().getId();
         return AgentDto.valueOf(userService.update(userUpdate.toUser(userId)));
     }
 
@@ -112,7 +112,7 @@ public class UserController {
 
     @PostMapping("/update-pin")
     public AgentDto pinUpdate(@Valid @RequestBody PinUpdate pinUpdate) throws ValuePlusException {
-        long userId = UserUtils.getLoggedInUser().getId();
+        long userId = getLoggedInUser().getId();
         return AgentDto.valueOf(userService.pinUpdate(userId, pinUpdate));
     }
 

@@ -64,8 +64,11 @@ public class EmailVerificationService {
             log.error("user not found, userId = {}", userId);
             throw new ValuePlusException("expired link", HttpStatus.NOT_FOUND);
         }
+
         User user = userOptional.get();
-        user = user.toBuilder().emailVerified(true).build();
+        user.setEmailVerified(true);
+        user.setEnabled(true);
+
         userRepository.save(user);
         verificationTokenRepository.deleteById(userId);
 

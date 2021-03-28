@@ -85,10 +85,10 @@ public class RegistrationService {
         ensureUserIsUnique(userCreate.getEmail());
 
         String password = generateRandomString(10);
-        String referralCode = generateRandomString(6);
+        String referralCode = generateRandomString(8);
 
         User user = newUserWithGeneratedPassword(userCreate, SUPER_AGENT, password);
-        user.setReferralCode(referralCode);
+        user.setReferralCode(referralCode.toLowerCase());
 
         user = userRepository.save(user);
         walletService.createWallet(user);

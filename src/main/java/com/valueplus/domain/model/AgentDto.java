@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Optional;
-
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 
@@ -56,7 +54,7 @@ public class AgentDto extends UserDto {
                 .emailVerified(user.isEmailVerified())
                 .roleType(user.getRole().getName())
                 .referralCode(user.getReferralCode())
-                .superAgentCode(Optional.ofNullable(user.getSuperAgent()).map(User::getReferralCode).orElse(null))
+                .superAgentCode(ofNullable(user.getSuperAgent()).map(User::getReferralCode).orElse(null))
                 .photo(photo);
 
         ofNullable(user.getAgentCode())
