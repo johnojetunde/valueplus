@@ -21,6 +21,7 @@ public class Constants {
             "VIEW_AUDIT_LOG",
             "VIEW_SETTINGS_SCHEDULE",
             "ENABLE_USER",
-            "DISABLE_USER"
+            "DISABLE_USER",
+            "UPDATE_SETTINGS"
     );
 }
