@@ -154,4 +154,13 @@
             <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
         </insert>
     </changeSet>
+    <changeSet id="v0.delete_authorities_batch3" author="johnojetunde">
+        <delete tableName="user_authority">
+            <where>authority_id='12'</where>
+        </delete>
+        <delete tableName="authority">
+            <where>id='12'</where>
+        </delete>
+    </changeSet>
+
 </databaseChangeLog>
