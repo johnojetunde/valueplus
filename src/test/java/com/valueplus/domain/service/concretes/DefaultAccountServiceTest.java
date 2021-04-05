@@ -1,6 +1,9 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
+import com.valueplus.domain.enums.ActionType;
+import com.valueplus.domain.enums.EntityType;
 import com.valueplus.domain.model.AccountRequest;
 import com.valueplus.domain.service.abstracts.PaymentService;
 import com.valueplus.persistence.entity.Account;
@@ -18,8 +21,7 @@ import static com.valueplus.fixtures.TestFixtures.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class DefaultAccountServiceTest {
@@ -28,6 +30,8 @@ class DefaultAccountServiceTest {
     private PaymentService paymentService;
     @Mock
     private AccountRepository repository;
+    @Mock
+    private AuditEventPublisher auditEvent;
 
     @InjectMocks
     private DefaultAccountService accountService;
@@ -45,6 +49,8 @@ class DefaultAccountServiceTest {
                 .then(i -> mockAccountNumberModel(i.getArgument(0, String.class)));
         when(repository.save(any(Account.class)))
                 .then(i -> i.getArgument(0, Account.class));
+        doNothing().when(auditEvent)
+                .publish(isA(Account.class), isA(Account.class), isA(ActionType.class), isA(EntityType.class));
     }
 
     @Test

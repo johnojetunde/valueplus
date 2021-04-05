@@ -1,9 +1,14 @@
 package com.valueplus.domain.model;
 
+import com.valueplus.domain.enums.ProductProvider;
 import com.valueplus.persistence.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
@@ -18,6 +23,7 @@ public class AgentDto extends UserDto {
     private String photo;
     private boolean emailVerified;
     private String superAgentCode;
+    private List<Map<ProductProvider, String>> referralData;
 
     @Builder
     public AgentDto(Long id,
@@ -32,13 +38,15 @@ public class AgentDto extends UserDto {
                     String photo,
                     boolean emailVerified,
                     String referralCode,
-                    String superAgentCode) {
-        super(id, firstname, lastname, email, phone, address, roleType, referralCode, false, emptySet());
+                    String superAgentCode,
+                    boolean enabled) {
+        super(id, firstname, lastname, email, phone, address, roleType, referralCode, false, emptySet(), enabled);
         this.agentCode = agentCode;
         this.link = link;
         this.photo = photo;
         this.superAgentCode = superAgentCode;
         this.emailVerified = emailVerified;
+        this.referralData = buildReferralData(referralCode, link);
     }
 
     public static AgentDto valueOf(User user) {
@@ -57,6 +65,7 @@ public class AgentDto extends UserDto {
                 .roleType(user.getRole().getName())
                 .referralCode(user.getReferralCode())
                 .superAgentCode(ofNullable(user.getSuperAgent()).map(User::getReferralCode).orElse(null))
+                .enabled(user.isEnabled())
                 .photo(photo);
 
         ofNullable(user.getAgentCode())
@@ -66,5 +75,13 @@ public class AgentDto extends UserDto {
         agentDto.setTransactionTokenSet(user.isTransactionTokenSet());
         agentDto.setAuthorities(extractAuthorities(user));
         return agentDto;
+    }
+
+    private List<Map<ProductProvider, String>> buildReferralData(String referralCode, String link) {
+        List<Map<ProductProvider, String>> referral = new ArrayList<>();
+        referral.add(Map.of(ProductProvider.DATA4ME, ofNullable(link).orElse("")));
+        referral.add(Map.of(ProductProvider.VALUEPLUS, ofNullable(referralCode).orElse("")));
+
+        return referral;
     }
 }

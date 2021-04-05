@@ -1,7 +1,7 @@
 package com.valueplus.persistence.entity;
 
-import com.valueplus.domain.model.TransactionModel;
 import com.valueplus.domain.enums.TransactionStatus;
+import com.valueplus.domain.model.TransactionModel;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Setter
 @Entity
 @Table(name = "transaction")
-public class Transaction extends BasePersistentEntity {
+public class Transaction extends BasePersistentEntity implements ToModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

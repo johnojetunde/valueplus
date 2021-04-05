@@ -2,7 +2,6 @@ package com.valueplus.paystack.service;
 
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.paystack.model.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
         @TestPropertySource("classpath:application.properties"),
         @TestPropertySource("classpath:test.properties")
 })
-@Disabled
 @SpringBootTest
 class PaystackServiceTest {
     @Autowired

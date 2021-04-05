@@ -1,5 +1,6 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.app.model.PaymentRequestModel;
 import com.valueplus.domain.model.AccountModel;
@@ -18,6 +19,7 @@ import com.valueplus.persistence.repository.TransactionRepository;
 import com.valueplus.persistence.specs.SearchCriteria;
 import com.valueplus.persistence.specs.SearchOperation;
 import com.valueplus.persistence.specs.TransactionSpecification;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,13 +34,18 @@ import java.time.LocalTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.valueplus.domain.enums.ActionType.TRANSACTION_INITIATE;
+import static com.valueplus.domain.enums.ActionType.TRANSACTION_STATUS_CHANGE;
+import static com.valueplus.domain.enums.EntityType.TRANSACTION;
 import static com.valueplus.domain.util.FunctionUtil.convertToNaira;
 import static com.valueplus.domain.util.FunctionUtil.setScale;
+import static com.valueplus.domain.util.MapperUtil.copy;
 import static com.valueplus.domain.util.UserUtils.isAgent;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class DefaultTransferService implements TransferService {
@@ -50,20 +57,8 @@ public class DefaultTransferService implements TransferService {
     private final WalletService walletService;
     private final PasswordEncoder passwordEncoder;
     private final SettingsService settingsService;
+    private final AuditEventPublisher auditEvent;
 
-    public DefaultTransferService(PaymentService paymentService,
-                                  TransactionRepository transactionRepository,
-                                  AccountRepository accountRepository,
-                                  WalletService walletService,
-                                  PasswordEncoder passwordEncoder,
-                                  SettingsService settingsService) {
-        this.paymentService = paymentService;
-        this.transactionRepository = transactionRepository;
-        this.accountRepository = accountRepository;
-        this.walletService = walletService;
-        this.passwordEncoder = passwordEncoder;
-        this.settingsService = settingsService;
-    }
 
     @Override
     public TransactionModel transfer(User user, PaymentRequestModel requestModel) throws ValuePlusException {
@@ -96,7 +91,10 @@ public class DefaultTransferService implements TransferService {
                 .status(response.getStatus().toLowerCase())
                 .build();
 
-        return transactionRepository.save(transaction).toModel();
+        var savedTransaction = transactionRepository.save(transaction).toModel();
+
+        auditEvent.publish(new Transaction(), savedTransaction, TRANSACTION_INITIATE, TRANSACTION);
+        return savedTransaction;
     }
 
     @Override
@@ -231,9 +229,13 @@ public class DefaultTransferService implements TransferService {
     }
 
     private TransactionModel verify(Transaction transaction) throws ValuePlusException {
+        var oldObject = copy(transaction, Transaction.class);
         TransferVerificationResponse response = paymentService.verifyTransfer(transaction.getReference());
         transaction.setStatus(response.getStatus());
-        return transactionRepository.save(transaction).toModel();
+
+        var savedTransaction = transactionRepository.save(transaction);
+        auditEvent.publish(oldObject, savedTransaction, TRANSACTION_STATUS_CHANGE, TRANSACTION);
+        return savedTransaction.toModel();
     }
 
     private void ensureUserPinIsMatching(User user, PaymentRequestModel requestModel) throws ValuePlusException {

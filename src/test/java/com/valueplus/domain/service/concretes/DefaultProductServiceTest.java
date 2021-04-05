@@ -1,12 +1,15 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
+import com.valueplus.domain.enums.ActionType;
+import com.valueplus.domain.enums.EntityType;
 import com.valueplus.domain.model.ProductModel;
 import com.valueplus.domain.model.RoleType;
+import com.valueplus.fixtures.TestFixtures;
 import com.valueplus.persistence.entity.Product;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.ProductRepository;
-import com.valueplus.fixtures.TestFixtures;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,9 +27,9 @@ import java.util.Optional;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -35,6 +38,8 @@ class DefaultProductServiceTest {
     private ProductRepository repository;
     @Mock
     private Pageable pageable;
+    @Mock
+    private AuditEventPublisher auditEvent;
     @InjectMocks
     private DefaultProductService productService;
     private Product entity;
@@ -50,6 +55,9 @@ class DefaultProductServiceTest {
 
         when(repository.save(any(Product.class)))
                 .thenReturn(entity);
+
+        doNothing().when(auditEvent)
+                .publish(isA(Product.class), isA(Product.class), isA(ActionType.class), isA(EntityType.class));
     }
 
     @Test

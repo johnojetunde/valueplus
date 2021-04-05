@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @Table(name = "profile_picture")
-public class ProfilePicture {
+public class ProfilePicture implements ToModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,12 @@ public class ProfilePicture {
 
     @Setter
     @Lob
-    @Type(type="org.hibernate.type.BinaryType")
+    @Type(type = "org.hibernate.type.BinaryType")
     @Column(columnDefinition = "BYTEA")
     private byte[] photo;
+
+    @Override
+    public Object toModel() {
+        return this;
+    }
 }

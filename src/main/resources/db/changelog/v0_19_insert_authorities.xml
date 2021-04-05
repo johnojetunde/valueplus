@@ -123,4 +123,35 @@
             <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
         </insert>
     </changeSet>
+
+    <changeSet id="v0.insert_authorities_batch2" author="johnojetunde">
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_AUDIT_LOG"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VERIFY_PENDING_TRANSACTIONS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_ALL_TRANSACTIONS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="v0.insert_authorities_batch3" author="johnojetunde">
+        <insert tableName="authority">
+            <column name="authority" value="ENABLE_USER"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="DISABLE_USER"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

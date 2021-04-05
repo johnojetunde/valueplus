@@ -45,7 +45,7 @@ public class SettingsController {
         return settingsService.getCurrentSetting().orElse(null);
     }
 
-    @PreAuthorize("hasAuthority('VIEW_SETTINGS_LOG')")
+    @PreAuthorize("hasAuthority('VIEW_AUDIT_LOG')")
     @GetMapping("/logs")
     public Page<SettingLogModel> getSettingLogs(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return settingsService.getSettingLogs(pageable);

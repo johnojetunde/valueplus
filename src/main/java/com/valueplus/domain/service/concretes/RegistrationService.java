@@ -1,5 +1,6 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.model.AgentCreate;
 import com.valueplus.domain.model.RoleType;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.valueplus.domain.enums.ActionType.*;
+import static com.valueplus.domain.enums.EntityType.USER;
 import static com.valueplus.domain.model.RoleType.AGENT;
 import static com.valueplus.domain.model.RoleType.SUPER_AGENT;
 import static com.valueplus.domain.util.GeneratorUtils.generateRandomString;
@@ -37,6 +40,7 @@ public class RegistrationService {
     private final EmailVerificationService emailVerificationService;
     private final WalletService walletService;
     private final UserUtilService userUtilService;
+    private final AuditEventPublisher auditEvent;
 
 
     public User createAgent(AgentCreate agentCreate) throws Exception {
@@ -57,7 +61,9 @@ public class RegistrationService {
         User savedUser = userRepository.save(user);
         walletService.createWallet(savedUser);
         emailVerificationService.sendVerifyEmail(user);
-        return user;
+
+        auditEvent.publish(new Object(), savedUser, USER_CREATE_AGENT, USER);
+        return savedUser;
     }
 
     public User createAdmin(UserCreate userCreate, RoleType roleType) throws Exception {
@@ -72,6 +78,7 @@ public class RegistrationService {
         user = userRepository.save(user);
         walletService.createWallet(user);
         emailVerificationService.sendAdminAccountCreationNotification(user, password);
+        auditEvent.publish(new Object(), user, USER_CREATE_ADMIN, USER);
         return user;
     }
 
@@ -93,6 +100,7 @@ public class RegistrationService {
         user = userRepository.save(user);
         walletService.createWallet(user);
         emailVerificationService.sendSuperAgentAccountCreationNotification(user, password);
+        auditEvent.publish(new Object(), user, USER_CREATE_SUPER_AGENT, USER);
         return user;
     }
 

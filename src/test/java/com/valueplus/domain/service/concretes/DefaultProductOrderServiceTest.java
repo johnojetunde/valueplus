@@ -1,20 +1,23 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
+import com.valueplus.domain.enums.ActionType;
+import com.valueplus.domain.enums.EntityType;
+import com.valueplus.domain.enums.OrderStatus;
 import com.valueplus.domain.mail.EmailService;
 import com.valueplus.domain.model.ProductOrderModel;
+import com.valueplus.domain.model.RoleType;
 import com.valueplus.domain.model.WalletModel;
 import com.valueplus.domain.service.abstracts.WalletService;
+import com.valueplus.domain.util.FunctionUtil;
+import com.valueplus.fixtures.TestFixtures;
 import com.valueplus.persistence.entity.Product;
 import com.valueplus.persistence.entity.ProductOrder;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.ProductOrderRepository;
 import com.valueplus.persistence.repository.ProductRepository;
 import com.valueplus.persistence.specs.ProductOrderSpecification;
-import com.valueplus.domain.enums.OrderStatus;
-import com.valueplus.domain.model.RoleType;
-import com.valueplus.domain.util.FunctionUtil;
-import com.valueplus.fixtures.TestFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -37,8 +40,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -54,6 +56,8 @@ class DefaultProductOrderServiceTest {
     private EmailService emailService;
     @Mock
     private WalletService walletService;
+    @Mock
+    private AuditEventPublisher auditEvent;
     @InjectMocks
     private DefaultProductOrderService orderService;
     private ProductOrderModel productOrderModel;
@@ -78,6 +82,8 @@ class DefaultProductOrderServiceTest {
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
 
+        doNothing().when(auditEvent)
+                .publish(isA(ProductOrder.class), isA(ProductOrder.class), isA(ActionType.class), isA(EntityType.class));
     }
 
     @Test

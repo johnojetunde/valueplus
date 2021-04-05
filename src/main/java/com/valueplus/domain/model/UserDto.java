@@ -27,6 +27,7 @@ public class UserDto {
     private String referralCode;
     private boolean isTransactionTokenSet;
     private Set<String> authorities;
+    private boolean enabled;
 
 
     public static UserDto valueOf(User user) {
@@ -40,7 +41,8 @@ public class UserDto {
                 user.getRole().getName(),
                 user.getReferralCode(),
                 user.isTransactionTokenSet(),
-                extractAuthorities(user)
+                extractAuthorities(user),
+                user.isEnabled()
         );
     }
 

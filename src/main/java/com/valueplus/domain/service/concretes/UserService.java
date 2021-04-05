@@ -1,5 +1,6 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.BadRequestException;
 import com.valueplus.app.exception.NotFoundException;
 import com.valueplus.app.exception.ValuePlusException;
@@ -24,12 +25,18 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.valueplus.domain.enums.ActionType.*;
+import static com.valueplus.domain.enums.EntityType.USER;
 import static com.valueplus.domain.model.RoleType.ADMIN;
+import static com.valueplus.domain.util.Constants.WHITE_LISTED_AUTHORITIES_UI;
 import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
+import static com.valueplus.domain.util.MapperUtil.copy;
 import static java.time.LocalTime.MAX;
 import static java.time.LocalTime.MIN;
 import static java.util.Optional.ofNullable;
@@ -45,6 +52,8 @@ public class UserService {
     private final UserUtilService userUtilService;
     private final Clock clock;
     private final RoleRepository roleRepository;
+    private final AuditEventPublisher auditEvent;
+    private final static String ADMIN_ACCOUNT = "vpadmin@gmail.com";
 
     public Page<User> findUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -85,17 +94,22 @@ public class UserService {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("user not found"));
 
+        var oldObject = copy(existingUser, User.class);
+
         existingUser.setLastname(user.getLastname());
         existingUser.setFirstname(user.getFirstname());
         existingUser.setPhone(user.getPhone());
         existingUser.setAddress(user.getAddress());
 
-        return userRepository.save(user);
+        var savedEntity = userRepository.save(user);
+        auditEvent.publish(oldObject, savedEntity, USER_PROFILE_UPDATE, USER);
+        return savedEntity;
     }
 
     public User updateUserAuthority(Long userid, Set<Long> userAuthorities) {
         User user = userRepository.findById(userid)
                 .orElseThrow(() -> new NotFoundException("user not found"));
+        var oldObject = copy(user, User.class);
 
         if (!ADMIN.name().equals(user.getRole().getName())) {
             throw new BadRequestException("Authority update only applies to admin users");
@@ -104,19 +118,59 @@ public class UserService {
         List<Authority> authorityEntity = userUtilService.getAdminAuthority(userAuthorities);
         user.setAuthorities(authorityEntity);
 
-        return userRepository.save(user);
+        var savedEntity = userRepository.save(user);
+        auditEvent.publish(oldObject, savedEntity, USER_AUTHORITY_UPDATE, USER);
+        return savedEntity;
     }
 
-    public Set<AuthorityModel> getAllAuthorities() {
+    public List<AuthorityModel> getAllAuthorities() {
         return userUtilService.getAllAuthorities();
+    }
+
+    public List<AuthorityModel> getAllUIAuthorities() {
+        return getAllAuthorities().stream()
+                .filter(au -> WHITE_LISTED_AUTHORITIES_UI.contains(au.getAuthority().toUpperCase()))
+                .sorted(Comparator.comparing(AuthorityModel::getAuthority))
+                .collect(Collectors.toList());
     }
 
     public User pinUpdate(Long userId, PinUpdate pinUpdate) throws ValuePlusException {
         User user = getUserById(userId);
+        var oldObject = copy(user, User.class);
         var pinUpdateService = getUpdateService(user);
         user = pinUpdateService.updateOrCreatePin(user, pinUpdate);
 
-        return userRepository.save(user);
+        var savedEntity = userRepository.save(user);
+        auditEvent.publish(oldObject, savedEntity, USER_PIN_UPDATE, USER);
+        return savedEntity;
+    }
+
+    public User enableUser(Long userId) throws ValuePlusException {
+        User user = getUserById(userId);
+        if (user.isEnabled()) {
+            throw new ValuePlusException("User is currently enabled", BAD_REQUEST);
+        }
+
+        var oldObject = copy(user, User.class);
+        user.setEnabled(true);
+        var savedEntity = userRepository.save(user);
+
+        auditEvent.publish(oldObject, savedEntity, USER_ENABLE, USER);
+        return savedEntity;
+    }
+
+    public User disableUser(Long userId) throws ValuePlusException {
+        User user = getUserById(userId);
+        if (!user.isEnabled()) {
+            throw new ValuePlusException("User is currently disabled", BAD_REQUEST);
+        }
+
+        var oldObject = copy(user, User.class);
+        user.setEnabled(false);
+        var savedEntity = userRepository.save(user);
+
+        auditEvent.publish(oldObject, savedEntity, USER_DISABLE, USER);
+        return savedEntity;
     }
 
     private User getUserById(Long userId) {
@@ -129,7 +183,7 @@ public class UserService {
     }
 
     public Optional<User> getAdminUserAccount() {
-        return userRepository.findByEmailAndDeletedFalse("vpadmin@gmail.com");
+        return userRepository.findByEmailAndDeletedFalse(ADMIN_ACCOUNT);
     }
 
     public Long getAdminUserId() {

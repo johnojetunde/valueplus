@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Table(name = "product_order")
 @Accessors(chain = true)
-public class ProductOrder extends BasePersistentEntity {
+public class ProductOrder extends BasePersistentEntity implements ToModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

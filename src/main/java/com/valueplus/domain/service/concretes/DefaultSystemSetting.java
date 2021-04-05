@@ -1,5 +1,6 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.enums.Status;
 import com.valueplus.domain.model.SettingCreateRequest;
@@ -28,8 +29,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static com.valueplus.domain.enums.ActionType.SETTING_CHANGE;
+import static com.valueplus.domain.enums.EntityType.SETTING;
 import static com.valueplus.domain.enums.Status.SCHEDULED;
 import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
+import static com.valueplus.domain.util.MapperUtil.copy;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,6 +43,23 @@ public class DefaultSystemSetting implements SettingsService {
     private final SettingsLogRepository settingsLogRepository;
     private final SettingScheduleRepository settingScheduleRepository;
     private final Clock clock;
+    private final AuditEventPublisher auditEvent;
+
+    public Optional<SettingModel> getCurrentSetting() {
+        return getCurrentSystemSetting().map(Setting::toModel);
+    }
+
+    @Override
+    public Page<SettingLogModel> getSettingLogs(Pageable pageable) {
+        return settingsLogRepository.findAll(pageable)
+                .map(SettingLog::toModel);
+    }
+
+    @Override
+    public Page<SettingScheduleModel> getScheduledCommission(Pageable pageable) {
+        return settingScheduleRepository.findAll(pageable)
+                .map(SettingsSchedule::toModel);
+    }
 
     @Override
     public String update(SettingCreateRequest model, User loggedInUser) throws ValuePlusException {
@@ -68,6 +89,7 @@ public class DefaultSystemSetting implements SettingsService {
     public SettingModel changeSettings(Optional<Setting> settings, SettingsSchedule schedule) {
         updateSchedules(schedule);
 
+        var oldObject = settings.map(s -> copy(s, Setting.class)).orElse(new Setting());
         var entity = settings.orElseGet(() -> Setting.builder()
                 .commissionPercentage(schedule.getCommissionPercentage())
                 .build());
@@ -75,6 +97,8 @@ public class DefaultSystemSetting implements SettingsService {
         createAndSaveLog(settings, schedule);
         entity.setCommissionPercentage(schedule.getCommissionPercentage());
         entity = settingRepository.save(entity);
+
+        auditEvent.publish(oldObject, entity, SETTING_CHANGE, SETTING);
         return entity.toModel();
     }
 
@@ -119,21 +143,5 @@ public class DefaultSystemSetting implements SettingsService {
     private Optional<Setting> getCurrentSystemSetting() {
         return emptyIfNullStream(settingRepository.findAll())
                 .findFirst();
-    }
-
-    public Optional<SettingModel> getCurrentSetting() {
-        return getCurrentSystemSetting().map(Setting::toModel);
-    }
-
-    @Override
-    public Page<SettingLogModel> getSettingLogs(Pageable pageable) {
-        return settingsLogRepository.findAll(pageable)
-                .map(SettingLog::toModel);
-    }
-
-    @Override
-    public Page<SettingScheduleModel> getScheduledCommission(Pageable pageable) {
-        return settingScheduleRepository.findAll(pageable)
-                .map(SettingsSchedule::toModel);
     }
 }

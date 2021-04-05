@@ -1,12 +1,13 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.model.ProductModel;
 import com.valueplus.domain.service.abstracts.ProductService;
+import com.valueplus.domain.util.UserUtils;
 import com.valueplus.persistence.entity.Product;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.ProductRepository;
-import com.valueplus.domain.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.valueplus.domain.enums.ActionType.PRODUCT_CREATE;
+import static com.valueplus.domain.enums.ActionType.PRODUCT_UPDATE;
+import static com.valueplus.domain.enums.EntityType.PRODUCT;
+import static com.valueplus.domain.util.MapperUtil.copy;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
@@ -22,6 +27,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class DefaultProductService implements ProductService {
 
     private final ProductRepository repository;
+    private final AuditEventPublisher auditEvent;
 
     @Override
     public ProductModel create(ProductModel product) throws ValuePlusException {
@@ -29,8 +35,10 @@ public class DefaultProductService implements ProductService {
             throw new ValuePlusException("Product with name exists");
         }
         var entity = Product.fromModel(product);
+        var savedEntity = repository.save(entity);
 
-        return repository.save(entity).toModel();
+        auditEvent.publish(new Object(), savedEntity, PRODUCT_CREATE, PRODUCT);
+        return savedEntity.toModel();
     }
 
     @Override
@@ -48,12 +56,16 @@ public class DefaultProductService implements ProductService {
             throw new ValuePlusException("Product name exists", HttpStatus.BAD_REQUEST);
         }
 
+        var oldObject = copy(entity, Product.class);
         entity.setDescription(product.getDescription());
         entity.setName(product.getName());
         entity.setPrice(product.getPrice());
         entity.setImage(product.getImage());
 
-        return repository.save(entity).toModel();
+        var savedEntity = repository.save(entity);
+        auditEvent.publish(oldObject, savedEntity, PRODUCT_UPDATE, PRODUCT);
+
+        return savedEntity.toModel();
     }
 
     @Override

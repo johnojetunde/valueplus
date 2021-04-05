@@ -44,8 +44,7 @@ class Data4MeMonthlyReportServiceTest {
     @Autowired
     private Data4meMonthlyReportService reportService;
     @MockBean
-    Clock clock;
-
+    private Clock clock;
     @MockBean
     private DeviceReportRepository deviceReportRepository;
     @MockBean

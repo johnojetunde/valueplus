@@ -62,7 +62,6 @@ public class WalletController {
         return walletHistoryService.getHistory(pageable);
     }
 
-
     @PreAuthorize("hasAuthority('SEARCH_ADMIN_WALLET_HISTORY')")
     @PostMapping("/admin/history/filter")
     @ResponseStatus(HttpStatus.OK)
@@ -78,7 +77,6 @@ public class WalletController {
     public Page<WalletModel> getAllWallet(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws Exception {
         return walletService.getAllWallet(pageable);
     }
-
 
     @GetMapping("/{walletId}/history")
     @ResponseStatus(HttpStatus.OK)

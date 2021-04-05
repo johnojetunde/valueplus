@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
-import static java.util.stream.Collectors.toSet;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +31,9 @@ public class UserUtilService {
         return userAuthority;
     }
 
-    public Set<AuthorityModel> getAllAuthorities() {
+    public List<AuthorityModel> getAllAuthorities() {
         return emptyIfNullStream(authorityRepository.findAll())
                 .map(Authority::toModel)
-                .collect(toSet());
+                .collect(Collectors.toList());
     }
 }

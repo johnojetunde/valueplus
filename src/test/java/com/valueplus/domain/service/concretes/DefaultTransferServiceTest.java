@@ -1,6 +1,9 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
+import com.valueplus.domain.enums.ActionType;
+import com.valueplus.domain.enums.EntityType;
 import com.valueplus.domain.model.AccountModel;
 import com.valueplus.domain.model.SettingModel;
 import com.valueplus.domain.model.TransactionModel;
@@ -35,8 +38,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -56,6 +58,8 @@ class DefaultTransferServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private SettingsService settingsService;
+    @Mock
+    private AuditEventPublisher auditEvent;
 
     private DefaultTransferService transferService;
 
@@ -75,7 +79,8 @@ class DefaultTransferServiceTest {
                 accountRepository,
                 walletService,
                 passwordEncoder,
-                settingsService);
+                settingsService,
+                auditEvent);
         agentUser = TestFixtures.mockUser();
         adminUser = TestFixtures.mockUser();
         adminUser.setRole(new Role("ADMIN"));
@@ -94,6 +99,8 @@ class DefaultTransferServiceTest {
                 .commissionPercentage(BigDecimal.valueOf(15))
                 .build();
         when(settingsService.getCurrentSetting()).thenReturn(Optional.of(settings));
+        doNothing().when(auditEvent)
+                .publish(isA(Transaction.class), isA(Transaction.class), isA(ActionType.class), isA(EntityType.class));
     }
 
     @Test

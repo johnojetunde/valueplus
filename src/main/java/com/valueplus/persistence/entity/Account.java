@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "account")
-public class Account extends BasePersistentEntity {
+public class Account extends BasePersistentEntity implements ToModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,7 @@ public class Account extends BasePersistentEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Override
     public AccountModel toModel() {
         return AccountModel.builder()
                 .id(this.id)

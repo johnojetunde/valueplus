@@ -45,13 +45,13 @@ public class Data4meMonthlyReportService {
         this.deviceCreditAmount = deviceCreditAmount;
     }
 
+    @SuppressWarnings("unchecked")
     public void loadMonthlyReport() throws IOException {
         LocalDate reportDate = LocalDate.now().minusMonths(1);
         log.info("getting monthly agent report for {}", reportDate);
         var result = data4MeService.downloadAgentReport(reportDate);
 
         if (result.isEmpty()) return;
-
 
         Set<AgentReport> reportContent = new HashSet<>();
         FileUtils.readLines(new File(result.get()))

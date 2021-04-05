@@ -21,7 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Set;
+import java.util.List;
 
 import static com.valueplus.domain.util.UserUtils.getLoggedInUser;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -110,10 +110,28 @@ public class UserController {
         return AgentDto.valueOf(userService.updateUserAuthority(userId, authorityUpdate.getAuthorities()));
     }
 
+    @PreAuthorize("hasAuthority('DISABLE_USER')")
+    @PostMapping("/{userId}/disable")
+    public AgentDto disableUser(@PathVariable("userId") Long userId) throws ValuePlusException {
+        return AgentDto.valueOf(userService.disableUser(userId));
+    }
+
+    @PreAuthorize("hasAuthority('ENABLE_USER')")
+    @PostMapping("/{userId}/enable")
+    public AgentDto enableUser(@PathVariable("userId") Long userId) throws ValuePlusException {
+        return AgentDto.valueOf(userService.enableUser(userId));
+    }
+
     @PreAuthorize("hasAuthority('UPDATE_ADMIN_AUTHORITY')")
     @GetMapping("/authorities")
-    public Set<AuthorityModel> getUserAuthorities() {
+    public List<AuthorityModel> getUserAuthorities() {
         return userService.getAllAuthorities();
+    }
+
+    @PreAuthorize("hasAuthority('UPDATE_ADMIN_AUTHORITY')")
+    @GetMapping("/authorities/ui")
+    public List<AuthorityModel> getUIUserAuthorities() {
+        return userService.getAllUIAuthorities();
     }
 
     @PostMapping("/update-pin")

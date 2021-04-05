@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Getter
 @Entity
 @Table(name = "setting")
-public class Setting extends BasePersistentEntity {
+public class Setting extends BasePersistentEntity implements ToModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,5 +1,6 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.model.AccountModel;
 import com.valueplus.domain.model.AccountRequest;
@@ -12,6 +13,9 @@ import com.valueplus.persistence.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static com.valueplus.domain.enums.ActionType.ACCOUNT_CREATE;
+import static com.valueplus.domain.enums.EntityType.ACCOUNT;
+import static com.valueplus.domain.util.MapperUtil.copy;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -20,6 +24,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 public class DefaultAccountService implements AccountService {
     private final PaymentService paymentService;
     private final AccountRepository repository;
+    private final AuditEventPublisher auditEvent;
 
     @Override
     public AccountModel create(User user, AccountRequest request) throws ValuePlusException {
@@ -38,7 +43,10 @@ public class DefaultAccountService implements AccountService {
                     .user(user)
                     .build();
 
-            return repository.save(account).toModel();
+            var savedAccount = repository.save(account).toModel();
+
+            auditEvent.publish(new Object(), savedAccount, ACCOUNT_CREATE, ACCOUNT);
+            return savedAccount;
         } catch (Exception e) {
             throw new ValuePlusException("Error adding account to profile", e);
         }
@@ -57,6 +65,7 @@ public class DefaultAccountService implements AccountService {
             throw new ValuePlusException("Invalid account update request", UNAUTHORIZED);
         }
 
+        var oldObject = copy(account, Account.class);
         AccountNumberModel model = paymentService.resolveAccountNumber(request.getAccountNumber(), request.getBankCode());
 
         try {
@@ -64,7 +73,10 @@ public class DefaultAccountService implements AccountService {
             account.setAccountNumber(model.getAccountNumber());
             account.setBankCode(request.getBankCode());
 
-            return repository.save(account).toModel();
+            var savedAccount = repository.save(account).toModel();
+
+            auditEvent.publish(oldObject, savedAccount, ACCOUNT_CREATE, ACCOUNT);
+            return savedAccount;
         } catch (Exception e) {
             throw new ValuePlusException("Error updating account details", e);
         }

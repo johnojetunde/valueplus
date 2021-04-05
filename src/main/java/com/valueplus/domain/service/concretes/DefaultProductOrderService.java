@@ -1,5 +1,6 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.domain.enums.OrderStatus;
 import com.valueplus.domain.mail.EmailService;
@@ -7,7 +8,6 @@ import com.valueplus.domain.model.ProductOrderModel;
 import com.valueplus.domain.model.SearchProductOrder;
 import com.valueplus.domain.service.abstracts.ProductOrderService;
 import com.valueplus.domain.service.abstracts.WalletService;
-import com.valueplus.domain.util.FunctionUtil;
 import com.valueplus.persistence.entity.Product;
 import com.valueplus.persistence.entity.ProductOrder;
 import com.valueplus.persistence.entity.User;
@@ -32,7 +32,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.valueplus.domain.enums.ActionType.PRODUCT_ORDER_CREATE;
+import static com.valueplus.domain.enums.ActionType.PRODUCT_ORDER_STATUS_UPDATE;
+import static com.valueplus.domain.enums.EntityType.PRODUCT_ORDER;
+import static com.valueplus.domain.util.FunctionUtil.setScale;
 import static com.valueplus.domain.util.FunctionUtil.toDate;
+import static com.valueplus.domain.util.MapperUtil.copy;
 import static com.valueplus.domain.util.UserUtils.isAgent;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -49,6 +54,7 @@ public class DefaultProductOrderService implements ProductOrderService {
     private final WalletService walletService;
     private final EmailService emailService;
     private final UserRepository userRepository;
+    private final AuditEventPublisher auditEvent;
 
     @Override
     public List<ProductOrderModel> create(List<ProductOrderModel> orders, User user) throws ValuePlusException {
@@ -66,8 +72,13 @@ public class DefaultProductOrderService implements ProductOrderService {
 
         List<ProductOrder> productOrderList = convertToEntities(orders, productMap, user);
 
-        return repository.saveAll(productOrderList).stream()
-                .map(ProductOrder::toModel)
+        var savedProductOrders = repository.saveAll(productOrderList);
+
+        return savedProductOrders.stream()
+                .map(pOrder -> {
+                    auditEvent.publish(new Object(), pOrder, PRODUCT_ORDER_CREATE, PRODUCT_ORDER);
+                    return pOrder.toModel();
+                })
                 .collect(toList());
     }
 
@@ -93,25 +104,29 @@ public class DefaultProductOrderService implements ProductOrderService {
                 productOder = getOrder(id);
             }
 
+            var oldObject = copy(productOder, ProductOrder.class);
+
             validateStatusUpdateRequest(status, productOder);
 
             productOder.setStatus(status);
 
             ProductOrder savedOrder = repository.save(productOder);
 
-            BigDecimal qty = FunctionUtil.setScale(BigDecimal.valueOf(productOder.getQuantity()));
-            BigDecimal productPrice = FunctionUtil.setScale(productOder.getProduct().getPrice());
-            BigDecimal sellingPrice = FunctionUtil.setScale(productOder.getSellingPrice());
-
-            BigDecimal userProfit = sellingPrice.subtract(productPrice);
-            BigDecimal totalProfit = FunctionUtil.setScale(userProfit.multiply(qty));
-
             emailService.sendProductOrderStatusUpdate(savedOrder.getUser(), savedOrder);
 
             if (OrderStatus.COMPLETED.equals(status)) {
+                BigDecimal qty = setScale(BigDecimal.valueOf(productOder.getQuantity()));
+                BigDecimal productPrice = setScale(productOder.getProduct().getPrice());
+                BigDecimal sellingPrice = setScale(productOder.getSellingPrice());
+
+                BigDecimal userProfit = sellingPrice.subtract(productPrice);
+                BigDecimal totalProfit = setScale(userProfit.multiply(qty));
+
+
                 walletService.creditWallet(productOder.getUser(), totalProfit, format("Credit from ProductOrder completion (id: %d)", productOder.getId()));
             }
 
+            auditEvent.publish(oldObject, savedOrder, PRODUCT_ORDER_STATUS_UPDATE, PRODUCT_ORDER);
             return savedOrder.toModel();
         } catch (Exception e) {
             if (e instanceof ValuePlusException) {

@@ -1,6 +1,7 @@
 package com.valueplus.persistence.entity;
 
 import com.valueplus.domain.model.AgentCreate;
+import com.valueplus.domain.model.AgentDto;
 import com.valueplus.domain.model.UserCreate;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +24,7 @@ import static javax.persistence.FetchType.EAGER;
 @Setter
 @Entity
 @Table(name = "users")
-public class User extends BasePersistentEntity implements UserDetails {
+public class User extends BasePersistentEntity implements UserDetails, ToModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -149,5 +150,10 @@ public class User extends BasePersistentEntity implements UserDetails {
 
     public boolean isTransactionTokenSet() {
         return !isNullOrEmpty(transactionPin);
+    }
+
+    @Override
+    public Object toModel() {
+        return AgentDto.valueOf(this);
     }
 }

@@ -16,7 +16,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Table(name = "product")
 @Accessors(chain = true)
-public class Product extends BasePersistentEntity {
+public class Product extends BasePersistentEntity implements ToModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
