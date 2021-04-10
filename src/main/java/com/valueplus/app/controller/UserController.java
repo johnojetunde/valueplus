@@ -46,7 +46,8 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('VIEW_ALL_USERS')")
     @PostMapping("/searches")
-    public Page<AgentDto> searchUsers(@Valid @RequestBody UserSearchFilter searchFilter, @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
+    public Page<AgentDto> searchUsers(@Valid @RequestBody UserSearchFilter searchFilter,
+                                      @PageableDefault(sort = "id", direction = DESC) Pageable pageable) throws ValuePlusException {
         return userService.searchUsers(searchFilter, pageable);
     }
 

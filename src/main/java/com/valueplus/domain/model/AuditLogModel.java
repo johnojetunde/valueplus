@@ -23,5 +23,7 @@ public class AuditLogModel {
     public static class ActorDetails {
         Long userId;
         String email;
+        String firstname;
+        String lastname;
     }
 }

@@ -109,6 +109,6 @@ public class DefaultAuditService implements AuditService {
     }
 
     private ActorDetails getActorDetails(User actor) {
-        return new ActorDetails(actor.getId(), actor.getEmail());
+        return new ActorDetails(actor.getId(), actor.getEmail(), actor.getFirstname(), actor.getLastname());
     }
 }
