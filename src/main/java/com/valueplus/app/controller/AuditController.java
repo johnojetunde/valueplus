@@ -65,7 +65,9 @@ public class AuditController {
         ));
         entityTypeActions.put(PRODUCT, List.of(
                 PRODUCT_CREATE,
-                PRODUCT_UPDATE
+                PRODUCT_UPDATE,
+                PRODUCT_STATUS_UPDATE,
+                PRODUCT_DELETE
         ));
         entityTypeActions.put(TRANSACTION, List.of(
                 TRANSACTION_INITIATE,

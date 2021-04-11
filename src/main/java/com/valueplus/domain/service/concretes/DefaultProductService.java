@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.valueplus.domain.enums.ActionType.PRODUCT_CREATE;
-import static com.valueplus.domain.enums.ActionType.PRODUCT_UPDATE;
+import static com.valueplus.domain.enums.ActionType.*;
 import static com.valueplus.domain.enums.EntityType.PRODUCT;
 import static com.valueplus.domain.util.MapperUtil.copy;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -48,6 +47,8 @@ public class DefaultProductService implements ProductService {
         }
 
         Product entity = getProduct(product.getId());
+        var oldObject = copy(entity, Product.class);
+
         Optional<Product> productWithSameName = repository.findByNameAndIdIsNot(
                 product.getName(),
                 product.getId());
@@ -56,7 +57,6 @@ public class DefaultProductService implements ProductService {
             throw new ValuePlusException("Product name exists", HttpStatus.BAD_REQUEST);
         }
 
-        var oldObject = copy(entity, Product.class);
         entity.setDescription(product.getDescription());
         entity.setName(product.getName());
         entity.setPrice(product.getPrice());
@@ -71,26 +71,37 @@ public class DefaultProductService implements ProductService {
     @Override
     public ProductModel disable(Long id) throws ValuePlusException {
         Product product = getProduct(id);
+        var oldObject = copy(product, Product.class);
+
         product.setDisabled(true);
 
-        return repository.save(product).toModel();
+        var savedEntity = repository.save(product);
+        auditEvent.publish(oldObject, savedEntity, PRODUCT_STATUS_UPDATE, PRODUCT);
+        return savedEntity.toModel();
+
     }
 
     @Override
     public ProductModel enable(Long id) throws ValuePlusException {
         Product product = getProduct(id);
+        var oldObject = copy(product, Product.class);
+
         product.setDisabled(false);
 
-        return repository.save(product).toModel();
+        var savedEntity = repository.save(product);
+        auditEvent.publish(oldObject, savedEntity, PRODUCT_STATUS_UPDATE, PRODUCT);
+        return savedEntity.toModel();
     }
 
     @Override
     public boolean delete(Long id) throws ValuePlusException {
         Product entity = getProduct(id);
+        var oldObject = copy(entity, Product.class);
 
         entity.setDeleted(true);
 
-        repository.save(entity);
+        var savedEntity = repository.save(entity);
+        auditEvent.publish(oldObject, savedEntity, PRODUCT_DELETE, PRODUCT);
         return true;
     }
 
