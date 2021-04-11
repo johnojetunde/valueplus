@@ -1,6 +1,7 @@
 package com.valueplus.domain.service.concretes;
 
 import com.valueplus.app.config.audit.AuditEventPublisher;
+import com.valueplus.domain.model.ProfilePictureDto;
 import com.valueplus.persistence.entity.ProfilePicture;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.ProfilePictureRepository;
@@ -35,5 +36,12 @@ public class ProfilePictureService {
 
     public Optional<ProfilePicture> get(User user) {
         return profilePictureRepository.findByUser(user);
+    }
+
+    public Optional<String> getImage(User user) {
+        return profilePictureRepository.findByUser(user)
+                .map(ProfilePictureDto::valueOf)
+                .map(ProfilePictureDto::getPhoto);
+
     }
 }

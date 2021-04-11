@@ -84,9 +84,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, path = "/current")
     public AgentDto getCurrentUser() {
         User user = getLoggedInUser();
-        String photo = profilePictureService.get(user)
-                .map(ProfilePictureDto::valueOf)
-                .map(ProfilePictureDto::getPhoto)
+        String photo = profilePictureService.getImage(user)
                 .orElse(null);
 
         return AgentDto.valueOf(user, photo);

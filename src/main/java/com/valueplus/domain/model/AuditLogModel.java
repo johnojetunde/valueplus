@@ -25,5 +25,6 @@ public class AuditLogModel {
         String email;
         String firstname;
         String lastname;
+        String photo;
     }
 }

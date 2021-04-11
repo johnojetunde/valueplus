@@ -32,6 +32,7 @@ import static java.util.Optional.ofNullable;
 public class DefaultAuditService implements AuditService {
     private final AuditLogRepository repository;
     private final AuditEntityConverterService converterService;
+    private final ProfilePictureService profilePictureService;
 
     @Override
     public void save(AuditLogModel model) throws ValuePlusException {
@@ -109,6 +110,7 @@ public class DefaultAuditService implements AuditService {
     }
 
     private ActorDetails getActorDetails(User actor) {
-        return new ActorDetails(actor.getId(), actor.getEmail(), actor.getFirstname(), actor.getLastname());
+        String photo = profilePictureService.getImage(actor).orElse(null);
+        return new ActorDetails(actor.getId(), actor.getEmail(), actor.getFirstname(), actor.getLastname(), photo);
     }
 }
