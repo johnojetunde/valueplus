@@ -76,7 +76,7 @@ public class DefaultProductService implements ProductService {
         product.setDisabled(true);
 
         var savedEntity = repository.save(product);
-        auditEvent.publish(oldObject, savedEntity, PRODUCT_STATUS_UPDATE, PRODUCT);
+        auditEvent.publish(oldObject, savedEntity, PRODUCT_STATUS_DISABLE, PRODUCT);
         return savedEntity.toModel();
 
     }
@@ -89,7 +89,7 @@ public class DefaultProductService implements ProductService {
         product.setDisabled(false);
 
         var savedEntity = repository.save(product);
-        auditEvent.publish(oldObject, savedEntity, PRODUCT_STATUS_UPDATE, PRODUCT);
+        auditEvent.publish(oldObject, savedEntity, PRODUCT_STATUS_ENABLE, PRODUCT);
         return savedEntity.toModel();
     }
 

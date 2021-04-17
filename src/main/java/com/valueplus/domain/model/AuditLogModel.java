@@ -17,7 +17,7 @@ public class AuditLogModel {
     private EntityType entityType;
     private LocalDateTime createdAt;
     private ActorDetails actor;
-
+    private String description;
 
     @Value
     public static class ActorDetails {

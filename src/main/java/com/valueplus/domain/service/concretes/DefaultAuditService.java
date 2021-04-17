@@ -2,6 +2,7 @@ package com.valueplus.domain.service.concretes;
 
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.app.exception.ValuePlusRuntimeException;
+import com.valueplus.domain.enums.ActionType;
 import com.valueplus.domain.model.AuditLogModel;
 import com.valueplus.domain.model.AuditLogModel.ActorDetails;
 import com.valueplus.domain.model.AuditModel;
@@ -20,8 +21,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
+import static com.valueplus.domain.enums.ActionType.*;
 import static com.valueplus.domain.util.MapperUtil.MAPPER;
 import static com.valueplus.domain.util.UserUtils.getLoggedInUser;
 import static java.util.Optional.ofNullable;
@@ -33,6 +37,35 @@ public class DefaultAuditService implements AuditService {
     private final AuditLogRepository repository;
     private final AuditEntityConverterService converterService;
     private final ProfilePictureService profilePictureService;
+
+    private static final Map<ActionType, String> DESCRIPTION_MAP = new HashMap<>();
+
+    static {
+        DESCRIPTION_MAP.put(USER_LOGIN, "User logged in");
+        DESCRIPTION_MAP.put(USER_PROFILE_UPDATE, "User performed profile update");
+        DESCRIPTION_MAP.put(USER_PIN_UPDATE, "User updated pin");
+        DESCRIPTION_MAP.put(USER_DISABLE, "User profile disabled");
+        DESCRIPTION_MAP.put(USER_ENABLE, "User profile enabled");
+        DESCRIPTION_MAP.put(USER_CREATE_AGENT, "Admin created agent");
+        DESCRIPTION_MAP.put(USER_CREATE_SUPER_AGENT, "Admin created super agent");
+        DESCRIPTION_MAP.put(USER_CREATE_ADMIN, "Admin created an admin profile");
+        DESCRIPTION_MAP.put(USER_AUTHORITY_UPDATE, "Admin updated the authority update");
+        DESCRIPTION_MAP.put(USER_PASSWORD_UPDATE, "User updated password");
+        DESCRIPTION_MAP.put(USER_PASSWORD_RESET, "User performed a password reset");
+        DESCRIPTION_MAP.put(USER_PROFILE_PICTURE_UPDATE, "User updated profile picture");
+        DESCRIPTION_MAP.put(ACCOUNT_CREATE, "Account created");
+        DESCRIPTION_MAP.put(PRODUCT_ORDER_CREATE, "User created a product order");
+        DESCRIPTION_MAP.put(PRODUCT_ORDER_STATUS_UPDATE, "ProductOrder status update");
+        DESCRIPTION_MAP.put(PRODUCT_CREATE, "Admin created product");
+        DESCRIPTION_MAP.put(PRODUCT_UPDATE, "Admin updated product ");
+        DESCRIPTION_MAP.put(PRODUCT_STATUS_UPDATE, "Product status was updated");
+        DESCRIPTION_MAP.put(PRODUCT_STATUS_ENABLE, "Product was enabled");
+        DESCRIPTION_MAP.put(PRODUCT_STATUS_DISABLE, "Product was disabled");
+        DESCRIPTION_MAP.put(PRODUCT_DELETE, "Product has been deleted");
+        DESCRIPTION_MAP.put(SETTING_CHANGE, "Admin performed a system settings update");
+        DESCRIPTION_MAP.put(TRANSACTION_INITIATE, "User initiated a transaction");
+        DESCRIPTION_MAP.put(TRANSACTION_STATUS_CHANGE, "User's transaction status updated");
+    }
 
     @Override
     public void save(AuditLogModel model) throws ValuePlusException {
@@ -105,6 +138,7 @@ public class DefaultAuditService implements AuditService {
                 .entityType(auditLog.getEntityType())
                 .action(auditLog.getActionType())
                 .createdAt(auditLog.getCreatedAt())
+                .description(DESCRIPTION_MAP.getOrDefault(auditLog.getActionType(), auditLog.toString()))
                 .actor(ofNullable(auditLog.getActor()).map(this::getActorDetails).orElse(null))
                 .build();
     }

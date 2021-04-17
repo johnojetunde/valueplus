@@ -13,7 +13,10 @@ import org.springframework.stereotype.Component;
 public class AuditEventPublisher {
     private final ApplicationEventPublisher publisher;
 
-    public void publish(Object currentData, Object newData, ActionType action, EntityType entityType) {
+    public void publish(Object currentData,
+                        Object newData,
+                        ActionType action,
+                        EntityType entityType) {
         AuditLogModel auditLog = AuditLogModel.builder()
                 .previousData(currentData)
                 .newData(newData)
