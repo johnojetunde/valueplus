@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.valueplus.domain.enums.ActionType.*;
 import static com.valueplus.domain.util.MapperUtil.MAPPER;
@@ -79,7 +78,7 @@ public class DefaultAuditService implements AuditService {
                     .prevData(MAPPER.writeValueAsString(model.getPreviousData()))
                     .entityType(model.getEntityType())
                     .actionType(model.getAction())
-                    .actor(getAuthenticatedUser().orElse(null))
+                    .actor(getAuthenticatedUser(model.getNewData(), model.getAction()))
                     .build();
 
             log.debug("Saving audit log with data {}", auditLog);
@@ -89,12 +88,13 @@ public class DefaultAuditService implements AuditService {
         }
     }
 
-    private Optional<User> getAuthenticatedUser() {
-        try {
-            return ofNullable(getLoggedInUser());
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+    private User getAuthenticatedUser(Object object, ActionType type) {
+        return ofNullable(getLoggedInUser()).orElseGet(() -> {
+            if (USER_LOGIN.equals(type)) {
+                return MAPPER.convertValue(object, User.class);
+            }
+            return null;
+        });
     }
 
     @Override
@@ -139,12 +139,17 @@ public class DefaultAuditService implements AuditService {
                 .action(auditLog.getActionType())
                 .createdAt(auditLog.getCreatedAt())
                 .description(DESCRIPTION_MAP.getOrDefault(auditLog.getActionType(), auditLog.toString()))
-                .actor(ofNullable(auditLog.getActor()).map(this::getActorDetails).orElse(null))
+                .actor(ofNullable(auditLog.getActor()).map(this::getActorDetails).orElse(systemActor()))
                 .build();
     }
 
     private ActorDetails getActorDetails(User actor) {
         String photo = profilePictureService.getImage(actor).orElse(null);
         return new ActorDetails(actor.getId(), actor.getEmail(), actor.getFirstname(), actor.getLastname(), photo);
+    }
+
+    private ActorDetails systemActor() {
+        String system = "system";
+        return new ActorDetails(0L, system, system, system, system);
     }
 }

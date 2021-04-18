@@ -56,7 +56,7 @@ public class DefaultAuthenticationService implements AuthenticationService {
         validateUserTypeFunction.accept(user);
 
         matchPassword(loginForm.getPassword(), user.getPassword());
-        auditEvent.publish(new Object(), new Object(), USER_LOGIN, USER);
+        auditEvent.publish(user, user, USER_LOGIN, USER);
         return new LoginResponseModel(tokenService.generatorToken(user));
     }
 
