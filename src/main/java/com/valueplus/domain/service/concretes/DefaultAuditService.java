@@ -89,12 +89,11 @@ public class DefaultAuditService implements AuditService {
     }
 
     private User getAuthenticatedUser(Object object, ActionType type) {
-        return ofNullable(getLoggedInUser()).orElseGet(() -> {
-            if (USER_LOGIN.equals(type)) {
-                return MAPPER.convertValue(object, User.class);
-            }
-            return null;
-        });
+        if (USER_LOGIN.equals(type)) {
+            return MAPPER.convertValue(object, User.class);
+        }
+
+        return ofNullable(getLoggedInUser()).orElse(null);
     }
 
     @Override
