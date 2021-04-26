@@ -90,7 +90,7 @@ public class DefaultAuditService implements AuditService {
     }
 
     private User getAuthenticatedUser(Object object, ActionType type) {
-        if (USER_LOGIN.equals(type)) {
+        if (USER_LOGIN.equals(type) || USER_PASSWORD_RESET.equals(type)) {
             return MAPPER.convertValue(object, User.class);
         }
 
