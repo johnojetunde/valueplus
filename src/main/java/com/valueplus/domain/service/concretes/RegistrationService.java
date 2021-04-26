@@ -44,26 +44,33 @@ public class RegistrationService {
 
 
     public User createAgent(AgentCreate agentCreate) throws Exception {
-        ensureUserIsUnique(agentCreate.getEmail().toLowerCase());
+        try {
+            ensureUserIsUnique(agentCreate.getEmail().toLowerCase());
 
-        User user = userRepository.save(User.from(agentCreate)
-                .role(getRole(AGENT))
-                .password(passwordEncoder.encode(agentCreate.getPassword()))
-                .enabled(true)
-                .build());
+            User user = userRepository.save(User.from(agentCreate)
+                    .role(getRole(AGENT))
+                    .password(passwordEncoder.encode(agentCreate.getPassword()))
+                    .enabled(true)
+                    .build());
 
-        var superAgent = userRepository.findByReferralCode(agentCreate.getSuperAgentCode());
-        superAgent.ifPresent(user::setSuperAgent);
+            var superAgent = Optional.ofNullable(agentCreate.getSuperAgentCode())
+                    .flatMap(userRepository::findByReferralCode);
 
-        Optional<AgentCode> agentOptional = data4meService.createAgent(Data4meAgentDto.from(agentCreate));
-        agentOptional.ifPresent(agent -> user.setAgentCode(agent.getCode()));
+            superAgent.ifPresent(user::setSuperAgent);
 
-        User savedUser = userRepository.save(user);
-        walletService.createWallet(savedUser);
-        emailVerificationService.sendVerifyEmail(user);
+            Optional<AgentCode> agentOptional = data4meService.createAgent(Data4meAgentDto.from(agentCreate));
+            agentOptional.ifPresent(agent -> user.setAgentCode(agent.getCode()));
 
-        auditEvent.publish(new Object(), savedUser, USER_CREATE_AGENT, USER);
-        return savedUser;
+            User savedUser = userRepository.save(user);
+            walletService.createWallet(savedUser);
+            emailVerificationService.sendVerifyEmail(user);
+
+            auditEvent.publish(new Object(), savedUser, USER_CREATE_AGENT, USER);
+            return savedUser;
+        } catch (Exception e) {
+            log.error("error", e);
+            throw e;
+        }
     }
 
     public User createAdmin(UserCreate userCreate, RoleType roleType) throws Exception {
