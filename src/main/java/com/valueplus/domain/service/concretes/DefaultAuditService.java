@@ -84,6 +84,7 @@ public class DefaultAuditService implements AuditService {
             log.debug("Saving audit log with data {}", auditLog);
             repository.save(auditLog);
         } catch (Exception e) {
+            log.error("error saving in audit log ", e);
             throw new ValuePlusException("Error saving audit log", e);
         }
     }

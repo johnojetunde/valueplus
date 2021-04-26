@@ -25,7 +25,7 @@ import static com.valueplus.domain.enums.ActionType.USER_PASSWORD_UPDATE;
 import static com.valueplus.domain.enums.EntityType.USER;
 import static com.valueplus.domain.util.MapperUtil.copy;
 import static com.valueplus.domain.util.UserUtils.isAgent;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @Service
@@ -75,6 +75,7 @@ public class PasswordService {
                 .orElseThrow(() -> new NotFoundException("user not found"));
 
         String token = GeneratorUtils.generateRandomString(16);
+
         PasswordResetToken resetToken = new PasswordResetToken(user.getId(), token);
         passwordResetTokenRepository.save(resetToken);
 
@@ -88,15 +89,13 @@ public class PasswordService {
     public User resetPassword(NewPassword newPassword) throws Exception {
         Optional<PasswordResetToken> resetToken = passwordResetTokenRepository.findByResetToken(newPassword.getResetToken());
         if (resetToken.isEmpty()) {
-            log.error("password rest token, token {}", newPassword.getResetToken());
-            throw new ValuePlusException("expired link", NOT_FOUND);
+            throw new ValuePlusException("expired link", BAD_REQUEST);
         }
 
         Long userId = resetToken.get().getUserId();
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
-            log.error("user not found, userId = {}", newPassword.getResetToken());
-            throw new ValuePlusException("expired link", NOT_FOUND);
+            throw new ValuePlusException("expired link", BAD_REQUEST);
         }
 
         String hashedPassword = passwordEncoder.encode(newPassword.getNewPassword());
