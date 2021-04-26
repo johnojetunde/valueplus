@@ -1,5 +1,6 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.exception.NotFoundException;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.app.exception.ValuePlusRuntimeException;
 import com.valueplus.domain.enums.ActionType;
@@ -23,10 +24,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.valueplus.domain.enums.ActionType.*;
 import static com.valueplus.domain.util.MapperUtil.MAPPER;
 import static com.valueplus.domain.util.UserUtils.getLoggedInUser;
+import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 @RequiredArgsConstructor
@@ -94,7 +97,7 @@ public class DefaultAuditService implements AuditService {
             return MAPPER.convertValue(object, User.class);
         }
 
-        return ofNullable(getLoggedInUser()).orElse(null);
+        return getLoggedUser().orElse(null);
     }
 
     @Override
@@ -151,5 +154,14 @@ public class DefaultAuditService implements AuditService {
     private ActorDetails systemActor() {
         String system = "system";
         return new ActorDetails(0L, system, system, system, system);
+    }
+
+    private Optional<User> getLoggedUser() {
+        try {
+            return Optional.of(getLoggedInUser());
+        } catch (NotFoundException e) {
+            log.debug("No user found");
+        }
+        return empty();
     }
 }
