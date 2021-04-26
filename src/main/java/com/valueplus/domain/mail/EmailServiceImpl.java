@@ -20,6 +20,7 @@ public class EmailServiceImpl implements EmailService {
     public static final String USER_SUPER_AGENT_CREATION_SUBJECT = "Value Plus Super Agent Account";
     public static final String WALLET_NOTIFICATION_SUBJECT = "Value Plus Wallet Notification";
     public static final String PRODUCT_ORDER_STATUS_SUBJECT = "Value Plus Product Order Notification";
+    public static final String PIN_UPDATE = "Value Plus PIN UPDATE Notification";
 
     private final EmailClient emailClient;
     private final VelocityEngine velocityEngine;
@@ -39,6 +40,17 @@ public class EmailServiceImpl implements EmailService {
         template.merge(context, stringWriter);
 
         emailClient.sendSimpleMessage(user.getEmail(), PASSWORD_SUBJECT, stringWriter.toString());
+    }
+
+    @Override
+    public void sendPinNotification(User user) throws Exception {
+        Template template = velocityEngine.getTemplate("/templates/pinupdate.vm");
+        VelocityContext context = new VelocityContext();
+        context.put("name", user.getFirstname());
+        StringWriter stringWriter = new StringWriter();
+        template.merge(context, stringWriter);
+
+        emailClient.sendSimpleMessage(user.getEmail(), PIN_UPDATE, stringWriter.toString());
     }
 
     @Override

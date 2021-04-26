@@ -130,7 +130,6 @@
             }
         }
     </style>
-    <!-- Progressive Enhancements : BEGIN -->
     <style>
         .primary {
             background: #20233E;
@@ -361,11 +360,8 @@
                         <tr>
                             <td>
                                 <div class="text" style="padding: 0 2.5em; text-align: center;">
-                                    <h2>Hi ${name}, an ADMIN account was created for you on ValuePlus. Your login
-                                        details goes thus:</h2>
-                                    <p>Username: ${username}</p>
-                                    <p>Password: ${password}</p>
-                                    <h3>Please endeavour to change your password once you login.</h3>
+                                    <h2>Hi ${name}, </h2>
+                                    <h3>Your ValuePlus PIN has been successfully updated.</h3>
                                 </div>
                             </td>
                         </tr>

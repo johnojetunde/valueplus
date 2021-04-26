@@ -5,6 +5,7 @@ import com.valueplus.app.exception.BadRequestException;
 import com.valueplus.app.exception.NotFoundException;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.app.exception.ValuePlusRuntimeException;
+import com.valueplus.domain.mail.EmailService;
 import com.valueplus.domain.model.*;
 import com.valueplus.domain.service.abstracts.PinUpdateService;
 import com.valueplus.persistence.entity.Authority;
@@ -53,6 +54,8 @@ public class UserService {
     private final Clock clock;
     private final RoleRepository roleRepository;
     private final AuditEventPublisher auditEvent;
+    private final EmailService emailService;
+
     private final static String ADMIN_ACCOUNT = "vpadmin@gmail.com";
 
     public Page<User> findUsers(Pageable pageable) {
@@ -134,7 +137,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public User pinUpdate(Long userId, PinUpdate pinUpdate) throws ValuePlusException {
+    public User pinUpdate(Long userId, PinUpdate pinUpdate) throws Exception {
         User user = getUserById(userId);
         var oldObject = copy(user, User.class);
         var pinUpdateService = getUpdateService(user);
@@ -142,6 +145,8 @@ public class UserService {
 
         var savedEntity = userRepository.save(user);
         auditEvent.publish(oldObject, savedEntity, USER_PIN_UPDATE, USER);
+
+        emailService.sendPinNotification(user);
         return savedEntity;
     }
 

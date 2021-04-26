@@ -134,7 +134,7 @@ public class UserController {
     }
 
     @PostMapping("/update-pin")
-    public AgentDto pinUpdate(@Valid @RequestBody PinUpdate pinUpdate) throws ValuePlusException {
+    public AgentDto pinUpdate(@Valid @RequestBody PinUpdate pinUpdate) throws Exception {
         long userId = getLoggedInUser().getId();
         return AgentDto.valueOf(userService.pinUpdate(userId, pinUpdate));
     }
