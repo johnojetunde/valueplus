@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0.create_authority" author="johnojetunde">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="authority"/>
+            </not>
+        </preConditions>
+        <createTable tableName="authority">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_authority"/>
+            </column>
+
+            <column name="authority" type="VARCHAR(200)"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

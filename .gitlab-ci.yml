@@ -1,0 +1,40 @@
+stages:
+  - build
+  - deploy-staging
+  - deploy-prod
+
+build:
+  stage: build
+  image: maven:3.6-jdk-11
+  script:
+    - 'mvn package'
+  tags:
+    - docker
+  artifacts:
+    paths:
+      - target/valueplus-0.0.1-SNAPSHOT.jar
+
+deploy-staging:
+  stage: deploy-staging
+  script:
+    - apt-get update -yq
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=valueplus --api-key=$HEROKU_API_KEY
+  only:
+    - master
+
+deploy-prod:
+  image: python:latest
+  stage: deploy-prod
+  script:
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_KEY
+    - aws configure set region af-south-1
+    - pip install awsebcli --upgrade --user
+    - ~/.local/bin/eb deploy Valueplus-env
+  dependencies:
+    - build
+  only:
+    - prod

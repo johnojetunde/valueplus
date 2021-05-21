@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0.insert_authorities" author="johnojetunde">
+        <insert tableName="authority">
+            <column name="authority" value="AGENT_REPORT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="CREATE_PRODUCT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="DISABLE_PRODUCT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="ENABLE_PRODUCT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="UPDATE_PRODUCT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="UPDATE_PRODUCT_ORDER_STATUS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="CREATE_SUPER_AGENT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="CREATE_ADMIN"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="UPDATE_SETTINGS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_SETTINGS_SCHEDULE"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_SETTINGS_LOG"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="UPDATE_SETTINGS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_ALL_TRANSFERS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_PENDING_TRANSFERS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_ALL_USERS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_SUPER_AGENTS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="UPDATE_USER"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="DELETE_USER"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="CREATE_WALLET_FOR_ALL_USERS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_ADMIN_WALLET_HISTORY"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="SEARCH_ADMIN_WALLET_HISTORY"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_ALL_WALLET"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="UPDATE_ADMIN_AUTHORITY"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="v0.insert_authorities_batch2" author="johnojetunde">
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_AUDIT_LOG"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VERIFY_PENDING_TRANSACTIONS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="VIEW_ALL_TRANSACTIONS"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="v0.insert_authorities_batch3" author="johnojetunde">
+        <insert tableName="authority">
+            <column name="authority" value="ENABLE_USER"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="authority" value="DISABLE_USER"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </insert>
+    </changeSet>
+    <changeSet id="v0.delete_authorities_batch3" author="johnojetunde">
+        <delete tableName="user_authority">
+            <where>authority_id='12'</where>
+        </delete>
+        <delete tableName="authority">
+            <where>id='12'</where>
+        </delete>
+    </changeSet>
+</databaseChangeLog>

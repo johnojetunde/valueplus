@@ -13,4 +13,81 @@
             </column>
         </addColumn>
     </changeSet>
+
+    <changeSet id="v0.17_add_columns_to_user" author="johnojetunde">
+        <addColumn tableName="users">
+            <column name="transaction_pin" type="${text}"/>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="v0.18_create_setting" author="johnojetunde">
+        <createTable tableName="setting">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_setting"/>
+            </column>
+            <column name="commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v0.19_create_setting_log" author="johnojetunde">
+        <createTable tableName="setting_log">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_setting_log"/>
+            </column>
+            <column name="commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prev_commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="initiator" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v0.19_create_setting_schedule" author="johnojetunde">
+        <createTable tableName="setting_schedule">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_setting_schedule"/>
+            </column>
+            <column name="commission_percentage" type="NUMERIC(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="initiator" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="effective_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v0.19_add_columns_to_user" author="johnojetunde">
+        <addColumn tableName="users">
+            <column name="referral_code" type="${text}"/>
+            <column name="super_agent_id" type="BIGSERIAL"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="super_agent_id"
+                                 baseTableName="users"
+                                 constraintName="fk_super_agent_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <createIndex tableName="users" indexName="super_agent_id_idx">
+            <column name="super_agent_id"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

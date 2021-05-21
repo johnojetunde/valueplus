@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0_20_create_audit_log" author="johnojetunde">
+        <createTable tableName="audit_log">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_audit_log"/>
+            </column>
+            <column name="new_data" type="${text}"/>
+            <column name="prev_data" type="${text}"/>
+            <column name="entity_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="audit_log"
+                                 constraintName="fk_audit_log_users"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <createIndex tableName="audit_log" indexName="audit_log_idx">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
