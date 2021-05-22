@@ -1,8 +1,8 @@
 branch-defaults:
   master:
-    environment: Valueplusprod-env
+    environment: Valueplusprod-env-1
 global:
-  application_name: ValuePlus
+  application_name: ValuePlusProd
   default_ec2_keyname:
   default_platform:
   default_region: af-south-1
