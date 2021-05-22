@@ -1,6 +1,6 @@
 branch-defaults:
   master:
-    environment: Valueplus-env
+    environment: Valueplusprod-env
 global:
   application_name: ValuePlus
   default_ec2_keyname:
