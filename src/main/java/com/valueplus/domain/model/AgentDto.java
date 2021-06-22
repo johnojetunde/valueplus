@@ -17,7 +17,7 @@ import static java.util.Optional.ofNullable;
 @Getter
 public class AgentDto extends UserDto {
 
-    private static final String BASE_LINK = "https://play.google.com/store/apps/details?id=[Application_ID]&referrer=utm_campaign%3D";
+    private static final String BASE_LINK = "https://play.google.com/store/apps/details?id=je.data4me.jara&referrer=utm_campaign%3D";
     private String agentCode;
     private String link;
     private String photo;
