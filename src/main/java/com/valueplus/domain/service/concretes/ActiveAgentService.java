@@ -21,6 +21,6 @@ public class ActiveAgentService {
                 .orElseThrow(() -> new BadRequestException("Invalid Super Agent Code"));
 
         return userService.findAllUserBySuperAgentCode(filter.getSuperAgentCode(), filter.getStartDate(), filter.getEndDate(), pageable)
-                .map(AgentDto::valueOf);
+                .map(u -> AgentDto.valueOf(u, userService.productUrlProvider()));
     }
 }

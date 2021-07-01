@@ -4,6 +4,8 @@ import com.valueplus.domain.model.AgentCreate;
 import com.valueplus.domain.model.AgentDto;
 import com.valueplus.domain.model.UserCreate;
 import lombok.*;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -68,6 +70,10 @@ public class User extends BasePersistentEntity implements UserDetails, ToModel {
     private boolean deleted = false;
     @Transient
     private transient boolean isTransactionTokenSet;
+
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ProductProviderUser> productProviders;
 
     public static UserBuilder from(AgentCreate agentCreate) {
         return builder()

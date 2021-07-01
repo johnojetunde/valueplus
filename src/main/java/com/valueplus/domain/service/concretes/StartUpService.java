@@ -1,16 +1,20 @@
 package com.valueplus.domain.service.concretes;
 
 import com.valueplus.app.exception.ValuePlusException;
+import com.valueplus.domain.enums.ProductProvider;
 import com.valueplus.domain.service.abstracts.WalletService;
+import com.valueplus.persistence.entity.ProductProviderUser;
 import com.valueplus.persistence.entity.Role;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.AuthorityRepository;
+import com.valueplus.persistence.repository.ProductProviderUserRepository;
 import com.valueplus.persistence.repository.RoleRepository;
 import com.valueplus.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -25,7 +29,7 @@ public class StartUpService {
     private final UserRepository userRepository;
     private final WalletService walletService;
     private final AuthorityRepository authorityRepository;
-
+    private final ProductProviderUserRepository providerRepository;
 
     private static final String DEFAULT_ADMIN_EMAIL = "vpadmin@gmail.com";
 
@@ -62,7 +66,8 @@ public class StartUpService {
                 }
             }
         })
-                .thenCompose(__ -> setUpAllAuthoritiesForDefaultUser());
+                .thenCompose(__ -> setUpAllAuthoritiesForDefaultUser())
+                .thenCompose(__ -> createProviderRecord());
     }
 
     public CompletableFuture<Void> setUpAllAuthoritiesForDefaultUser() {
@@ -74,6 +79,25 @@ public class StartUpService {
                 userEntity.setAuthorities(authorities);
 
                 userRepository.save(userEntity);
+            }
+        });
+    }
+
+    private CompletableFuture<Void> createProviderRecord() {
+        return runAsync(() -> {
+            List<User> users = userRepository.findUsersByDeletedFalse();
+
+            for (User user : users) {
+                if (user.getAgentCode() != null && user.getProductProviders().isEmpty()) {
+                    var provider = new ProductProviderUser()
+                            .setUser(user)
+                            .setAgentCode(user.getAgentCode())
+                            .setAgentUrl(user.getAgentCode())
+                            .setProvider(ProductProvider.DATA4ME);
+
+                    providerRepository.save(provider);
+                    userRepository.save(user);
+                }
             }
         });
     }

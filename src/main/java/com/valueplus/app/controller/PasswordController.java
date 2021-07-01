@@ -22,6 +22,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(path = "v1/user", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PasswordController {
+
     private final PasswordService passwordService;
 
     public PasswordController(PasswordService passwordService) {
@@ -33,7 +34,8 @@ public class PasswordController {
     public AgentDto change(@RequestBody PasswordChange passwordChange) {
         long userId = UserUtils.getLoggedInUser().getId();
         return AgentDto.valueOf(
-                passwordService.changePassword(userId, passwordChange)
+                passwordService.changePassword(userId, passwordChange),
+                passwordService.productUrlProvider()
         );
     }
 

@@ -1,15 +1,17 @@
 package com.valueplus.domain.model;
 
 import com.valueplus.domain.enums.ProductProvider;
+import com.valueplus.domain.products.ProductProviderUrlService;
 import com.valueplus.persistence.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
+import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 
@@ -23,7 +25,8 @@ public class AgentDto extends UserDto {
     private String photo;
     private boolean emailVerified;
     private String superAgentCode;
-    private List<Map<ProductProvider, String>> referralData;
+    @Setter
+    private Map<ProductProvider, String> referralData;
 
     @Builder
     public AgentDto(Long id,
@@ -39,21 +42,26 @@ public class AgentDto extends UserDto {
                     boolean emailVerified,
                     String referralCode,
                     String superAgentCode,
-                    boolean enabled) {
+                    boolean enabled,
+                    Map<ProductProvider, String> referralData) {
         super(id, firstname, lastname, email, phone, address, roleType, referralCode, false, emptySet(), enabled);
         this.agentCode = agentCode;
         this.link = link;
         this.photo = photo;
         this.superAgentCode = superAgentCode;
         this.emailVerified = emailVerified;
-        this.referralData = buildReferralData(referralCode, link);
+        this.referralData = referralData;
     }
 
     public static AgentDto valueOf(User user) {
-        return valueOf(user, null);
+        return valueOf(user, null, new HashMap<>());
     }
 
-    public static AgentDto valueOf(User user, String photo) {
+    public static AgentDto valueOf(User user, Map<ProductProvider, ProductProviderUrlService> providerUrlServiceMap) {
+        return valueOf(user, null, providerUrlServiceMap);
+    }
+
+    public static AgentDto valueOf(User user, String photo, Map<ProductProvider, ProductProviderUrlService> providerUrlServiceMap) {
         AgentDtoBuilder builder = builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -71,17 +79,21 @@ public class AgentDto extends UserDto {
         ofNullable(user.getAgentCode())
                 .ifPresent(agentCode -> builder.agentCode(agentCode).link(BASE_LINK.concat(agentCode)));
 
+        Map<ProductProvider, String> referralData = new HashMap<>();
+
+        if (!providerUrlServiceMap.isEmpty()) {
+            emptyIfNullStream(user.getProductProviders())
+                    .forEach(s -> {
+                        String agentUrl = providerUrlServiceMap.get(s.getProvider()).getReferralUrl(s.getAgentUrl());
+                        referralData.put(s.getProvider(), agentUrl);
+                    });
+        }
+
+
         var agentDto = builder.build();
         agentDto.setTransactionTokenSet(user.isTransactionTokenSet());
         agentDto.setAuthorities(extractAuthorities(user));
+        agentDto.setReferralData(referralData);
         return agentDto;
-    }
-
-    private List<Map<ProductProvider, String>> buildReferralData(String referralCode, String link) {
-        List<Map<ProductProvider, String>> referral = new ArrayList<>();
-        referral.add(Map.of(ProductProvider.DATA4ME, ofNullable(link).orElse("")));
-        referral.add(Map.of(ProductProvider.VALUEPLUS, ofNullable(referralCode).orElse("")));
-
-        return referral;
     }
 }
