@@ -1,6 +1,7 @@
 package com.valueplus.domain.model.data4Me;
 
 import com.valueplus.domain.model.AgentCreate;
+import com.valueplus.domain.products.ProductProviderUserModel;
 import lombok.*;
 
 @NoArgsConstructor
@@ -21,5 +22,13 @@ public class Data4meAgentDto {
                 .cell(agentCreate.getPhone())
                 .password(agentCreate.getPassword())
                 .address(agentCreate.getAddress()).build();
+    }
+
+    public static Data4meAgentDto from(ProductProviderUserModel agent) {
+        return builder().email(agent.getEmail())
+                .name(agent.getFirstname().concat(" " + agent.getLastname()))
+                .cell(agent.getPhone())
+                .password(agent.getPassword())
+                .address(agent.getAddress()).build();
     }
 }

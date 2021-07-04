@@ -84,7 +84,7 @@ public class Data4meMonthlyReportService {
 
         if (reports.isEmpty()) return;
 
-        BigDecimal creditAmount = setScale(BigDecimal.valueOf(reports.size() * deviceCreditAmount));
+        BigDecimal creditAmount = setScale(BigDecimal.valueOf((long) reports.size() * deviceCreditAmount));
 
         userRepository.findByAgentCodeAndDeletedFalse(report.getAgentCode())
                 .map(user -> walletService.creditWallet(user, creditAmount, "Credit via agent report"));
