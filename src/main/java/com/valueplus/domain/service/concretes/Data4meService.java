@@ -2,7 +2,7 @@ package com.valueplus.domain.service.concretes;
 
 import com.valueplus.app.exception.ValuePlusRuntimeException;
 import com.valueplus.domain.model.data4Me.AgentCode;
-import com.valueplus.domain.model.data4Me.Data4meAgentDto;
+import com.valueplus.domain.model.data4Me.ProductProviderAgentDto;
 import com.valueplus.domain.service.abstracts.HttpApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +47,7 @@ public class Data4meService extends HttpApiClient {
         return Map.of("Authorization", "Bearer " + token.get());
     }
 
-    public Optional<AgentCode> createAgent(Map<String, String> header, Data4meAgentDto agentDto) {
+    public Optional<AgentCode> createAgent(Map<String, String> header, ProductProviderAgentDto agentDto) {
         try {
             ParameterizedTypeReference<AgentCode> typeReference = new ParameterizedTypeReference<>() {
             };

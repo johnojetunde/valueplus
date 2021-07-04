@@ -11,5 +11,5 @@ import java.util.Set;
 @Value
 public class AgentReport {
     String agentCode;
-    Set<Integer> deviceIds;
+    Set<String> deviceIds;
 }

@@ -43,4 +43,17 @@
             <column name="user_id"/>
         </createIndex>
     </changeSet>
+
+
+    <changeSet id="v0.create_product_provider_alter_device_report" author="johnojetunde">
+        <addColumn tableName="device_report">
+            <column name="provider" type="VARCHAR(100)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="v0.create_product_provider_alter_device_report_type" author="johnojetunde">
+        <modifyDataType columnName="device_id"
+                        newDataType="VARCHAR(40)"
+                        tableName="device_report"/>
+    </changeSet>
 </databaseChangeLog>

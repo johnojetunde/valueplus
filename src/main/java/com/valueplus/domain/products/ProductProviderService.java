@@ -28,5 +28,5 @@ public interface ProductProviderService {
 
     Object authenticate();
 
-    Set<AgentReport> downloadAgentReport(final LocalDate reportDate) throws Exception;
+    Set<AgentReport> downloadAgentReport(final LocalDate reportDate);
 }

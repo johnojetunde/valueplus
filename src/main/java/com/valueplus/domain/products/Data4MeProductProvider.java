@@ -5,7 +5,7 @@ import com.valueplus.app.exception.ValuePlusRuntimeException;
 import com.valueplus.domain.enums.ProductProvider;
 import com.valueplus.domain.model.AgentReport;
 import com.valueplus.domain.model.data4Me.AgentCode;
-import com.valueplus.domain.model.data4Me.Data4meAgentDto;
+import com.valueplus.domain.model.data4Me.ProductProviderAgentDto;
 import com.valueplus.domain.service.concretes.Data4meService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -21,7 +21,6 @@ import static com.valueplus.domain.enums.ProductProvider.DATA4ME;
 import static com.valueplus.domain.util.MapperUtil.MAPPER;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -42,7 +41,7 @@ public class Data4MeProductProvider implements ProductProviderService, ProductPr
     }
 
     @Override
-    public String getReferralUrl(String agentCode) {
+    public String getReferralUrl(String agentCode, String agentUrl) {
         return Optional.ofNullable(agentCode)
                 .map(s -> referralUrl.concat(agentCode))
                 .orElse(agentCode);
@@ -50,7 +49,7 @@ public class Data4MeProductProvider implements ProductProviderService, ProductPr
 
     @Override
     public ProductProviderUserModel create(Object authDetails, ProductProviderUserModel user) {
-        var request = Data4meAgentDto.from(user);
+        var request = ProductProviderAgentDto.from(user);
         Map<String, String> authDetailHeader = toAuthHeader(authDetails);
 
         return data4meService.createAgent(authDetailHeader, request)
@@ -72,21 +71,25 @@ public class Data4MeProductProvider implements ProductProviderService, ProductPr
     }
 
     @Override
-    public Set<AgentReport> downloadAgentReport(LocalDate reportDate) throws IOException {
-        log.info("getting monthly agent report for {}", reportDate);
-        var result = data4meService.downloadAgentReport(reportDate);
+    public Set<AgentReport> downloadAgentReport(LocalDate reportDate) {
+        try {
+            log.info("getting monthly agent report for {}", reportDate);
+            var result = data4meService.downloadAgentReport(reportDate);
 
-        if (result.isEmpty()) return Set.of();
+            if (result.isEmpty()) return Set.of();
 
-        Set<AgentReport> reportContent = new HashSet<>();
-        FileUtils.readLines(new File(result.get()))
-                .forEach(line -> reportContent.add(toAgentReport(line.toString())));
+            Set<AgentReport> reportContent = new HashSet<>();
+            FileUtils.readLines(new File(result.get()))
+                    .forEach(line -> reportContent.add(toAgentReport(line.toString())));
 
-        return reportContent;
+            return reportContent;
+        } catch (IOException e) {
+            throw new ValuePlusRuntimeException("Error downloading agent report for " + provider() + " provider", e);
+        }
     }
 
     private Map<String, String> toAuthHeader(Object authDetails) {
-        JavaType type = MAPPER.getTypeFactory().constructParametricType(Map.class, Object.class);
+        JavaType type = MAPPER.getTypeFactory().constructParametricType(Map.class, String.class, String.class);
 
         return MAPPER.convertValue(authDetails, type);
     }
@@ -94,10 +97,7 @@ public class Data4MeProductProvider implements ProductProviderService, ProductPr
     private AgentReport toAgentReport(String file) {
         List<String> content = asList(file.split(","));
         String agentCode = content.get(0);
-        Set<Integer> deviceIds = content.subList(1, content.size())
-                .stream()
-                .map(Integer::parseInt)
-                .collect(toSet());
+        Set<String> deviceIds = new HashSet<>(content.subList(1, content.size()));
 
         return new AgentReport(agentCode, deviceIds);
     }

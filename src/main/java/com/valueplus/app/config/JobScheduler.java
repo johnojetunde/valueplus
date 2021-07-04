@@ -1,7 +1,7 @@
 package com.valueplus.app.config;
 
 import com.valueplus.domain.service.abstracts.TransferService;
-import com.valueplus.domain.service.concretes.Data4meMonthlyReportService;
+import com.valueplus.domain.service.concretes.AgentMonthlyReportService;
 import com.valueplus.domain.service.concretes.DefaultSystemSetting;
 import com.valueplus.domain.service.concretes.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ public class JobScheduler {
 
     private final TransferService transferService;
     private final TokenService tokenService;
-    private final Data4meMonthlyReportService reportService;
+    private final AgentMonthlyReportService reportService;
     private final DefaultSystemSetting defaultSystemSetting;
 
     @Scheduled(cron = "${vp.verify-transactions.status.cron:0 0 0 * * ?}")

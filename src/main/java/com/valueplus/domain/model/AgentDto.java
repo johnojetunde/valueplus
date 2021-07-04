@@ -84,7 +84,7 @@ public class AgentDto extends UserDto {
         if (!providerUrlServiceMap.isEmpty()) {
             emptyIfNullStream(user.getProductProviders())
                     .forEach(s -> {
-                        String agentUrl = providerUrlServiceMap.get(s.getProvider()).getReferralUrl(s.getAgentUrl());
+                        String agentUrl = providerUrlServiceMap.get(s.getProvider()).getReferralUrl(s.getAgentUrl(), s.getAgentUrl());
                         referralData.put(s.getProvider(), agentUrl);
                     });
         }
