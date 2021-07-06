@@ -6,6 +6,7 @@ import com.valueplus.domain.model.UserCreate;
 import com.valueplus.domain.model.UserDto;
 import com.valueplus.domain.service.concretes.RegistrationService;
 import com.valueplus.persistence.entity.User;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 import static com.valueplus.domain.model.RoleType.ADMIN;
 import static org.springframework.http.HttpStatus.CREATED;
 
+@RequiredArgsConstructor
 @Slf4j
 @RestController
 @RequestMapping(path = "v1/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -25,16 +27,12 @@ public class RegistrationController {
 
     private final RegistrationService registrationService;
 
-    public RegistrationController(RegistrationService registrationService) {
-        this.registrationService = registrationService;
-    }
-
     @PreAuthorize("permitAll()")
     @PostMapping
     @ResponseStatus(CREATED)
     public AgentDto register(@Valid @RequestBody AgentCreate agentCreate) throws Exception {
         User registered = registrationService.createAgent(agentCreate);
-        return AgentDto.valueOf(registered);
+        return AgentDto.valueOf(registered, registrationService.productUrlProvider());
     }
 
     @PreAuthorize("hasAuthority('CREATE_ADMIN')")

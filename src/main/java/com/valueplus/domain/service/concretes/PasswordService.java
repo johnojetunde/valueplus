@@ -3,10 +3,12 @@ package com.valueplus.domain.service.concretes;
 import com.valueplus.app.config.audit.AuditEventPublisher;
 import com.valueplus.app.exception.NotFoundException;
 import com.valueplus.app.exception.ValuePlusException;
+import com.valueplus.domain.enums.ProductProvider;
 import com.valueplus.domain.mail.EmailService;
 import com.valueplus.domain.model.NewPassword;
 import com.valueplus.domain.model.PasswordChange;
 import com.valueplus.domain.model.PasswordReset;
+import com.valueplus.domain.products.ProductProviderUrlService;
 import com.valueplus.domain.util.GeneratorUtils;
 import com.valueplus.persistence.entity.PasswordResetToken;
 import com.valueplus.persistence.entity.User;
@@ -18,6 +20,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static com.valueplus.domain.enums.ActionType.USER_PASSWORD_RESET;
@@ -37,12 +40,14 @@ public class PasswordService {
     private final String adminPasswordResetLink;
     private final String userPasswordResetLink;
     private final AuditEventPublisher auditEvent;
+    private final UserUtilService userUtilService;
 
     public PasswordService(PasswordEncoder passwordEncoder, UserRepository userRepository, EmailService emailService,
                            PasswordResetTokenRepository passwordResetTokenRepository,
                            @Value("${valueplus.admin.reset-password}") String adminPasswordResetLink,
                            @Value("${valueplus.user.reset-password}") String userPasswordResetLink,
-                           AuditEventPublisher auditEvent) {
+                           AuditEventPublisher auditEvent,
+                           UserUtilService userUtilService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.emailService = emailService;
@@ -50,6 +55,7 @@ public class PasswordService {
         this.adminPasswordResetLink = adminPasswordResetLink;
         this.userPasswordResetLink = userPasswordResetLink;
         this.auditEvent = auditEvent;
+        this.userUtilService = userUtilService;
     }
 
     public User changePassword(Long userId, PasswordChange passwordChange) {
@@ -108,5 +114,9 @@ public class PasswordService {
 
         auditEvent.publish(oldObject, user, USER_PASSWORD_RESET, USER);
         return user;
+    }
+
+    public Map<ProductProvider, ProductProviderUrlService> productUrlProvider() {
+        return userUtilService.productUrlProvider();
     }
 }

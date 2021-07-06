@@ -2,23 +2,20 @@ package com.valueplus.domain.service.concretes;
 
 import com.valueplus.domain.model.AgentReport;
 import com.valueplus.domain.model.WalletModel;
+import com.valueplus.domain.products.BetaCareService;
+import com.valueplus.domain.products.Data4MeProductProvider;
 import com.valueplus.domain.service.abstracts.WalletService;
 import com.valueplus.domain.util.FunctionUtil;
-import com.valueplus.fixtures.TestFixtures;
 import com.valueplus.persistence.entity.DeviceReport;
-import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.DeviceReportRepository;
-import com.valueplus.persistence.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.valueplus.persistence.repository.ProductProviderUserRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.TestPropertySources;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -27,10 +24,12 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.valueplus.domain.enums.ProductProvider.DATA4ME;
+import static com.valueplus.fixtures.TestFixtures.providerUser;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,58 +38,62 @@ import static org.mockito.Mockito.when;
         @TestPropertySource("classpath:test.properties")
 })
 @SpringBootTest
-class Data4MeMonthlyReportServiceTest {
+class AgentMonthlyReportServiceTest {
 
     @Autowired
-    private Data4meMonthlyReportService reportService;
+    private AgentMonthlyReportService reportService;
     @MockBean
     private Clock clock;
     @MockBean
     private DeviceReportRepository deviceReportRepository;
     @MockBean
-    private UserRepository userRepository;
+    private Data4MeProductProvider productProviderService;
+    @MockBean
+    private BetaCareService betaCareService;
+    @MockBean
+    private ProductProviderUserRepository productProviderUserRepository;
     @MockBean
     private WalletService walletService;
-
-    private User user;
-
-    @BeforeEach
-    void setUp() {
-        user = TestFixtures.mockUser();
-    }
-
-    @Test
-    void getReport() throws IOException {
-        reportService.loadMonthlyReport();
-    }
 
     @Test
     void processReport() {
         Clock fixedClock = Clock.fixed(Instant.parse("2020-04-29T10:15:30.00Z"), ZoneId.systemDefault());
         LocalDate now = LocalDate.now(fixedClock);
-        String agentCode = "agentCode";
-        AgentReport report = new AgentReport(agentCode, Set.of(123, 143, 154));
+        when(clock.instant())
+                .thenReturn(fixedClock.instant());
+        when(clock.getZone())
+                .thenReturn(fixedClock.getZone());
 
-        when(deviceReportRepository.findByAgentCodeAndYear(eq(agentCode), eq("2020")))
+        String agentCode = "agentCode";
+        AgentReport report = new AgentReport(agentCode, Set.of("123", "143", "154"));
+        var productProvider = providerUser(agentCode, DATA4ME);
+
+        when(productProviderService.provider())
+                .thenReturn(DATA4ME);
+        when(productProviderService.downloadAgentReport(isA(LocalDate.class)))
+                .thenReturn(Set.of(report));
+        when(deviceReportRepository.findByAgentCodeAndYearAndProvider(agentCode, "2020", DATA4ME))
                 .thenReturn(singletonList(deviceReport(agentCode)));
-        when(userRepository.findByAgentCodeAndDeletedFalse(eq(agentCode)))
-                .thenReturn(Optional.of(user));
+        when(productProviderUserRepository.findByAgentCodeAndProvider(agentCode, DATA4ME))
+                .thenReturn(Optional.of(productProvider));
         when(walletService.creditWallet(
-                eq(user),
-                ArgumentMatchers.eq(FunctionUtil.setScale(BigDecimal.valueOf(600.00))),
-                eq("Credit via agent report")))
+                productProvider.getUser(),
+                FunctionUtil.setScale(BigDecimal.valueOf(600.00)),
+                "Credit via agent report"))
                 .thenReturn(WalletModel.builder().build());
         when(deviceReportRepository.saveAll(anyList()))
                 .thenReturn(emptyList());
 
-        reportService.processReport(report, now);
+        reportService.loadMonthlyReport();
 
-        verify(deviceReportRepository).findByAgentCodeAndYear(eq(agentCode), eq("2020"));
-        verify(userRepository).findByAgentCodeAndDeletedFalse(eq(agentCode));
+        verify(deviceReportRepository).findByAgentCodeAndYearAndProvider(agentCode, "2020", DATA4ME);
+        verify(productProviderUserRepository).findByAgentCodeAndProvider(agentCode, DATA4ME);
         verify(walletService).creditWallet(
-                eq(user),
-                ArgumentMatchers.eq(FunctionUtil.setScale(BigDecimal.valueOf(600.00))),
-                eq("Credit via agent report"));
+                productProvider.getUser(),
+                FunctionUtil.setScale(BigDecimal.valueOf(600.00)),
+                "Credit via agent report");
+        verify(productProviderService).provider();
+        verify(productProviderService).downloadAgentReport(isA(LocalDate.class));
         verify(deviceReportRepository).saveAll(anyList());
     }
 
@@ -98,7 +101,8 @@ class Data4MeMonthlyReportServiceTest {
         return DeviceReport.builder()
                 .agentCode(agentCode)
                 .year("2020")
-                .deviceId(143)
+                .deviceId("143")
+                .provider(DATA4ME)
                 .build();
     }
 }

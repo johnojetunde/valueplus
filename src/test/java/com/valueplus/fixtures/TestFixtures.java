@@ -1,6 +1,7 @@
 package com.valueplus.fixtures;
 
 import com.valueplus.app.model.PaymentRequestModel;
+import com.valueplus.domain.enums.ProductProvider;
 import com.valueplus.domain.enums.TransactionType;
 import com.valueplus.domain.model.PinUpdate;
 import com.valueplus.domain.model.RoleType;
@@ -25,6 +26,16 @@ public class TestFixtures {
                 .accountNumber(accountNumber)
                 .bankCode("044")
                 .id(1L)
+                .user(mockUser())
+                .build();
+    }
+
+    public static ProductProviderUser providerUser(String agentCode,
+                                                   ProductProvider provider) {
+        return ProductProviderUser.builder()
+                .agentCode(agentCode)
+                .agentUrl(agentCode)
+                .provider(provider)
                 .user(mockUser())
                 .build();
     }

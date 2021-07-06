@@ -1,5 +1,6 @@
 package com.valueplus.persistence.entity;
 
+import com.valueplus.domain.enums.ProductProvider;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @Getter
+@Setter
 @Entity
 @Table(name = "device_report")
 public class DeviceReport extends BasePersistentEntity {
@@ -19,7 +21,10 @@ public class DeviceReport extends BasePersistentEntity {
     @EqualsAndHashCode.Include
     private String agentCode;
     @EqualsAndHashCode.Include
-    private Integer deviceId;
+    private String deviceId;
     @EqualsAndHashCode.Include
     private String year;
+    @EqualsAndHashCode.Include
+    @Enumerated(EnumType.STRING)
+    private ProductProvider provider;
 }

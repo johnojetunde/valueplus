@@ -41,7 +41,7 @@ public class UserController {
     @GetMapping
     public Page<AgentDto> findAll(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return userService.findUsers(pageable)
-                .map(AgentDto::valueOf);
+                .map(u -> AgentDto.valueOf(u, userService.productUrlProvider()));
     }
 
     @PreAuthorize("hasAuthority('VIEW_ALL_USERS')")
@@ -55,7 +55,7 @@ public class UserController {
     @GetMapping("/super-agents")
     public Page<AgentDto> findAllSuperAgents(@PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         return userService.findSuperAgentUsers(pageable)
-                .map(AgentDto::valueOf);
+                .map(u -> AgentDto.valueOf(u, userService.productUrlProvider()));
     }
 
     @PreAuthorize("hasAnyAuthority('VIEW_SUPER_AGENTS','ROLE_SUPER_AGENT')")
@@ -63,7 +63,7 @@ public class UserController {
     public Page<AgentDto> getUserBySuperAgentCode(@PathVariable("agentCode") String superAgentCode, @PageableDefault(sort = "id", direction = DESC) Pageable pageable) {
         log.debug("getUser() referralCode = {}", superAgentCode.toLowerCase());
         return userService.findAllUserBySuperAgentCode(superAgentCode.toLowerCase(), pageable)
-                .map(AgentDto::valueOf);
+                .map(u -> AgentDto.valueOf(u, userService.productUrlProvider()));
     }
 
     @PreAuthorize("hasAnyAuthority('VIEW_SUPER_AGENTS','ROLE_SUPER_AGENT')")
@@ -76,7 +76,7 @@ public class UserController {
     public AgentDto getUser(@PathVariable("userId") long userId) {
         log.debug("getUser() id = {}", userId);
         return userService.find(userId)
-                .map(AgentDto::valueOf)
+                .map(u -> AgentDto.valueOf(u, userService.productUrlProvider()))
                 .orElseThrow(() -> new NotFoundException("user not found"));
     }
 
@@ -87,38 +87,48 @@ public class UserController {
         String photo = profilePictureService.getImage(user)
                 .orElse(null);
 
-        return AgentDto.valueOf(user, photo);
+        return AgentDto.valueOf(user, photo, userService.productUrlProvider());
     }
 
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PutMapping("/{userId}")
     public AgentDto update(@RequestParam("userId") long userId, @Valid @RequestBody UserUpdate userUpdate) {
-        return AgentDto.valueOf(userService.update(userUpdate.toUser(userId)));
+        return AgentDto.valueOf(
+                userService.update(userUpdate.toUser(userId)),
+                userService.productUrlProvider());
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/current")
     public AgentDto update(@Valid @RequestBody UserUpdate userUpdate) {
         long userId = getLoggedInUser().getId();
-        return AgentDto.valueOf(userService.update(userUpdate.toUser(userId)));
+        return AgentDto.valueOf(
+                userService.update(userUpdate.toUser(userId)),
+                userService.productUrlProvider());
     }
 
     @PreAuthorize("hasAuthority('UPDATE_ADMIN_AUTHORITY')")
     @PostMapping("/{userId}/update-authority")
     public AgentDto updateUserAuthority(@PathVariable("userId") Long userId, @Valid @RequestBody UserAuthorityUpdate authorityUpdate) {
-        return AgentDto.valueOf(userService.updateUserAuthority(userId, authorityUpdate.getAuthorities()));
+        return AgentDto.valueOf(
+                userService.updateUserAuthority(userId, authorityUpdate.getAuthorities()),
+                userService.productUrlProvider());
     }
 
     @PreAuthorize("hasAuthority('DISABLE_USER')")
     @PostMapping("/{userId}/disable")
     public AgentDto disableUser(@PathVariable("userId") Long userId) throws ValuePlusException {
-        return AgentDto.valueOf(userService.disableUser(userId));
+        return AgentDto.valueOf(
+                userService.disableUser(userId),
+                userService.productUrlProvider());
     }
 
     @PreAuthorize("hasAuthority('ENABLE_USER')")
     @PostMapping("/{userId}/enable")
     public AgentDto enableUser(@PathVariable("userId") Long userId) throws ValuePlusException {
-        return AgentDto.valueOf(userService.enableUser(userId));
+        return AgentDto.valueOf(
+                userService.enableUser(userId),
+                userService.productUrlProvider());
     }
 
     @PreAuthorize("hasAuthority('UPDATE_ADMIN_AUTHORITY')")
@@ -136,7 +146,9 @@ public class UserController {
     @PostMapping("/update-pin")
     public AgentDto pinUpdate(@Valid @RequestBody PinUpdate pinUpdate) throws Exception {
         long userId = getLoggedInUser().getId();
-        return AgentDto.valueOf(userService.pinUpdate(userId, pinUpdate));
+        return AgentDto.valueOf(
+                userService.pinUpdate(userId, pinUpdate),
+                userService.productUrlProvider());
     }
 
     @PreAuthorize("hasAuthority('DELETE_USER')")

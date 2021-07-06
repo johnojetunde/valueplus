@@ -1,7 +1,8 @@
 package com.valueplus.domain.service.concretes;
 
+import com.valueplus.app.exception.ValuePlusRuntimeException;
 import com.valueplus.domain.model.data4Me.AgentCode;
-import com.valueplus.domain.model.data4Me.Data4meAgentDto;
+import com.valueplus.domain.model.data4Me.ProductProviderAgentDto;
 import com.valueplus.domain.service.abstracts.HttpApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,37 +37,17 @@ public class Data4meService extends HttpApiClient {
         this.password = password;
     }
 
-    private Optional<String> authenticate() {
-        Map<Object, Object> requestEntity = new HashMap<>();
-        requestEntity.put("email", username);
-        requestEntity.put("password", password);
-
-        Optional<Map> result = ofNullable(sendRequest(HttpMethod.POST, "/login", requestEntity, emptyMap()));
-
-        if (result.isPresent()) {
-            log.info("login successful on data4me");
-            return ofNullable(result.get().get("api_token").toString());
-        }
-
-        return empty();
-    }
-
-    public Optional<AgentCode> createAgent(final Data4meAgentDto agentDto) {
+    public Map<String, String> buildHeader() {
         Optional<String> token = authenticate();
 
         if (token.isEmpty()) {
-            return empty();
+            throw new ValuePlusRuntimeException("Error getting authentication token");
         }
 
-        var header = Map.of("Authorization", "Bearer " + token.get());
-        var existingAgentCode = getAgentInfo(header, agentDto.getEmail());
-
-        return existingAgentCode.isPresent()
-                ? existingAgentCode
-                : createAgent(header, agentDto);
+        return Map.of("Authorization", "Bearer " + token.get());
     }
 
-    private Optional<AgentCode> createAgent(Map<String, String> header, Data4meAgentDto agentDto) {
+    public Optional<AgentCode> createAgent(Map<String, String> header, ProductProviderAgentDto agentDto) {
         try {
             ParameterizedTypeReference<AgentCode> typeReference = new ParameterizedTypeReference<>() {
             };
@@ -119,6 +100,21 @@ public class Data4meService extends HttpApiClient {
             log.error("data4me create agent error - " + ex.getMessage());
             return empty();
         }
+    }
+
+    private Optional<String> authenticate() {
+        Map<Object, Object> requestEntity = new HashMap<>();
+        requestEntity.put("email", username);
+        requestEntity.put("password", password);
+
+        Optional<Map> result = ofNullable(sendRequest(HttpMethod.POST, "/login", requestEntity, emptyMap()));
+
+        if (result.isPresent()) {
+            log.info("login successful on data4me");
+            return ofNullable(result.get().get("api_token").toString());
+        }
+
+        return empty();
     }
 
     @lombok.Value

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="v0.create_product_provider" author="johnojetunde">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_provider"/>
+            </not>
+        </preConditions>
+        <createTable tableName="product_provider">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_product_provider"/>
+            </column>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="agent_code" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="agent_url" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="product_provider"
+                                 constraintName="fk_user_product_provider"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <createIndex tableName="product_provider" indexName="user_product_provider_idx">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+
+    <changeSet id="v0.create_product_provider_alter_device_report" author="johnojetunde">
+        <addColumn tableName="device_report">
+            <column name="provider" type="VARCHAR(100)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="v0.create_product_provider_alter_device_report_type" author="johnojetunde">
+        <modifyDataType columnName="device_id"
+                        newDataType="VARCHAR(40)"
+                        tableName="device_report"/>
+    </changeSet>
+</databaseChangeLog>

@@ -5,8 +5,10 @@ import com.valueplus.app.exception.BadRequestException;
 import com.valueplus.app.exception.NotFoundException;
 import com.valueplus.app.exception.ValuePlusException;
 import com.valueplus.app.exception.ValuePlusRuntimeException;
+import com.valueplus.domain.enums.ProductProvider;
 import com.valueplus.domain.mail.EmailService;
 import com.valueplus.domain.model.*;
+import com.valueplus.domain.products.ProductProviderUrlService;
 import com.valueplus.domain.service.abstracts.PinUpdateService;
 import com.valueplus.persistence.entity.Authority;
 import com.valueplus.persistence.entity.Role;
@@ -26,10 +28,7 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.valueplus.domain.enums.ActionType.*;
@@ -205,7 +204,11 @@ public class UserService {
     public Page<AgentDto> searchUsers(UserSearchFilter searchFilter, Pageable pageable) throws ValuePlusException {
         UserSpecification specification = buildSpecification(searchFilter);
         return userRepository.findAll(Specification.where(specification), pageable)
-                .map(AgentDto::valueOf);
+                .map(u -> AgentDto.valueOf(u, productUrlProvider()));
+    }
+
+    public Map<ProductProvider, ProductProviderUrlService> productUrlProvider() {
+        return userUtilService.productUrlProvider();
     }
 
     private UserSpecification buildSpecification(UserSearchFilter searchFilter) throws ValuePlusException {
