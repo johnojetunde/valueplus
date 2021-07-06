@@ -2,14 +2,14 @@ package com.valueplus.domain.service.concretes;
 
 import com.valueplus.domain.model.AgentReport;
 import com.valueplus.domain.model.WalletModel;
-import com.valueplus.domain.products.ProductProviderService;
+import com.valueplus.domain.products.BetaCareService;
+import com.valueplus.domain.products.Data4MeProductProvider;
 import com.valueplus.domain.service.abstracts.WalletService;
 import com.valueplus.domain.util.FunctionUtil;
 import com.valueplus.persistence.entity.DeviceReport;
 import com.valueplus.persistence.repository.DeviceReportRepository;
 import com.valueplus.persistence.repository.ProductProviderUserRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,10 +21,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.valueplus.domain.enums.ProductProvider.DATA4ME;
 import static com.valueplus.fixtures.TestFixtures.providerUser;
@@ -49,7 +47,9 @@ class AgentMonthlyReportServiceTest {
     @MockBean
     private DeviceReportRepository deviceReportRepository;
     @MockBean
-    private List<ProductProviderService> productProviderService;
+    private Data4MeProductProvider productProviderService;
+    @MockBean
+    private BetaCareService betaCareService;
     @MockBean
     private ProductProviderUserRepository productProviderUserRepository;
     @MockBean
@@ -63,18 +63,14 @@ class AgentMonthlyReportServiceTest {
                 .thenReturn(fixedClock.instant());
         when(clock.getZone())
                 .thenReturn(fixedClock.getZone());
-        var mockedProductProvider = Mockito.mock(ProductProviderService.class);
-
-        when(productProviderService.stream())
-                .thenReturn(Stream.of(mockedProductProvider));
 
         String agentCode = "agentCode";
         AgentReport report = new AgentReport(agentCode, Set.of("123", "143", "154"));
         var productProvider = providerUser(agentCode, DATA4ME);
 
-        when(mockedProductProvider.provider())
+        when(productProviderService.provider())
                 .thenReturn(DATA4ME);
-        when(mockedProductProvider.downloadAgentReport(isA(LocalDate.class)))
+        when(productProviderService.downloadAgentReport(isA(LocalDate.class)))
                 .thenReturn(Set.of(report));
         when(deviceReportRepository.findByAgentCodeAndYearAndProvider(agentCode, "2020", DATA4ME))
                 .thenReturn(singletonList(deviceReport(agentCode)));
@@ -96,8 +92,8 @@ class AgentMonthlyReportServiceTest {
                 productProvider.getUser(),
                 FunctionUtil.setScale(BigDecimal.valueOf(600.00)),
                 "Credit via agent report");
-        verify(mockedProductProvider).provider();
-        verify(mockedProductProvider).downloadAgentReport(isA(LocalDate.class));
+        verify(productProviderService).provider();
+        verify(productProviderService).downloadAgentReport(isA(LocalDate.class));
         verify(deviceReportRepository).saveAll(anyList());
     }
 

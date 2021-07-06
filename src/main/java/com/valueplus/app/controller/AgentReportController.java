@@ -4,6 +4,7 @@ import com.valueplus.domain.service.concretes.AgentMonthlyReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,10 +20,10 @@ public class AgentReportController {
 
     private final AgentMonthlyReportService data4meMonthlyReportService;
 
-    //    @PreAuthorize("hasAuthority('AGENT_REPORT')")
+    @PreAuthorize("hasAuthority('AGENT_REPORT')")
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public void getAll() throws Exception {
+    public void getAll() {
         data4meMonthlyReportService.loadMonthlyReport();
     }
 }

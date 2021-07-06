@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 
 import static com.valueplus.domain.util.FunctionUtil.emptyIfNullStream;
 import static java.lang.String.format;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 @RequiredArgsConstructor
@@ -62,6 +63,9 @@ public class BetaCareProductProvider implements ProductProviderService, ProductP
     }
 
     private Set<String> generateDeviceId(Integer count) {
+        if (count <= 0)
+            return emptySet();
+
         return IntStream.range(1, count + 1)
                 .boxed()
                 .map(__ -> generateDeviceId())

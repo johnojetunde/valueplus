@@ -1,5 +1,6 @@
 package com.valueplus.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.valueplus.domain.model.AgentCreate;
 import com.valueplus.domain.model.AgentDto;
 import com.valueplus.domain.model.UserCreate;
@@ -71,8 +72,9 @@ public class User extends BasePersistentEntity implements UserDetails, ToModel {
     @Transient
     private transient boolean isTransactionTokenSet;
 
+    @JsonIgnore
     @LazyCollection(LazyCollectionOption.FALSE)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user")
     private List<ProductProviderUser> productProviders;
 
     public static UserBuilder from(AgentCreate agentCreate) {
