@@ -12,6 +12,7 @@ import com.valueplus.persistence.entity.Role;
 import com.valueplus.persistence.entity.User;
 import com.valueplus.persistence.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -151,14 +152,21 @@ public class StartUpService {
         });
     }
 
+    @SneakyThrows
     private CompletableFuture<Void> registerAgent(ProductProviderService providerService, List<User> users) {
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (User user : users) {
-            futures.add(registerAgent(providerService, user));
-        }
+        return runAsync(() -> {
+            for (int i = 0; i < users.size(); i++) {
+                registerAgent(providerService, users.get(i)).join();
+                if (i % 5 == 0) {
+                    sleep();
+                }
+            }
+        });
+    }
 
-        return CompletableFuture.allOf(
-                futures.toArray(CompletableFuture[]::new));
+    @SneakyThrows
+    private void sleep() {
+        Thread.sleep(2000);
     }
 
     private CompletableFuture<Void> registerAgent(ProductProviderService providerService, User user) {
