@@ -40,8 +40,9 @@ public class BetaCareProductProvider implements ProductProviderService, ProductP
         var request = ProductProviderAgentDto.from(user);
 
         return betaCareService.createAgent((String) authDetails, request)
-                .map(s -> user.setAgentCode(s.getAgentCode()))
-                .orElseThrow(() -> new ValuePlusRuntimeException(format("Error registering user for %s provider", provider())));
+                .map(s -> user.setAgentCode(s.getAgentCode())
+                        .setReferralUrl(s.getReferralUrl())
+                ).orElseThrow(() -> new ValuePlusRuntimeException(format("Error registering user for %s provider", provider())));
     }
 
     @Override

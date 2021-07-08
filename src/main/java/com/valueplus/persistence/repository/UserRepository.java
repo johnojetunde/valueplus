@@ -51,6 +51,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     Page<User> findUserByRole_Name(String role, Pageable pageable);
 
+    List<User> findUserByRole_Name(String role);
+
     List<User> findUserBySuperAgent(User superAgent);
 
     List<User> findUsersBySuperAgent_ReferralCode(String referralCode);
