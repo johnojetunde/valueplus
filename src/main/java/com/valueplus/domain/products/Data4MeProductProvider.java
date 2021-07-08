@@ -53,7 +53,9 @@ public class Data4MeProductProvider implements ProductProviderService, ProductPr
         Map<String, String> authDetailHeader = toAuthHeader(authDetails);
 
         return data4meService.createAgent(authDetailHeader, request)
-                .map(s -> user.setAgentCode(s.getCode()))
+                .map(s -> user.setAgentCode(s.getCode())
+                        .setReferralUrl(s.getCode())
+                )
                 .orElseThrow(() -> new ValuePlusRuntimeException(format("Error registering user for %s provider", provider())));
     }
 
