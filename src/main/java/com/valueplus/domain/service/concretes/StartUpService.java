@@ -171,7 +171,8 @@ public class StartUpService {
 
     private CompletableFuture<Void> registerAgent(ProductProviderService providerService, User user) {
         return runAsync(() -> {
-            var ppUM = ProductProviderUserModel.from(user);
+            var ppUM = ProductProviderUserModel.from(user)
+                    .setPassword(UUID.randomUUID().toString());
             var agent = providerService.migrate(ppUM, log);
             var providerUser = ProductProviderUser.toNewEntity(agent.get())
                     .setUser(user);
