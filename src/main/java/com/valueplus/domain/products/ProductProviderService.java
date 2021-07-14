@@ -37,7 +37,6 @@ public interface ProductProviderService {
                                 .setProvider(provider())
                         );
             }
-
             return Optional.of(create(authDetails, user)
                     .setProvider(provider()));
         } catch (Exception e) {

@@ -25,15 +25,12 @@ deploy-staging:
     - master
 
 deploy-prod:
-  image: python:latest
   stage: deploy-prod
   script:
-    - pip install awscli
-    - aws configure set aws_access_key_id $AWS_ACCESS_ID
-    - aws configure set aws_secret_access_key $AWS_SECRET_KEY
-    - aws configure set region af-south-1
-    - pip install awsebcli --upgrade --user
-    - ~/.local/bin/eb deploy Valueplusprod-env-1
+    - apt-get update -yq
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=valueplusprod --api-key=$HEROKU_API_PROD_KEY
   dependencies:
     - build
   only:
