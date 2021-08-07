@@ -26,8 +26,7 @@ import static com.valueplus.fixtures.TestFixtures.mockUser;
 import static java.math.BigDecimal.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -145,7 +144,7 @@ class DefaultSummaryServiceTest {
 
         when(deviceReportRepository.count())
                 .thenReturn(200L);
-        when(userRepository.countAllByAgentCodeIsNotNull())
+        when(userRepository.countUserByRole_NameIn(anyList()))
                 .thenReturn(5L);
         when(productOrderRepository.findByStatus(eq(OrderStatus.COMPLETED)))
                 .thenReturn(productOrders);

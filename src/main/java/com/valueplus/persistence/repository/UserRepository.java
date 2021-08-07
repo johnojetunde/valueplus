@@ -53,6 +53,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     List<User> findUserByRole_Name(String role);
 
+    Long countUserByRole_NameIn(List<String> role);
+
     List<User> findUserBySuperAgent(User superAgent);
 
     List<User> findUsersBySuperAgent_ReferralCode(String referralCode);

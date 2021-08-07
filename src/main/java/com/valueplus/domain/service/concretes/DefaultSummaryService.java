@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.valueplus.domain.enums.OrderStatus.COMPLETED;
+import static com.valueplus.domain.model.RoleType.AGENT;
 import static com.valueplus.domain.model.RoleType.SUPER_AGENT;
 import static java.time.LocalTime.MAX;
 import static java.time.LocalTime.MIN;
@@ -40,7 +41,7 @@ public class DefaultSummaryService implements SummaryService {
     private final Clock clock;
 
     @Override
-    public AccountSummary getSummary(User user) throws ValuePlusException {
+    public AccountSummary getSummary(User user) {
         Integer totalDownloads = 0;
         Integer activeUsers = countActiveUsers(user.getRole().getName(), user.getReferralCode(), user.getAgentCode());
         Integer totalAgents = countTotalAgentUsers(user.getRole().getName(), user.getReferralCode(), user.getAgentCode());
@@ -64,7 +65,7 @@ public class DefaultSummaryService implements SummaryService {
     public AccountSummary getSummaryAllUsers() throws ValuePlusException {
         Integer totalDownloads = 0;
         Integer activeUsers = ((Long) deviceReportRepository.count()).intValue();
-        Integer totalAgents = userRepository.countAllByAgentCodeIsNotNull().intValue();
+        Integer totalAgents = userRepository.countUserByRole_NameIn(List.of(AGENT.name(), SUPER_AGENT.name())).intValue();
 
         ProductSummary productSummary = calculateProductSummary(productOrderRepository.findByStatus(COMPLETED));
         TransactionSummary transactionSummary = calculateTransactionSummary(transactionRepository.findAll());
